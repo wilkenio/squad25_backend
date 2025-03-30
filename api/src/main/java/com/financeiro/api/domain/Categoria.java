@@ -1,14 +1,12 @@
 package com.financeiro.api.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.UUID;
 
 @Entity(name = "categoria")
@@ -25,4 +23,7 @@ public class Categoria {
     private String nome;
 
     private String descricao;
+
+    @OneToMany(mappedBy = "categoria")
+    private List<Transacao> transacoes;
 }
