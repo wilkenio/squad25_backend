@@ -20,11 +20,11 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    private String nome;
+    private String name;
 
     private String email;
 
-    private String senha;
+    private String password;
 
     @OneToMany(mappedBy = "usuario")
     private List<Transacao> transacoes;
