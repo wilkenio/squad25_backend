@@ -74,38 +74,44 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<ResponseDTO>> register(@RequestBody RegisterRequestDTO body, HttpServletResponse response) {
-        // Validar reCAPTCHA
-        if (!validateRecaptcha(body.recaptchaToken())) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(400, "Invalid reCAPTCHA"));
+        try {
+            // Validar reCAPTCHA
+            if (!validateRecaptcha(body.recaptchaToken())) {
+                return ResponseEntity.badRequest().body(new ApiResponse<>(400, "Invalid reCAPTCHA"));
+            }
+    
+            // Verificar se o email já está registrado
+            if (userRepository.findByEmail(body.email()).isPresent()) {
+                return ResponseEntity.badRequest().body(new ApiResponse<>(400, "Email already registered"));
+            }
+    
+            // Criar um novo usuário
+            User newUser = new User();
+            newUser.setPassword(passwordEncoder.encode(body.password()));
+            newUser.setEmail(body.email());
+            newUser.setName(body.name());
+    
+            // Salvar no banco
+            userRepository.save(newUser);
+    
+            // Gerar o token JWT
+            String token = tokenService.generateToken(newUser);
+    
+            // Criar o cookie com o token
+            Cookie cookie = new Cookie("JWT", token);
+            cookie.setHttpOnly(true);
+            cookie.setSecure(true);
+            cookie.setPath("/");
+            cookie.setMaxAge(86400);
+            response.addCookie(cookie);
+    
+            return ResponseEntity.ok(new ApiResponse<>(200, new ResponseDTO(newUser.getName(), "Token set in cookie")));
+        } catch (Exception e) {
+            e.printStackTrace();  // Imprime o erro no console
+            return ResponseEntity.status(500).body(new ApiResponse<>(500, "Internal Server Error"));
         }
-
-        // Verificar se o email já está registrado
-        if (userRepository.findByEmail(body.email()).isPresent()) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(400, "Email already registered"));
-        }
-
-        // Criar um novo usuário
-        User newUser = new User();
-        newUser.setPassword(passwordEncoder.encode(body.password()));
-        newUser.setEmail(body.email());
-        newUser.setName(body.name());
-        userRepository.save(newUser);
-
-        // Gerar o token JWT
-        String token = tokenService.generateToken(newUser);
-
-        // Criar o cookie com o token
-        Cookie cookie = new Cookie("JWT", token); 
-        cookie.setHttpOnly(true); 
-        cookie.setSecure(true); 
-        cookie.setPath("/"); 
-        cookie.setMaxAge(86400); 
-
-        // Adicionar o cookie na resposta
-        response.addCookie(cookie);
-
-        return ResponseEntity.ok(new ApiResponse<>(200, new ResponseDTO(newUser.getName(), "Token set in cookie")));
     }
+    
 
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<String>> logout(HttpServletResponse response) {
