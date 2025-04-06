@@ -54,15 +54,17 @@ public class SubcategoryServiceImpl implements SubcategoryService {
 
     @Override
     public SubcategoryResponseDTO findById(UUID id) {
-        Subcategory subcategory = subcategoryRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Subcategory not found"));
+        Subcategory subcategory = subcategoryRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("Subcategory not found")
+        );
         return toDTO(subcategory);
     }
 
     @Override
     public SubcategoryResponseDTO update(UUID id, SubcategoryRequestDTO dto) {
-        Subcategory subcategory = subcategoryRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Subcategory not found"));
+        Subcategory subcategory = subcategoryRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("Subcategory not found")
+        );
 
         Category category = categoryRepository.findById(dto.categoryId())
                 .orElseThrow(() -> new EntityNotFoundException("Category not found"));
@@ -80,7 +82,9 @@ public class SubcategoryServiceImpl implements SubcategoryService {
     @Override
     public void delete(UUID id) {
         Subcategory subcategory = subcategoryRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Subcategory not found"));
+                .orElseThrow(
+                        () -> new EntityNotFoundException("Subcategory not found")
+                );
         subcategory.setStatus(Status.EXC);
         subcategory.setUpdatedAt(LocalDateTime.now());
         subcategoryRepository.save(subcategory);

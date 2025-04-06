@@ -1,7 +1,7 @@
 package com.financeiro.api.controller;
 
 import com.financeiro.api.dto.transactionDTO.*;
-import com.financeiro.api.service.TransactionService;
+import com.financeiro.api.service.impl.TransactionServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,31 +9,31 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/transactions")
+@RequestMapping("/transaction")
 public class TransactionController {
 
-    private final TransactionService service;
+    private final TransactionServiceImpl service;
 
-    public TransactionController(TransactionService service) {
+    public TransactionController(TransactionServiceImpl service) {
         this.service = service;
     }
 
-    @PostMapping
+    @PostMapping("/post")
     public ResponseEntity<TransactionResponseDTO> create(@RequestBody TransactionRequestDTO dto) {
         return ResponseEntity.ok(service.create(dto));
     }
 
-    @GetMapping
+    @GetMapping("/get")
     public ResponseEntity<List<TransactionResponseDTO>> getAll() {
         return ResponseEntity.ok(service.findAll());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/get/{id}")
     public ResponseEntity<TransactionResponseDTO> getById(@PathVariable UUID id) {
         return ResponseEntity.ok(service.findById(id));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         service.delete(id);
         return ResponseEntity.noContent().build();

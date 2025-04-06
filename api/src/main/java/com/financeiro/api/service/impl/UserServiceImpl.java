@@ -4,6 +4,7 @@ import com.financeiro.api.domain.User;
 import com.financeiro.api.dto.userDTO.UserRequestDTO;
 import com.financeiro.api.dto.userDTO.UserResponseDTO;
 import com.financeiro.api.domain.enums.Status;
+import com.financeiro.api.infra.exceptions.UserNotFoundException;
 import com.financeiro.api.repository.UserRepository;
 import com.financeiro.api.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,13 +50,16 @@ public class UserServiceImpl implements UserService {
     public UserResponseDTO findById(UUID id) {
         return repository.findById(id)
                 .map(this::toDTO)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(
+                        () -> new UserNotFoundException()
+                );
     }
 
     @Override
     public UserResponseDTO update(UUID id, UserRequestDTO dto) {
-        User user = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = repository.findById(id).orElseThrow(
+                () -> new UserNotFoundException()
+        );
 
         user.setName(dto.name());
         user.setEmail(dto.email());
@@ -69,8 +73,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void delete(UUID id) {
-        User user = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = repository.findById(id).orElseThrow(
+                () -> new UserNotFoundException()
+        );
 
         user.setStatus(Status.EXC);
         user.setUpdatedAt(LocalDateTime.now());
