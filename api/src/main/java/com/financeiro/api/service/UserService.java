@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface UserService {
+
     UserResponseDTO create(UserRequestDTO dto);
     List<UserResponseDTO> findAll();
     UserResponseDTO findById(UUID id);

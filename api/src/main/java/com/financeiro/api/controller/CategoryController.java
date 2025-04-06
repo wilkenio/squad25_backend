@@ -11,7 +11,6 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/categories")
-@CrossOrigin(origins = "http://localhost:4200")
 public class CategoryController {
 
     private final CategoryService categoryService;
@@ -20,29 +19,30 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
-    @PostMapping
+    @PostMapping("/post")
     public ResponseEntity<CategoryResponseDTO> create(@RequestBody CategoryRequestDTO dto) {
         return ResponseEntity.ok(categoryService.create(dto));
     }
 
-    @PutMapping("/{id}")
+    @GetMapping("/get")
+    public ResponseEntity<List<CategoryResponseDTO>> getAll() {
+        return ResponseEntity.ok(categoryService.findAll());
+    }
+
+    @GetMapping("/get/{id}")
+    public ResponseEntity<CategoryResponseDTO> getById(@PathVariable UUID id) {
+        return ResponseEntity.ok(categoryService.findById(id));
+    }
+
+    @PutMapping("/put/{id}")
     public ResponseEntity<CategoryResponseDTO> update(@PathVariable UUID id, @RequestBody CategoryRequestDTO dto) {
         return ResponseEntity.ok(categoryService.update(id, dto));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         categoryService.delete(id);
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<CategoryResponseDTO> getById(@PathVariable UUID id) {
-        return ResponseEntity.ok(categoryService.findById(id));
-    }
-
-    @GetMapping
-    public ResponseEntity<List<CategoryResponseDTO>> getAll() {
-        return ResponseEntity.ok(categoryService.findAll());
-    }
 }
