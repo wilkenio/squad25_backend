@@ -26,9 +26,10 @@ public class CategoryServiceImpl implements CategoryService {
     private UserRepository userRepository;
 
     @Override
-    public CategoryResponseDTO create(CategoryRequestDTO dto) {
-        User user = userRepository.findById(dto.userId()).orElseThrow(() -> new EntityNotFoundException("User not found"));
-
+    public CategoryResponseDTO create(CategoryRequestDTO dto, UUID userId) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new EntityNotFoundException("User not found"));
+    
         Category category = new Category();
         category.setUser(user);
         category.setName(dto.name());
@@ -38,17 +39,19 @@ public class CategoryServiceImpl implements CategoryService {
         category.setStatus(dto.status());
         category.setCreatedAt(LocalDateTime.now());
         category.setUpdatedAt(LocalDateTime.now());
-
+    
         Category saved = categoryRepository.save(category);
         return toDTO(saved);
     }
-
+    
     @Override
-    public CategoryResponseDTO update(UUID id, CategoryRequestDTO dto) {
-        Category category = categoryRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Category not found"));
-
-        User user = userRepository.findById(dto.userId()).orElseThrow(() -> new EntityNotFoundException("User not found"));
-
+    public CategoryResponseDTO update(UUID id, CategoryRequestDTO dto, UUID userId) {
+        Category category = categoryRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Category not found"));
+    
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new EntityNotFoundException("User not found"));
+    
         category.setUser(user);
         category.setName(dto.name());
         category.setType(dto.type());
@@ -56,10 +59,11 @@ public class CategoryServiceImpl implements CategoryService {
         category.setStandardRecommendation(dto.standardRecommendation());
         category.setStatus(dto.status());
         category.setUpdatedAt(LocalDateTime.now());
-
+    
         Category updated = categoryRepository.save(category);
         return toDTO(updated);
     }
+    
 
     @Override
     public void delete(UUID id) {
