@@ -2,6 +2,7 @@ package com.financeiro.api.service.impl;
 
 import com.financeiro.api.domain.Category;
 import com.financeiro.api.domain.User;
+import com.financeiro.api.domain.enums.Status;
 import com.financeiro.api.dto.categoryDTO.CategoryRequestDTO;
 import com.financeiro.api.dto.categoryDTO.CategoryResponseDTO;
 import com.financeiro.api.infra.exceptions.UserNotFoundException;
@@ -48,7 +49,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryResponseDTO update(UUID id, CategoryRequestDTO dto) {
         Category category = categoryRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("Category not found")
+                () -> new EntityNotFoundException("Categoria não encontrada")
         );
         User user = userRepository.findById(dto.userId()).orElseThrow(
                 () -> new UserNotFoundException()
@@ -74,19 +75,44 @@ public class CategoryServiceImpl implements CategoryService {
         categoryRepository.delete(category);
     }
 
+    //Lista de getters
+    @Override
+    public List<CategoryResponseDTO> findAll() {
+        List<Category> categories = categoryRepository.findAll();
+        return categories.stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
     @Override
     public CategoryResponseDTO findById(UUID id) {
         return categoryRepository.findById(id)
                 .map(this::toDTO)
                 .orElseThrow(
-                        () -> new EntityNotFoundException("Category not found")
+                        () -> new EntityNotFoundException("Categoria não encontrada")
                 );
     }
 
     @Override
-    public List<CategoryResponseDTO> findAll() {
-        return categoryRepository.findAll()
-                .stream()
+    public List<CategoryResponseDTO> findByName(String name) {
+        List<Category> categories = categoryRepository.findByNameContainingIgnoreCase(name);
+        return categories.stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CategoryResponseDTO> findByDateRange(LocalDateTime initialDate, LocalDateTime finalDate) {
+        List<Category> categories = categoryRepository.findByCreatedAtBetween(initialDate, finalDate);
+        return categories.stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CategoryResponseDTO> findByStatus(Status status) {
+        List<Category> categories = categoryRepository.findByStatus(status);
+        return categories.stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }

@@ -2,7 +2,9 @@ package com.financeiro.api.service;
 
 import com.financeiro.api.dto.categoryDTO.CategoryRequestDTO;
 import com.financeiro.api.dto.categoryDTO.CategoryResponseDTO;
+import com.financeiro.api.domain.enums.Status;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -12,4 +14,7 @@ public interface CategoryService {
     void delete(UUID id);
     CategoryResponseDTO findById(UUID id);
     List<CategoryResponseDTO> findAll();
+    List<CategoryResponseDTO> findByName(String name);
+    List<CategoryResponseDTO> findByDateRange(LocalDateTime initialDate, LocalDateTime finalDate);
+    List<CategoryResponseDTO> findByStatus(Status status);
 }
