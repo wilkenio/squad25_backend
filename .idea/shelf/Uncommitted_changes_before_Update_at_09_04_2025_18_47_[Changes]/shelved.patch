@@ -1,0 +1,245 @@
+Index: api/src/main/java/com/financeiro/api/service/impl/CategoryServiceImpl.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.financeiro.api.service.impl;\r\n\r\nimport com.financeiro.api.domain.Category;\r\nimport com.financeiro.api.domain.User;\r\nimport com.financeiro.api.dto.categoryDTO.CategoryRequestDTO;\r\nimport com.financeiro.api.dto.categoryDTO.CategoryResponseDTO;\r\nimport com.financeiro.api.repository.CategoryRepository;\r\nimport com.financeiro.api.repository.UserRepository;\r\nimport com.financeiro.api.service.CategoryService;\r\nimport jakarta.persistence.EntityNotFoundException;\r\nimport org.springframework.beans.factory.annotation.Autowired;\r\nimport org.springframework.stereotype.Service;\r\n\r\nimport java.time.LocalDateTime;\r\nimport java.util.List;\r\nimport java.util.UUID;\r\nimport java.util.stream.Collectors;\r\n\r\n@Service\r\npublic class CategoryServiceImpl implements CategoryService {\r\n\r\n    @Autowired\r\n    private CategoryRepository categoryRepository;\r\n\r\n    @Autowired\r\n    private UserRepository userRepository;\r\n\r\n    @Override\r\n    public CategoryResponseDTO create(CategoryRequestDTO dto, UUID userId) {\r\n        User user = userRepository.findById(userId)\r\n            .orElseThrow(() -> new EntityNotFoundException(\"User not found\"));\r\n    \r\n        Category category = new Category();\r\n        category.setUser(user);\r\n        category.setName(dto.name());\r\n        category.setType(dto.type());\r\n        category.setIconClass(dto.iconClass());\r\n        category.setColor(dto.color());\r\n        category.setAdditionalInfo(dto.additionalInfo());\r\n        category.setStandardRecommendation(dto.standardRecommendation());\r\n        category.setStatus(dto.status());\r\n        category.setCreatedAt(LocalDateTime.now());\r\n        category.setUpdatedAt(LocalDateTime.now());\r\n    \r\n        Category saved = categoryRepository.save(category);\r\n        return toDTO(saved);\r\n    }\r\n    \r\n    @Override\r\n    public CategoryResponseDTO update(UUID id, CategoryRequestDTO dto, UUID userId) {\r\n        Category category = categoryRepository.findById(id)\r\n            .orElseThrow(() -> new EntityNotFoundException(\"Category not found\"));\r\n    \r\n        User user = userRepository.findById(userId)\r\n            .orElseThrow(() -> new EntityNotFoundException(\"User not found\"));\r\n    \r\n        category.setUser(user);\r\n        category.setName(dto.name());\r\n        category.setType(dto.type());\r\n        category.setIconClass(dto.iconClass());\r\n        category.setColor(dto.color());\r\n        category.setAdditionalInfo(dto.additionalInfo());\r\n        category.setStandardRecommendation(dto.standardRecommendation());\r\n        category.setStatus(dto.status());\r\n        category.setUpdatedAt(LocalDateTime.now());\r\n    \r\n        Category updated = categoryRepository.save(category);\r\n        return toDTO(updated);\r\n    }\r\n    \r\n\r\n    @Override\r\n    public void delete(UUID id) {\r\n        Category category = categoryRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(\"Category not found\"));\r\n        categoryRepository.delete(category);\r\n    }\r\n\r\n    @Override\r\n    public CategoryResponseDTO findById(UUID id) {\r\n        return categoryRepository.findById(id)\r\n                .map(this::toDTO)\r\n                .orElseThrow(() -> new EntityNotFoundException(\"Category not found\"));\r\n    }\r\n\r\n    @Override\r\n    public List<CategoryResponseDTO> findAll() {\r\n        return categoryRepository.findAll()\r\n                .stream()\r\n                .map(this::toDTO)\r\n                .collect(Collectors.toList());\r\n    }\r\n\r\n    private CategoryResponseDTO toDTO(Category category) {\r\n        return new CategoryResponseDTO(\r\n                category.getId(),\r\n                category.getUser().getId(),\r\n                category.getName(),\r\n                category.getType(),\r\n                category.getIconClass(),\r\n                category.getColor(),\r\n                category.getAdditionalInfo(),\r\n                category.isStandardRecommendation(),\r\n                category.getStatus(),\r\n                category.getCreatedAt(),\r\n                category.getUpdatedAt()\r\n        );\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/api/src/main/java/com/financeiro/api/service/impl/CategoryServiceImpl.java b/api/src/main/java/com/financeiro/api/service/impl/CategoryServiceImpl.java
+--- a/api/src/main/java/com/financeiro/api/service/impl/CategoryServiceImpl.java	(revision ff632754f321d51fcc292be202237878ce257ce4)
++++ b/api/src/main/java/com/financeiro/api/service/impl/CategoryServiceImpl.java	(date 1744235078828)
+@@ -2,8 +2,10 @@
+ 
+ import com.financeiro.api.domain.Category;
+ import com.financeiro.api.domain.User;
++import com.financeiro.api.domain.enums.Status;
+ import com.financeiro.api.dto.categoryDTO.CategoryRequestDTO;
+ import com.financeiro.api.dto.categoryDTO.CategoryResponseDTO;
++import com.financeiro.api.infra.exceptions.UserNotFoundException;
+ import com.financeiro.api.repository.CategoryRepository;
+ import com.financeiro.api.repository.UserRepository;
+ import com.financeiro.api.service.CategoryService;
+@@ -28,8 +30,8 @@
+     @Override
+     public CategoryResponseDTO create(CategoryRequestDTO dto, UUID userId) {
+         User user = userRepository.findById(userId)
+-            .orElseThrow(() -> new EntityNotFoundException("User not found"));
+-    
++                .orElseThrow(() -> new EntityNotFoundException("User not found"));
++
+         Category category = new Category();
+         category.setUser(user);
+         category.setName(dto.name());
+@@ -41,19 +43,19 @@
+         category.setStatus(dto.status());
+         category.setCreatedAt(LocalDateTime.now());
+         category.setUpdatedAt(LocalDateTime.now());
+-    
++
+         Category saved = categoryRepository.save(category);
+         return toDTO(saved);
+     }
+-    
++
+     @Override
+     public CategoryResponseDTO update(UUID id, CategoryRequestDTO dto, UUID userId) {
+         Category category = categoryRepository.findById(id)
+-            .orElseThrow(() -> new EntityNotFoundException("Category not found"));
+-    
++                .orElseThrow(() -> new EntityNotFoundException("Category not found"));
++
+         User user = userRepository.findById(userId)
+-            .orElseThrow(() -> new EntityNotFoundException("User not found"));
+-    
++                .orElseThrow(() -> new EntityNotFoundException("User not found"));
++
+         category.setUser(user);
+         category.setName(dto.name());
+         category.setType(dto.type());
+@@ -63,15 +65,15 @@
+         category.setStandardRecommendation(dto.standardRecommendation());
+         category.setStatus(dto.status());
+         category.setUpdatedAt(LocalDateTime.now());
+-    
++
+         Category updated = categoryRepository.save(category);
+         return toDTO(updated);
+     }
+-    
+ 
+     @Override
+     public void delete(UUID id) {
+-        Category category = categoryRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Category not found"));
++        Category category = categoryRepository.findById(id)
++                .orElseThrow(() -> new EntityNotFoundException("Category not found"));
+         categoryRepository.delete(category);
+     }
+ 
+@@ -82,6 +84,30 @@
+                 .orElseThrow(() -> new EntityNotFoundException("Category not found"));
+     }
+ 
++    @Override
++    public List<CategoryResponseDTO> findByName(String name) {
++        List<Category> categories = categoryRepository.findByNameContainingIgnoreCase(name);
++        return categories.stream()
++                .map(this::toDTO)
++                .collect(Collectors.toList());
++    }
++
++    @Override
++    public List<CategoryResponseDTO> findByDateRange(LocalDateTime initialDate, LocalDateTime finalDate) {
++        List<Category> categories = categoryRepository.findByCreatedAtBetween(initialDate, finalDate);
++        return categories.stream()
++                .map(this::toDTO)
++                .collect(Collectors.toList());
++    }
++
++    @Override
++    public List<CategoryResponseDTO> findByStatus(Status status) {
++        List<Category> categories = categoryRepository.findByStatus(status);
++        return categories.stream()
++                .map(this::toDTO)
++                .collect(Collectors.toList());
++    }
++
+     @Override
+     public List<CategoryResponseDTO> findAll() {
+         return categoryRepository.findAll()
+@@ -105,4 +131,4 @@
+                 category.getUpdatedAt()
+         );
+     }
+-}
++}
+\ No newline at end of file
+Index: api/src/main/java/com/financeiro/api/controller/CategoryController.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.financeiro.api.controller;\r\n\r\nimport com.financeiro.api.domain.User;\r\nimport com.financeiro.api.dto.categoryDTO.CategoryRequestDTO;\r\nimport com.financeiro.api.dto.categoryDTO.CategoryResponseDTO;\r\nimport com.financeiro.api.service.CategoryService;\r\nimport org.springframework.http.ResponseEntity;\r\nimport org.springframework.security.core.Authentication;\r\nimport org.springframework.security.core.context.SecurityContextHolder;\r\nimport org.springframework.web.bind.annotation.*;\r\n\r\nimport java.util.List;\r\nimport java.util.UUID;\r\n\r\n@RestController\r\n@RequestMapping(\"/categories\")\r\n@CrossOrigin(origins = \"http://localhost:4200\")\r\npublic class CategoryController {\r\n\r\n    private final CategoryService categoryService;\r\n\r\n    public CategoryController(CategoryService categoryService) {\r\n        this.categoryService = categoryService;\r\n    }\r\n\r\n    @PostMapping\r\n    public ResponseEntity<CategoryResponseDTO> create(@RequestBody CategoryRequestDTO dto) {\r\n        UUID userId = getCurrentUserId();\r\n        return ResponseEntity.ok(categoryService.create(dto, userId));\r\n    }\r\n\r\n    @PutMapping(\"/{id}\")\r\n    public ResponseEntity<CategoryResponseDTO> update(@PathVariable UUID id, @RequestBody CategoryRequestDTO dto) {\r\n        UUID userId = getCurrentUserId();\r\n        return ResponseEntity.ok(categoryService.update(id, dto, userId));\r\n    }\r\n\r\n    @DeleteMapping(\"/{id}\")\r\n    public ResponseEntity<Void> delete(@PathVariable UUID id) {\r\n        categoryService.delete(id);\r\n        return ResponseEntity.noContent().build();\r\n    }\r\n\r\n    @GetMapping(\"/{id}\")\r\n    public ResponseEntity<CategoryResponseDTO> getById(@PathVariable UUID id) {\r\n        return ResponseEntity.ok(categoryService.findById(id));\r\n    }\r\n\r\n    @GetMapping\r\n    public ResponseEntity<List<CategoryResponseDTO>> getAll() {\r\n        return ResponseEntity.ok(categoryService.findAll());\r\n    }\r\n\r\n    private UUID getCurrentUserId() {\r\n        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();\r\n        User user = (User) authentication.getPrincipal();\r\n        return user.getId();\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/api/src/main/java/com/financeiro/api/controller/CategoryController.java b/api/src/main/java/com/financeiro/api/controller/CategoryController.java
+--- a/api/src/main/java/com/financeiro/api/controller/CategoryController.java	(revision ff632754f321d51fcc292be202237878ce257ce4)
++++ b/api/src/main/java/com/financeiro/api/controller/CategoryController.java	(date 1744233516578)
+@@ -14,7 +14,6 @@
+ 
+ @RestController
+ @RequestMapping("/categories")
+-@CrossOrigin(origins = "http://localhost:4200")
+ public class CategoryController {
+ 
+     private final CategoryService categoryService;
+@@ -23,37 +22,37 @@
+         this.categoryService = categoryService;
+     }
+ 
+-    @PostMapping
++    @PostMapping("/post")
+     public ResponseEntity<CategoryResponseDTO> create(@RequestBody CategoryRequestDTO dto) {
+         UUID userId = getCurrentUserId();
+         return ResponseEntity.ok(categoryService.create(dto, userId));
+     }
+ 
+-    @PutMapping("/{id}")
++    @GetMapping("/get")
++    public ResponseEntity<List<CategoryResponseDTO>> getAll() {
++        return ResponseEntity.ok(categoryService.findAll());
++    }
++
++    @GetMapping("/get/{id}")
++    public ResponseEntity<CategoryResponseDTO> getById(@PathVariable UUID id) {
++        return ResponseEntity.ok(categoryService.findById(id));
++    }
++
++    @PutMapping("/put/{id}")
+     public ResponseEntity<CategoryResponseDTO> update(@PathVariable UUID id, @RequestBody CategoryRequestDTO dto) {
+         UUID userId = getCurrentUserId();
+         return ResponseEntity.ok(categoryService.update(id, dto, userId));
+     }
+ 
+-    @DeleteMapping("/{id}")
++    @DeleteMapping("/delete/{id}")
+     public ResponseEntity<Void> delete(@PathVariable UUID id) {
+         categoryService.delete(id);
+         return ResponseEntity.noContent().build();
+     }
+ 
+-    @GetMapping("/{id}")
+-    public ResponseEntity<CategoryResponseDTO> getById(@PathVariable UUID id) {
+-        return ResponseEntity.ok(categoryService.findById(id));
+-    }
+-
+-    @GetMapping
+-    public ResponseEntity<List<CategoryResponseDTO>> getAll() {
+-        return ResponseEntity.ok(categoryService.findAll());
+-    }
+-
+     private UUID getCurrentUserId() {
+         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+         User user = (User) authentication.getPrincipal();
+         return user.getId();
+     }
+-}
++}
+\ No newline at end of file
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"AutoImportSettings\">\r\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\r\n  </component>\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"e2d3c55a-4899-440c-b353-0760b0a222d4\" name=\"Changes\" comment=\"\uD83D\uDC4CIMPROVE: implementação melhorada dos sevices\">\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/api/src/main/java/com/financeiro/api/controller/CategoryController.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/api/src/main/java/com/financeiro/api/controller/CategoryController.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/api/src/main/java/com/financeiro/api/repository/CategoryRepository.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/api/src/main/java/com/financeiro/api/repository/CategoryRepository.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/CategoryService.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/CategoryService.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/CategoryServiceImpl.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/CategoryServiceImpl.java\" afterDir=\"false\" />\r\n    </list>\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"FileTemplateManagerImpl\">\r\n    <option name=\"RECENT_TEMPLATES\">\r\n      <list>\r\n        <option value=\"com.intellij.jpb.JpaRepository\" />\r\n        <option value=\"Record\" />\r\n        <option value=\"Class\" />\r\n        <option value=\"Interface\" />\r\n      </list>\r\n    </option>\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"RECENT_BRANCH_BY_REPOSITORY\">\r\n      <map>\r\n        <entry key=\"$PROJECT_DIR$\" value=\"develop\" />\r\n      </map>\r\n    </option>\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"GitHubPullRequestSearchHistory\">{\r\n  &quot;lastFilter&quot;: {\r\n    &quot;state&quot;: &quot;OPEN&quot;,\r\n    &quot;assignee&quot;: &quot;cleybson7&quot;\r\n  }\r\n}</component>\r\n  <component name=\"GithubPullRequestsUISettings\">{\r\n  &quot;selectedUrlAndAccountId&quot;: {\r\n    &quot;url&quot;: &quot;https://github.com/wilkenio/squad25_backend.git&quot;,\r\n    &quot;accountId&quot;: &quot;9da4077a-b8f4-4407-9225-f19bfc26f483&quot;\r\n  }\r\n}</component>\r\n  <component name=\"JpbToolWindowState\">\r\n    <option name=\"isToolWindowVisible\" value=\"false\" />\r\n  </component>\r\n  <component name=\"ProjectColorInfo\">{\r\n  &quot;associatedIndex&quot;: 1\r\n}</component>\r\n  <component name=\"ProjectId\" id=\"2v0dEj1lDjH4vjaXhp75DpWUTkx\" />\r\n  <component name=\"ProjectLevelVcsManager\">\r\n    <ConfirmationsSetting value=\"1\" id=\"Add\" />\r\n  </component>\r\n  <component name=\"ProjectViewState\">\r\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\r\n    <option name=\"showLibraryContents\" value=\"true\" />\r\n  </component>\r\n  <component name=\"PropertiesComponent\">{\r\n  &quot;keyToString&quot;: {\r\n    &quot;Application.run-application.executor&quot;: &quot;Run&quot;,\r\n    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,\r\n    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,\r\n    &quot;com.codeium.enabled&quot;: &quot;true&quot;,\r\n    &quot;git-widget-placeholder&quot;: &quot;develop&quot;,\r\n    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,\r\n    &quot;last_opened_file_path&quot;: &quot;C:/Users/cleyb/Documents/login-auth-api&quot;,\r\n    &quot;settings.editor.selected.configurable&quot;: &quot;com.intellij.jpb.viewMode&quot;\r\n  }\r\n}</component>\r\n  <component name=\"RunManager\">\r\n    <configuration name=\"run-application\" type=\"Application\" factoryName=\"Application\">\r\n      <option name=\"MAIN_CLASS_NAME\" value=\"com.financeiro.api.ApiApplication\" />\r\n      <module name=\"api\" />\r\n      <method v=\"2\">\r\n        <option name=\"Make\" enabled=\"true\" />\r\n      </method>\r\n    </configuration>\r\n  </component>\r\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\r\n  <component name=\"TaskManager\">\r\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\r\n      <changelist id=\"e2d3c55a-4899-440c-b353-0760b0a222d4\" name=\"Changes\" comment=\"\" />\r\n      <created>1743285815581</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1743285815581</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00001\" summary=\"\uD83D\uDCE6NEW: Adição das versões base do domain e repository\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1743288321787</created>\r\n      <option name=\"number\" value=\"00001\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00001\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1743288321787</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00002\" summary=\"\uD83D\uDC4CIMPROVE: ligação entre tabelas\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1743369549451</created>\r\n      <option name=\"number\" value=\"00002\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00002\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1743369549451</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00003\" summary=\"\uD83D\uDCE6NEW: Adição da configuração de segurança. ⏳FUTURE: implementar o service e os controllers\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1743373578608</created>\r\n      <option name=\"number\" value=\"00003\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00003\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1743373578608</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00004\" summary=\"\uD83D\uDCE6NEW: realocação de arquivos service e melhoria na implementação de services e controllers\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1743973463913</created>\r\n      <option name=\"number\" value=\"00004\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00004\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1743973463913</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00005\" summary=\"\uD83D\uDC4CIMPROVE: implementação melhorada dos sevices\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1743974438894</created>\r\n      <option name=\"number\" value=\"00005\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00005\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1743974438894</updated>\r\n    </task>\r\n    <option name=\"localTasksCounter\" value=\"6\" />\r\n    <servers />\r\n  </component>\r\n  <component name=\"VcsManagerConfiguration\">\r\n    <MESSAGE value=\"NEW: Adição das versões base do domain e repository\" />\r\n    <MESSAGE value=\"IMPROVE: ligação entre tabelas\" />\r\n    <MESSAGE value=\"NEW: Adição da configuração de segurança. ⏳FUTURE: implementar o service e os controllers\" />\r\n    <MESSAGE value=\"NEW: realocação de arquivos service e melhoria na implementação de services e controllers\" />\r\n    <MESSAGE value=\"NEW: realocação de arquivos service e melhoria na implementação de services e controllers\" />\r\n    <MESSAGE value=\"IMPROVE: implementação melhorada dos sevices\" />\r\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\"IMPROVE: implementação melhorada dos sevices\" />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision ff632754f321d51fcc292be202237878ce257ce4)
++++ b/.idea/workspace.xml	(date 1744233553524)
+@@ -4,11 +4,9 @@
+     <option name="autoReloadType" value="SELECTIVE" />
+   </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="e2d3c55a-4899-440c-b353-0760b0a222d4" name="Changes" comment="👌IMPROVE: implementação melhorada dos sevices">
++    <list default="true" id="e2d3c55a-4899-440c-b353-0760b0a222d4" name="Changes" comment="👌IMPROVE: adição de métodos de busca no CategoryController">
+       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/controller/CategoryController.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/controller/CategoryController.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/repository/CategoryRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/repository/CategoryRepository.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/CategoryService.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/CategoryService.java" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/CategoryServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/CategoryServiceImpl.java" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+@@ -66,7 +64,7 @@
+     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+     &quot;com.codeium.enabled&quot;: &quot;true&quot;,
+-    &quot;git-widget-placeholder&quot;: &quot;develop&quot;,
++    &quot;git-widget-placeholder&quot;: &quot;cleybson&quot;,
+     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+     &quot;last_opened_file_path&quot;: &quot;C:/Users/cleyb/Documents/login-auth-api&quot;,
+     &quot;settings.editor.selected.configurable&quot;: &quot;com.intellij.jpb.viewMode&quot;
+@@ -130,7 +128,15 @@
+       <option name="project" value="LOCAL" />
+       <updated>1743974438894</updated>
+     </task>
+-    <option name="localTasksCounter" value="6" />
++    <task id="LOCAL-00006" summary="👌IMPROVE: adição de métodos de busca no CategoryController">
++      <option name="closed" value="true" />
++      <created>1744074745319</created>
++      <option name="number" value="00006" />
++      <option name="presentableId" value="LOCAL-00006" />
++      <option name="project" value="LOCAL" />
++      <updated>1744074745319</updated>
++    </task>
++    <option name="localTasksCounter" value="7" />
+     <servers />
+   </component>
+   <component name="VcsManagerConfiguration">
+@@ -140,6 +146,7 @@
+     <MESSAGE value="NEW: realocação de arquivos service e melhoria na implementação de services e controllers" />
+     <MESSAGE value="NEW: realocação de arquivos service e melhoria na implementação de services e controllers" />
+     <MESSAGE value="IMPROVE: implementação melhorada dos sevices" />
+-    <option name="LAST_COMMIT_MESSAGE" value="IMPROVE: implementação melhorada dos sevices" />
++    <MESSAGE value="IMPROVE: adição de métodos de busca no CategoryController" />
++    <option name="LAST_COMMIT_MESSAGE" value="IMPROVE: adição de métodos de busca no CategoryController" />
+   </component>
+ </project>
+\ No newline at end of file

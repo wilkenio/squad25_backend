@@ -2,6 +2,7 @@ package com.financeiro.api.service.impl;
 
 import com.financeiro.api.domain.Category;
 import com.financeiro.api.domain.User;
+import com.financeiro.api.domain.enums.Status;
 import com.financeiro.api.dto.categoryDTO.CategoryRequestDTO;
 import com.financeiro.api.dto.categoryDTO.CategoryResponseDTO;
 import com.financeiro.api.repository.CategoryRepository;
@@ -86,6 +87,30 @@ public class CategoryServiceImpl implements CategoryService {
     public List<CategoryResponseDTO> findAll() {
         return categoryRepository.findAll()
                 .stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CategoryResponseDTO> findByName(String name) {
+            List<Category> categories = categoryRepository.findByNameContainingIgnoreCase(name);
+            return categories.stream()
+                    .map(this::toDTO)
+                    .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CategoryResponseDTO> findByDateRange(LocalDateTime initialDate, LocalDateTime finalDate) {
+        List<Category> categories = categoryRepository.findByCreatedAtBetween(initialDate, finalDate);
+        return categories.stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CategoryResponseDTO> findByStatus(Status status) {
+        List<Category> categories = categoryRepository.findByStatus(status);
+        return categories.stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
