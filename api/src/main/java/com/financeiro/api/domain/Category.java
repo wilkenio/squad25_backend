@@ -33,6 +33,12 @@ public class Category {
     @Column(name = "icon_class")
     private String iconClass;
 
+    @Column(name = "color")
+    private String color;
+
+    @Column(name = "additional_info", columnDefinition = "TEXT")
+    private String additionalInfo;
+
     @Column(name = "standard_recommendation")
     private boolean standardRecommendation;
 
