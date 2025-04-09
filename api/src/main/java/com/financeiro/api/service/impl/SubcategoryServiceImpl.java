@@ -37,6 +37,8 @@ public class SubcategoryServiceImpl implements SubcategoryService {
         subcategory.setStandardRecommendation(dto.standardRecommendation());
         subcategory.setCategory(category);
         subcategory.setIconClass(dto.iconClass());
+        subcategory.setColor(dto.color());
+        subcategory.setAdditionalInfo(dto.additionalInfo());
         subcategory.setStatus(Status.SIM);
         subcategory.setCreatedAt(LocalDateTime.now());
         subcategory.setUpdatedAt(LocalDateTime.now());
@@ -73,6 +75,8 @@ public class SubcategoryServiceImpl implements SubcategoryService {
         subcategory.setStandardRecommendation(dto.standardRecommendation());
         subcategory.setCategory(category);
         subcategory.setIconClass(dto.iconClass());
+        subcategory.setColor(dto.color());
+        subcategory.setAdditionalInfo(dto.additionalInfo());
         subcategory.setUpdatedAt(LocalDateTime.now());
 
         subcategoryRepository.save(subcategory);
@@ -98,6 +102,8 @@ public class SubcategoryServiceImpl implements SubcategoryService {
                 subcategory.getCategory().getId(),
                 subcategory.getIconClass(),
                 subcategory.getStatus(),
+                subcategory.getColor(),
+                subcategory.getAdditionalInfo(),
                 subcategory.getCreatedAt(),
                 subcategory.getUpdatedAt()
         );

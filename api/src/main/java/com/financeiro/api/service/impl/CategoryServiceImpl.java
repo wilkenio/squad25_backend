@@ -2,10 +2,8 @@ package com.financeiro.api.service.impl;
 
 import com.financeiro.api.domain.Category;
 import com.financeiro.api.domain.User;
-import com.financeiro.api.domain.enums.Status;
 import com.financeiro.api.dto.categoryDTO.CategoryRequestDTO;
 import com.financeiro.api.dto.categoryDTO.CategoryResponseDTO;
-import com.financeiro.api.infra.exceptions.UserNotFoundException;
 import com.financeiro.api.repository.CategoryRepository;
 import com.financeiro.api.repository.UserRepository;
 import com.financeiro.api.service.CategoryService;
@@ -29,9 +27,8 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryResponseDTO create(CategoryRequestDTO dto) {
-        User user = userRepository.findById(dto.userId()).orElseThrow(
-                () -> new UserNotFoundException()
-        );
+        User user = userRepository.findById(dto.userId()).orElseThrow(() -> new EntityNotFoundException("User not found"));
+
         Category category = new Category();
         category.setUser(user);
         category.setName(dto.name());
@@ -48,12 +45,9 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryResponseDTO update(UUID id, CategoryRequestDTO dto) {
-        Category category = categoryRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("Categoria não encontrada")
-        );
-        User user = userRepository.findById(dto.userId()).orElseThrow(
-                () -> new UserNotFoundException()
-        );
+        Category category = categoryRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Category not found"));
+
+        User user = userRepository.findById(dto.userId()).orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         category.setUser(user);
         category.setName(dto.name());
@@ -69,50 +63,21 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void delete(UUID id) {
-        Category category = categoryRepository.findById(id).orElseThrow(
-                () -> new UserNotFoundException()
-        );
+        Category category = categoryRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Category not found"));
         categoryRepository.delete(category);
-    }
-
-    //Lista de getters
-    @Override
-    public List<CategoryResponseDTO> findAll() {
-        List<Category> categories = categoryRepository.findAll();
-        return categories.stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
     }
 
     @Override
     public CategoryResponseDTO findById(UUID id) {
         return categoryRepository.findById(id)
                 .map(this::toDTO)
-                .orElseThrow(
-                        () -> new EntityNotFoundException("Categoria não encontrada")
-                );
+                .orElseThrow(() -> new EntityNotFoundException("Category not found"));
     }
 
     @Override
-    public List<CategoryResponseDTO> findByName(String name) {
-        List<Category> categories = categoryRepository.findByNameContainingIgnoreCase(name);
-        return categories.stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<CategoryResponseDTO> findByDateRange(LocalDateTime initialDate, LocalDateTime finalDate) {
-        List<Category> categories = categoryRepository.findByCreatedAtBetween(initialDate, finalDate);
-        return categories.stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<CategoryResponseDTO> findByStatus(Status status) {
-        List<Category> categories = categoryRepository.findByStatus(status);
-        return categories.stream()
+    public List<CategoryResponseDTO> findAll() {
+        return categoryRepository.findAll()
+                .stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
