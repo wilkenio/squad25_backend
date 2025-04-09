@@ -98,6 +98,8 @@ public class CategoryServiceImpl implements CategoryService {
                 category.getName(),
                 category.getType(),
                 category.getIconClass(),
+                category.getColor(),
+                category.getAdditionalInfo(),
                 category.isStandardRecommendation(),
                 category.getStatus(),
                 category.getCreatedAt(),
