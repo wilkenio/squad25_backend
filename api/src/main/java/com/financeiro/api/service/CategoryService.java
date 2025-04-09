@@ -10,12 +10,15 @@ import java.util.UUID;
 
 public interface CategoryService {
     CategoryResponseDTO create(CategoryRequestDTO dto, UUID userId);
+
     CategoryResponseDTO update(UUID id, CategoryRequestDTO dto, UUID userId);
+
     void delete(UUID id);
+
     CategoryResponseDTO findById(UUID id);
+
     List<CategoryResponseDTO> findAll();
     List<CategoryResponseDTO> findByName(String name);
     List<CategoryResponseDTO> findByDateRange(LocalDateTime initialDate, LocalDateTime finalDate);
     List<CategoryResponseDTO> findByStatus(Status status);
 }
-
