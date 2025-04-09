@@ -106,4 +106,12 @@ public class CategoryServiceImpl implements CategoryService {
                 category.getUpdatedAt()
         );
     }
+
+    @Override
+    public CategoryResponseDTO findByName(String name) {
+        Category category = categoryRepository.findByName(name)
+            .orElseThrow(() -> new EntityNotFoundException("Category not found with name: " + name));
+        return toDTO(category);
+}
+
 }

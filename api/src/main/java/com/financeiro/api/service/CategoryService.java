@@ -16,4 +16,6 @@ public interface CategoryService {
     CategoryResponseDTO findById(UUID id);
 
     List<CategoryResponseDTO> findAll();
+
+    CategoryResponseDTO findByName(String name);
 }
