@@ -7,9 +7,13 @@ import java.util.List;
 import java.util.UUID;
 
 public interface CategoryService {
-    CategoryResponseDTO create(CategoryRequestDTO dto);
-    CategoryResponseDTO update(UUID id, CategoryRequestDTO dto);
+    CategoryResponseDTO create(CategoryRequestDTO dto, UUID userId);
+
+    CategoryResponseDTO update(UUID id, CategoryRequestDTO dto, UUID userId);
+
     void delete(UUID id);
+
     CategoryResponseDTO findById(UUID id);
+
     List<CategoryResponseDTO> findAll();
 }
