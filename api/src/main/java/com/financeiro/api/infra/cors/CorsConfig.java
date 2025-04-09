@@ -12,7 +12,7 @@ public class CorsConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**") // Aplica a todas as rotas
-                .allowedOrigins("http://localhost:4200") //Garante que APENAS o frontend Angular pode acessar
+                .allowedOrigins("http://localhost:4200", "https://squad25.fourdevs.com.br") //Garante que APENAS o frontend Angular pode acessar
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Permite apenas esses métodos
                 .allowedHeaders("*") // Permite todos os cabeçalhos
                 .allowCredentials(true); // Permite autenticação (cookies, headers)

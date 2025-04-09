@@ -4,6 +4,7 @@ import com.financeiro.api.domain.Category;
 import com.financeiro.api.domain.User;
 import com.financeiro.api.dto.categoryDTO.CategoryRequestDTO;
 import com.financeiro.api.dto.categoryDTO.CategoryResponseDTO;
+import com.financeiro.api.infra.exceptions.UserNotFoundException;
 import com.financeiro.api.repository.CategoryRepository;
 import com.financeiro.api.repository.UserRepository;
 import com.financeiro.api.service.CategoryService;
@@ -29,7 +30,7 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryResponseDTO create(CategoryRequestDTO dto, UUID userId) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new EntityNotFoundException("User not found"));
-    
+
         Category category = new Category();
         category.setUser(user);
         category.setName(dto.name());
@@ -41,19 +42,19 @@ public class CategoryServiceImpl implements CategoryService {
         category.setStatus(dto.status());
         category.setCreatedAt(LocalDateTime.now());
         category.setUpdatedAt(LocalDateTime.now());
-    
+
         Category saved = categoryRepository.save(category);
         return toDTO(saved);
     }
-    
+
     @Override
     public CategoryResponseDTO update(UUID id, CategoryRequestDTO dto, UUID userId) {
         Category category = categoryRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Category not found"));
-    
+
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new EntityNotFoundException("User not found"));
-    
+
         category.setUser(user);
         category.setName(dto.name());
         category.setType(dto.type());
@@ -63,31 +64,31 @@ public class CategoryServiceImpl implements CategoryService {
         category.setStandardRecommendation(dto.standardRecommendation());
         category.setStatus(dto.status());
         category.setUpdatedAt(LocalDateTime.now());
-    
+
         Category updated = categoryRepository.save(category);
         return toDTO(updated);
     }
-    
 
     @Override
     public void delete(UUID id) {
-        Category category = categoryRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Category not found"));
+        Category category = categoryRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Category not found"));
         categoryRepository.delete(category);
     }
 
     @Override
     public CategoryResponseDTO findById(UUID id) {
         return categoryRepository.findById(id)
-                .map(this::toDTO)
-                .orElseThrow(() -> new EntityNotFoundException("Category not found"));
+            .map(this::toDTO)
+            .orElseThrow(() -> new EntityNotFoundException("Category not found"));
     }
 
     @Override
     public List<CategoryResponseDTO> findAll() {
         return categoryRepository.findAll()
-                .stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+            .stream()
+            .map(this::toDTO)
+            .collect(Collectors.toList());
     }
 
     private CategoryResponseDTO toDTO(Category category) {
@@ -97,8 +98,6 @@ public class CategoryServiceImpl implements CategoryService {
                 category.getName(),
                 category.getType(),
                 category.getIconClass(),
-                category.getColor(),
-                category.getAdditionalInfo(),
                 category.isStandardRecommendation(),
                 category.getStatus(),
                 category.getCreatedAt(),

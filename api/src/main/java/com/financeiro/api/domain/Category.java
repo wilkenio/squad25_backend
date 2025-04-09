@@ -20,7 +20,7 @@ public class Category {
     private UUID id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "FK_category_user"))
     private User user;
 
     @Column(name = "name", nullable = false)
