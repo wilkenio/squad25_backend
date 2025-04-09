@@ -1,9 +1,12 @@
 package com.financeiro.api.controller;
 
+import com.financeiro.api.domain.User;
 import com.financeiro.api.dto.categoryDTO.CategoryRequestDTO;
 import com.financeiro.api.dto.categoryDTO.CategoryResponseDTO;
 import com.financeiro.api.service.CategoryService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,7 +24,8 @@ public class CategoryController {
 
     @PostMapping("/post")
     public ResponseEntity<CategoryResponseDTO> create(@RequestBody CategoryRequestDTO dto) {
-        return ResponseEntity.ok(categoryService.create(dto));
+        UUID userId = getCurrentUserId();
+        return ResponseEntity.ok(categoryService.create(dto, userId));
     }
 
     @GetMapping("/get")
@@ -36,7 +40,8 @@ public class CategoryController {
 
     @PutMapping("/put/{id}")
     public ResponseEntity<CategoryResponseDTO> update(@PathVariable UUID id, @RequestBody CategoryRequestDTO dto) {
-        return ResponseEntity.ok(categoryService.update(id, dto));
+        UUID userId = getCurrentUserId();
+        return ResponseEntity.ok(categoryService.update(id, dto, userId));
     }
 
     @DeleteMapping("/delete/{id}")
@@ -45,4 +50,9 @@ public class CategoryController {
         return ResponseEntity.noContent().build();
     }
 
+    private UUID getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        return user.getId();
+    }
 }
