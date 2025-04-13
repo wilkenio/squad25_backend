@@ -19,27 +19,27 @@ public class SubcategoryController {
         this.service = service;
     }
 
-    @PostMapping("/post")
+    @PostMapping
     public ResponseEntity<SubcategoryResponseDTO> create(@RequestBody SubcategoryRequestDTO dto) {
         return ResponseEntity.ok(service.create(dto));
     }
 
-    @GetMapping("/get")
+    @GetMapping
     public ResponseEntity<List<SubcategoryResponseDTO>> findAll() {
         return ResponseEntity.ok(service.findAll());
     }
 
-    @GetMapping("/get/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<SubcategoryResponseDTO> findById(@PathVariable UUID id) {
         return ResponseEntity.ok(service.findById(id));
     }
 
-    @PutMapping("/put/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<SubcategoryResponseDTO> update(@PathVariable UUID id, @RequestBody SubcategoryRequestDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         service.delete(id);
         return ResponseEntity.noContent().build();

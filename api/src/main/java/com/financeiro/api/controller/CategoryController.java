@@ -43,11 +43,6 @@ public class CategoryController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<CategoryResponseDTO> getById(@PathVariable UUID id) {
-        return ResponseEntity.ok(categoryService.findById(id));
-    }
-
     @GetMapping
     public ResponseEntity<List<CategoryResponseDTO>> getAll() {
         return ResponseEntity.ok(categoryService.findAll());
@@ -57,6 +52,11 @@ public class CategoryController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
         return user.getId();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<CategoryResponseDTO> getById(@PathVariable UUID id) {
+        return ResponseEntity.ok(categoryService.findById(id));
     }
 
     @GetMapping("name/{name}")
