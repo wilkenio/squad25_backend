@@ -1,5 +1,6 @@
 package com.financeiro.api.controller;
 
+import com.financeiro.api.dto.accountDTO.AccountRangeValueDTO;
 import com.financeiro.api.dto.accountDTO.AccountRequestDTO;
 import com.financeiro.api.dto.accountDTO.AccountResponseDTO;
 import com.financeiro.api.service.impl.AccountServiceImpl;
@@ -32,6 +33,30 @@ public class AccountController {
     @GetMapping("/{id}")
     public ResponseEntity<AccountResponseDTO> findById(@PathVariable UUID id) {
         return ResponseEntity.ok(accountServiceImpl.findById(id));
+    }
+
+    /*
+     *AIDCIONE OS DOIS VALORES NO PARAMS CASO VÁ TESTAR. Exemplo:
+     * KEY= minValue VALUE= 10.00
+     * KEY= maxValue VALUE= 1000.00
+     */
+    @GetMapping("/openingBalance")
+    public ResponseEntity<List<AccountResponseDTO>> findByOpeningBalanceBetween(@ModelAttribute AccountRangeValueDTO filter){
+        List<AccountResponseDTO> accounts = accountServiceImpl.findByOpeningBalanceBetween(filter.minValue(), filter.maxValue());
+
+        return ResponseEntity.ok(accounts);
+    }
+
+    /*
+    *AIDCIONE OS DOIS VALORES NO PARAMS CASO VÁ TESTAR. Exemplo:
+    * KEY= minValue VALUE= 10.00
+    * KEY= maxValue VALUE= 1000.00
+    */
+    @GetMapping("/specialCheck")
+    public ResponseEntity<List<AccountResponseDTO>> findBySpecialCheck(@ModelAttribute AccountRangeValueDTO filter) {
+        List<AccountResponseDTO> accounts = accountServiceImpl.findBySpecialCheckBetween(filter.minValue(), filter.maxValue());
+
+        return ResponseEntity.ok(accounts);
     }
 
     @PutMapping("/{id}")

@@ -132,4 +132,64 @@ public class AccountServiceImpl implements AccountService{
         accountRepository.save(account);
     }
 
+    @Override
+    public List<AccountResponseDTO> findByAccountName(String accountName) {
+        return accountRepository.findByAccountNameContainingIgnoreCase(accountName).stream()
+                .map(acc -> new AccountResponseDTO(
+                        acc.getId(),
+                        acc.getUser().getId(),
+                        acc.getAccountName(),
+                        acc.getAccountDescription(),
+                        acc.getAdditionalInformation(),
+                        acc.getOpeningBalance(),
+                        acc.getSpecialCheck(),
+                        acc.getStatus()
+                )).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<AccountResponseDTO> findByOpeningBalanceBetween(Double minValue, Double maxValue) {
+        return accountRepository.findByOpeningBalanceBetween(minValue, maxValue).stream()
+                .map(acc -> new AccountResponseDTO(
+                        acc.getId(),
+                        acc.getUser().getId(),
+                        acc.getAccountName(),
+                        acc.getAccountDescription(),
+                        acc.getAdditionalInformation(),
+                        acc.getOpeningBalance(),
+                        acc.getSpecialCheck(),
+                        acc.getStatus()
+                )).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<AccountResponseDTO> findBySpecialCheckBetween(Double minValue, Double maxValue) {
+        return accountRepository.findBySpecialCheckBetween(minValue, maxValue).stream()
+                .map(acc -> new AccountResponseDTO(
+                        acc.getId(),
+                        acc.getUser().getId(),
+                        acc.getAccountName(),
+                        acc.getAccountDescription(),
+                        acc.getAdditionalInformation(),
+                        acc.getOpeningBalance(),
+                        acc.getSpecialCheck(),
+                        acc.getStatus()
+                )).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<AccountResponseDTO> findByStatus(Status status) {
+        return accountRepository.findByStatus(status).stream()
+                .map(acc -> new AccountResponseDTO(
+                        acc.getId(),
+                        acc.getUser().getId(),
+                        acc.getAccountName(),
+                        acc.getAccountDescription(),
+                        acc.getAdditionalInformation(),
+                        acc.getOpeningBalance(),
+                        acc.getSpecialCheck(),
+                        acc.getStatus()
+                )).collect(Collectors.toList());
+    }
+
 }
