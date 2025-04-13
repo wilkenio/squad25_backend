@@ -6,14 +6,12 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record SubcategoryResponseDTO(
-        UUID id,
-        String name,
-        Boolean standardRecommendation,
-        UUID categoryId,
-        String iconClass,
-        Status status,
-        String color,
-        String additionalInfo,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt
+    UUID id,
+    String name,
+    Boolean standardRecommendation,
+    UUID categoryId,
+    String iconClass,
+    Status status,
+    LocalDateTime createdAt,
+    LocalDateTime updatedAt
 ) {}

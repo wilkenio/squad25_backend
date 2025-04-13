@@ -34,15 +34,9 @@ public class Subcategory {
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    @Column(name = "color")
-    private String color;
-
-    @Column(name = "additional_info")
-    private String additionalInfo;
-
     @Column(name = "created_at")
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
 
     @Column(name = "update_at")
-    private LocalDateTime updatedAt = LocalDateTime.now();
+    private LocalDateTime updatedAt;
 }
