@@ -12,9 +12,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
-
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -22,7 +19,8 @@ public class AuthController {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
-    private final String RECAPTCHA_SECRET_KEY = "6LeuaOYqAAAAACs9m3ysAu2cPbZD5ft0cqIwrf4d";  // Substitua pela sua chave secreta do reCAPTCHA
+
+    private final String RECAPTCHA_SECRET_KEY = "6LeuaOYqAAAAACs9m3ysAu2cPbZD5ft0cqIwrf4d"; // Chave secreta do reCAPTCHA
 
     public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder, TokenService tokenService) {
         this.userRepository = userRepository;
@@ -30,7 +28,7 @@ public class AuthController {
         this.tokenService = tokenService;
     }
 
-    // Método para validar o reCAPTCHA
+    // Validação do reCAPTCHA usando a API do Google
     private boolean validateRecaptcha(String recaptchaToken) {
         String url = "https://www.google.com/recaptcha/api/siteverify?secret=" + RECAPTCHA_SECRET_KEY + "&response=" + recaptchaToken;
         RestTemplate restTemplate = new RestTemplate();
@@ -38,83 +36,60 @@ public class AuthController {
         return result != null && result.contains("\"success\": true");
     }
 
+    // Endpoint de login
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<ResponseDTO>> login(@RequestBody LoginRequestDTO body, HttpServletResponse response) {
-        // Validar reCAPTCHA
-        if (!validateRecaptcha(body.recaptchaToken())) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(400, "Invalid reCAPTCHA"));
-        }
-    
-        // Buscar o usuário no banco de dados
-        User user = userRepository.findByEmail(body.email()).orElse(null);
-    
-        // Validar senha de forma segura
-        if (user == null || !passwordEncoder.matches(body.password(), user.getPassword())) {
-            return ResponseEntity.status(401).body(new ApiResponse<>(401, "Credenciais inválidas"));
-        }
-    
-        // Gerar o token JWT
-        String token = tokenService.generateToken(user);
-    
-        // Adicionar o cookie na resposta
-        response.addCookie(generateCookie(token, 86400));
-    
-        return ResponseEntity.ok(new ApiResponse<>(200, new ResponseDTO(user.getName(), "Token set in cookie")));
-    }
-    
-
-    @PostMapping("/register")
-    public ResponseEntity<ApiResponse<ResponseDTO>> register(@RequestBody RegisterRequestDTO body, HttpServletResponse response) {
+    public ResponseEntity<ApiResponse<ResponseDTO>> login(@RequestBody LoginRequestDTO body) {
         try {
-            // Validar reCAPTCHA
-            if (!validateRecaptcha(body.recaptchaToken())) {
-                return ResponseEntity.badRequest().body(new ApiResponse<>(400, "Invalid reCAPTCHA"));
+            //Validação do reCAPTCHA (opcional)
+            if (body.recaptchaToken() != null && !validateRecaptcha(body.recaptchaToken())) {
+                return ResponseEntity.badRequest().body(new ApiResponse<>(400, "reCAPTCHA inválido"));
             }
-    
-            // Verificar se o email já está registrado
-            if (userRepository.findByEmail(body.email()).isPresent()) {
-                return ResponseEntity.badRequest().body(new ApiResponse<>(400, "Email already registered"));
-            }
-    
-            // Criar um novo usuário
-            User newUser = new User();
-            newUser.setPassword(passwordEncoder.encode(body.password()));
-            newUser.setEmail(body.email());
-            newUser.setName(body.name());
-    
-            // Salvar no banco
-            userRepository.save(newUser);
-    
-            // Gerar o token JWT
-            String token = tokenService.generateToken(newUser);
 
-            response.addCookie(generateCookie(token, 86400));
-    
-            return ResponseEntity.ok(new ApiResponse<>(200, new ResponseDTO(newUser.getName(), "Token set in cookie")));
+            User user = userRepository.findByEmail(body.email()).orElse(null);
+            if (user == null || !passwordEncoder.matches(body.password(), user.getPassword())) {
+                return ResponseEntity.status(401).body(new ApiResponse<>(401, "Credenciais inválidas"));
+            }
+
+            String token = tokenService.generateToken(user);
+            return ResponseEntity.ok(new ApiResponse<>(200, new ResponseDTO(user.getName(), token)));
+
         } catch (Exception e) {
-            e.printStackTrace();  // Imprime o erro no console
-            return ResponseEntity.status(500).body(new ApiResponse<>(500, "Internal Server Error"));
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(new ApiResponse<>(500, "Erro interno no servidor"));
         }
     }
-    
 
-    @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<String>> logout(HttpServletResponse response) {
-        // Criar o cookie JWT com o mesmo nome do cookie de login
-        // Adicionar o cookie na resposta para removê-lo do cliente
-        response.addCookie(generateCookie(null, 0));
+    // Endpoint de registro
+    @PostMapping("/register")
+    public ResponseEntity<ApiResponse<ResponseDTO>> register(@RequestBody RegisterRequestDTO body) {
+        try {
+            // Validação do reCAPTCHA (opcional)
+            if (body.recaptchaToken() != null && !validateRecaptcha(body.recaptchaToken())) {
+                return ResponseEntity.badRequest().body(new ApiResponse<>(400, "reCAPTCHA inválido"));
+            }
 
-        return ResponseEntity.ok(new ApiResponse<>(200, "Successfully logged out"));
+            if (userRepository.findByEmail(body.email()).isPresent()) {
+                return ResponseEntity.badRequest().body(new ApiResponse<>(400, "Email já cadastrado"));
+            }
+
+            User newUser = new User();
+            newUser.setName(body.name());
+            newUser.setEmail(body.email());
+            newUser.setPassword(passwordEncoder.encode(body.password()));
+            userRepository.save(newUser);
+
+            String token = tokenService.generateToken(newUser);
+            return ResponseEntity.ok(new ApiResponse<>(200, new ResponseDTO(newUser.getName(), token)));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(new ApiResponse<>(500, "Erro interno no servidor"));
+        }
     }
 
-    // Metodo para gerar o cookie
-    public Cookie generateCookie(String token, int maxAge) {
-        Cookie cookie = new Cookie("JWT", token);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
-        cookie.setPath("/");
-        cookie.setMaxAge(maxAge);
-
-        return cookie;
+    // Endpoint de logout (apenas informativo, token é descartado no client)
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<String>> logout() {
+        return ResponseEntity.ok(new ApiResponse<>(200, "Logout efetuado no client. Token descartado."));
     }
 }
