@@ -1,7 +1,7 @@
 package com.financeiro.api.controller;
 
 import com.financeiro.api.dto.transactionDTO.*;
-import com.financeiro.api.service.TransactionService;
+import com.financeiro.api.service.impl.TransactionServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,12 +9,12 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/transactions")
+@RequestMapping("/transaction")
 public class TransactionController {
 
-    private final TransactionService service;
+    private final TransactionServiceImpl service;
 
-    public TransactionController(TransactionService service) {
+    public TransactionController(TransactionServiceImpl service) {
         this.service = service;
     }
 

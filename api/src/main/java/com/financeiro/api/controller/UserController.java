@@ -1,30 +1,51 @@
 package com.financeiro.api.controller;
 
 import com.financeiro.api.domain.User;
+import com.financeiro.api.dto.userDTO.UserRequestDTO;
+import com.financeiro.api.dto.userDTO.UserResponseDTO;
 import com.financeiro.api.repository.UserRepository;
+import com.financeiro.api.service.impl.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/user")
 public class UserController {
 
-    private final UserRepository userRepository;
+    private final UserServiceImpl service;
 
-    @Autowired
-    public UserController(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UserController(UserServiceImpl service) {
+        this.service = service;
     }
 
-    // Rota para listar todos os usuários
+    @PostMapping
+    public ResponseEntity<UserResponseDTO> create(@RequestBody UserRequestDTO dto) {
+        return ResponseEntity.ok(service.create(dto));
+    }
+
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userRepository.findAll();
-        return ResponseEntity.ok(users);
+    public List<UserResponseDTO> findAll() {
+        return service.findAll();
     }
 
-    // Você pode adicionar outras rotas aqui, como getUserById, deleteUser, updateUser, etc.
+    @GetMapping("/{id}")
+    public ResponseEntity<UserResponseDTO> findById(@PathVariable UUID id) {
+        return ResponseEntity.ok(service.findById(id));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<UserResponseDTO> update(@PathVariable UUID id, @RequestBody UserRequestDTO dto) {
+        return ResponseEntity.ok(service.update(id, dto));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
 }

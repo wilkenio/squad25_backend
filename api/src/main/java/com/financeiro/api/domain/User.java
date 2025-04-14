@@ -8,7 +8,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-@Entity(name = "user")
+@Entity(name = "app_user")
+@Table(name = "app_user")
 @Getter
 @Setter
 @NoArgsConstructor
