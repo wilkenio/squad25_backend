@@ -36,6 +36,8 @@ public class CategoryServiceImpl implements CategoryService {
         category.setName(dto.name());
         category.setType(dto.type());
         category.setIconClass(dto.iconClass());
+        category.setColor(dto.color());
+        category.setAdditionalInfo(dto.additionalInfo());
         category.setStandardRecommendation(dto.standardRecommendation());
         category.setStatus(dto.status());
         category.setCreatedAt(LocalDateTime.now());
@@ -57,6 +59,8 @@ public class CategoryServiceImpl implements CategoryService {
         category.setName(dto.name());
         category.setType(dto.type());
         category.setIconClass(dto.iconClass());
+        category.setColor(dto.color());
+        category.setAdditionalInfo(dto.additionalInfo());
         category.setStandardRecommendation(dto.standardRecommendation());
         category.setStatus(dto.status());
         category.setUpdatedAt(LocalDateTime.now());
@@ -89,15 +93,25 @@ public class CategoryServiceImpl implements CategoryService {
 
     private CategoryResponseDTO toDTO(Category category) {
         return new CategoryResponseDTO(
-            category.getId(),
-            category.getUser().getId(),
-            category.getName(),
-            category.getType(),
-            category.getIconClass(),
-            category.isStandardRecommendation(),
-            category.getStatus(),
-            category.getCreatedAt(),
-            category.getUpdatedAt()
+                category.getId(),
+                category.getUser().getId(),
+                category.getName(),
+                category.getType(),
+                category.getIconClass(),
+                category.getColor(),
+                category.getAdditionalInfo(),
+                category.isStandardRecommendation(),
+                category.getStatus(),
+                category.getCreatedAt(),
+                category.getUpdatedAt()
         );
     }
+
+    @Override
+    public CategoryResponseDTO findByName(String name) {
+        Category category = categoryRepository.findByName(name)
+            .orElseThrow(() -> new EntityNotFoundException("Category not found with name: " + name));
+        return toDTO(category);
+}
+
 }

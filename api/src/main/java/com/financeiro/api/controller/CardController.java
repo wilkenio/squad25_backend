@@ -11,33 +11,33 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/card")
+@RequestMapping
 public class CardController {
 
     @Autowired
     private CardServiceImpl cardServiceImpl;
 
-    @PostMapping("/post")
+    @PostMapping
     public ResponseEntity<CardResponseDTO> create(@RequestBody CardRequestDTO dto) {
         return ResponseEntity.ok(cardServiceImpl.create(dto));
     }
 
-    @GetMapping("/get")
+    @GetMapping
     public ResponseEntity<List<CardResponseDTO>> findAll() {
         return ResponseEntity.ok(cardServiceImpl.findAll());
     }
 
-    @GetMapping("/get/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<CardResponseDTO> findById(@PathVariable UUID id) {
         return ResponseEntity.ok(cardServiceImpl.findById(id));
     }
 
-    @PutMapping("/put/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<CardResponseDTO> update(@PathVariable UUID id, @RequestBody CardRequestDTO dto) {
         return ResponseEntity.ok(cardServiceImpl.update(id, dto));
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         cardServiceImpl.delete(id);
         return ResponseEntity.noContent().build();

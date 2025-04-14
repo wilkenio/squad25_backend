@@ -7,6 +7,8 @@ public record CategoryRequestDTO(
         String name,
         CategoryType type,
         String iconClass,
+        String color,
+        String additionalInfo,
         boolean standardRecommendation,
         Status status
 ) {}

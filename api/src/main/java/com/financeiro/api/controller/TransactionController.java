@@ -18,22 +18,22 @@ public class TransactionController {
         this.service = service;
     }
 
-    @PostMapping("/post")
+    @PostMapping
     public ResponseEntity<TransactionResponseDTO> create(@RequestBody TransactionRequestDTO dto) {
         return ResponseEntity.ok(service.create(dto));
     }
 
-    @GetMapping("/get")
+    @GetMapping
     public ResponseEntity<List<TransactionResponseDTO>> getAll() {
         return ResponseEntity.ok(service.findAll());
     }
 
-    @GetMapping("/get/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<TransactionResponseDTO> getById(@PathVariable UUID id) {
         return ResponseEntity.ok(service.findById(id));
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         service.delete(id);
         return ResponseEntity.noContent().build();

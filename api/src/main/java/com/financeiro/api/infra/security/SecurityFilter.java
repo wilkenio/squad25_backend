@@ -4,6 +4,7 @@ import com.financeiro.api.domain.User;
 import com.financeiro.api.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,11 +30,9 @@ public class SecurityFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        // Recupera o token do header Authorization
-        String token = recoverTokenFromHeader(request);
-        System.out.println("Token recebido: " + token);
+        // Recupera o token JWT do cookie
+        String token = recoverTokenFromCookie(request);
         String email = tokenService.validateToken(token);
-        System.out.println("Email extraído: " + email);
 
         if (email != null) {
             User user = userRepository.findByEmail(email)
@@ -47,11 +46,15 @@ public class SecurityFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private String recoverTokenFromHeader(HttpServletRequest request) {
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            return authHeader.substring(7); // Remove "Bearer " do início
+    private String recoverTokenFromCookie(HttpServletRequest request) {
+        if (request.getCookies() == null) return null;
+
+        for (Cookie cookie : request.getCookies()) {
+            if ("JWT".equals(cookie.getName())) {
+                return cookie.getValue();
+            }
         }
+
         return null;
     }
 }

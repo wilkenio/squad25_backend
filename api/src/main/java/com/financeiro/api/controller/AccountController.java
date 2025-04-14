@@ -19,27 +19,27 @@ public class AccountController {
         this.accountServiceImpl = accountServiceImpl;
     }
 
-    @PostMapping("/post")
+    @PostMapping
     public ResponseEntity<AccountResponseDTO> create(@RequestBody AccountRequestDTO dto) {
         return ResponseEntity.ok(accountServiceImpl.create(dto));
     }
 
-    @GetMapping("/get")
+    @GetMapping
     public ResponseEntity<List<AccountResponseDTO>> getAll() {
         return ResponseEntity.ok(accountServiceImpl.getAll());
     }
 
-    @GetMapping("/get/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<AccountResponseDTO> findById(@PathVariable UUID id) {
         return ResponseEntity.ok(accountServiceImpl.findById(id));
     }
 
-    @PutMapping("/put/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<AccountResponseDTO> update(@PathVariable UUID id, @RequestBody AccountRequestDTO dto) {
         return ResponseEntity.ok(accountServiceImpl.update(id, dto));
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         accountServiceImpl.delete(id);
         return ResponseEntity.noContent().build();

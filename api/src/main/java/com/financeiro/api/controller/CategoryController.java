@@ -22,29 +22,29 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
-    @PostMapping("/post")
+    @PostMapping
     public ResponseEntity<CategoryResponseDTO> create(@RequestBody CategoryRequestDTO dto) {
         UUID userId = getCurrentUserId();
         return ResponseEntity.ok(categoryService.create(dto, userId));
     }
 
-    @GetMapping("/get")
+    @GetMapping
     public ResponseEntity<List<CategoryResponseDTO>> getAll() {
         return ResponseEntity.ok(categoryService.findAll());
     }
 
-    @GetMapping("/get/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<CategoryResponseDTO> getById(@PathVariable UUID id) {
         return ResponseEntity.ok(categoryService.findById(id));
     }
 
-    @PutMapping("/put/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<CategoryResponseDTO> update(@PathVariable UUID id, @RequestBody CategoryRequestDTO dto) {
         UUID userId = getCurrentUserId();
         return ResponseEntity.ok(categoryService.update(id, dto, userId));
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         categoryService.delete(id);
         return ResponseEntity.noContent().build();
