@@ -1,5 +1,6 @@
 package com.financeiro.api.controller;
 
+import com.financeiro.api.domain.enums.Status;
 import com.financeiro.api.dto.accountDTO.AccountRangeValueDTO;
 import com.financeiro.api.dto.accountDTO.AccountRequestDTO;
 import com.financeiro.api.dto.accountDTO.AccountResponseDTO;
@@ -31,8 +32,15 @@ public class AccountController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AccountResponseDTO> findById(@PathVariable UUID id) {
+    public ResponseEntity<AccountResponseDTO> getById(@PathVariable UUID id) {
         return ResponseEntity.ok(accountServiceImpl.findById(id));
+    }
+
+    @GetMapping("/accountName/{accountName}")
+    public ResponseEntity<List<AccountResponseDTO>> findByAccountName(@PathVariable String accountName) {
+        List<AccountResponseDTO> accounts = accountServiceImpl.findByAccountName(accountName);
+
+        return ResponseEntity.ok(accounts);
     }
 
     /*
@@ -57,6 +65,11 @@ public class AccountController {
         List<AccountResponseDTO> accounts = accountServiceImpl.findBySpecialCheckBetween(filter.minValue(), filter.maxValue());
 
         return ResponseEntity.ok(accounts);
+    }
+
+    @GetMapping("/status/{status}")
+    public ResponseEntity<List<AccountResponseDTO>> findByStatus(@PathVariable Status status) {
+        return ResponseEntity.ok(accountServiceImpl.findByStatus(status));
     }
 
     @PutMapping("/{id}")

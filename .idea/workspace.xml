@@ -4,14 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e2d3c55a-4899-440c-b353-0760b0a222d4" name="Changes" comment="👌IMPROVE: adição dos filtros em CategoryServiceImpl">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/controller/AccountController.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/controller/AccountController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/infra/exceptions/UserNotFoundException.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/infra/exceptions/UserNotFoundException.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/repository/AccountRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/repository/AccountRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/AccountService.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/AccountService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/AccountServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/AccountServiceImpl.java" afterDir="false" />
-    </list>
+    <list default="true" id="e2d3c55a-4899-440c-b353-0760b0a222d4" name="Changes" comment="📦NEW: adição do DTO especial para o AccountController&#10; 👌IMPROVE: adição de dois filtros para gerenciamento financeiro" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -131,7 +124,15 @@
       <option name="project" value="LOCAL" />
       <updated>1743974438894</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="📦NEW: adição do DTO especial para o AccountController&#10; 👌IMPROVE: adição de dois filtros para gerenciamento financeiro">
+      <option name="closed" value="true" />
+      <created>1744586048525</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1744586048525</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -141,6 +142,7 @@
     <MESSAGE value="NEW: realocação de arquivos service e melhoria na implementação de services e controllers" />
     <MESSAGE value="NEW: realocação de arquivos service e melhoria na implementação de services e controllers" />
     <MESSAGE value="IMPROVE: implementação melhorada dos sevices" />
-    <option name="LAST_COMMIT_MESSAGE" value="IMPROVE: implementação melhorada dos sevices" />
+    <MESSAGE value="NEW: adição do DTO especial para o AccountController&#10; IMPROVE: adição de dois filtros para gerenciamento financeiro" />
+    <option name="LAST_COMMIT_MESSAGE" value="NEW: adição do DTO especial para o AccountController&#10; IMPROVE: adição de dois filtros para gerenciamento financeiro" />
   </component>
 </project>
