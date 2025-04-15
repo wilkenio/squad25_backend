@@ -11,6 +11,7 @@ import com.financeiro.api.service.CategoryService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.financeiro.api.domain.enums.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -70,10 +71,14 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public void delete(UUID id) {
+    public void delete(UUID id, UUID userId) {
         Category category = categoryRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Category not found"));
-        categoryRepository.delete(category);
+        
+        category.setStatus(Status.EXC); 
+        category.setUpdatedAt(LocalDateTime.now());
+        categoryRepository.save(category);    
+
     }
 
     @Override
@@ -84,8 +89,9 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryResponseDTO> findAll() {
-        return categoryRepository.findAll()
+    public List<CategoryResponseDTO> findAll(UUID userId) {
+        List<Status> statuses = List.of(Status.SIM, Status.NAO);
+        return categoryRepository.findAllByUserIdAndStatusIn(userId, statuses)
             .stream()
             .map(this::toDTO)
             .collect(Collectors.toList());
