@@ -11,11 +11,11 @@ public interface CategoryService {
 
     CategoryResponseDTO update(UUID id, CategoryRequestDTO dto, UUID userId);
 
-    void delete(UUID id);
+    void delete(UUID id, UUID userId);
 
     CategoryResponseDTO findById(UUID id);
 
-    List<CategoryResponseDTO> findAll();
+    List<CategoryResponseDTO> findAll(UUID userId);
 
     CategoryResponseDTO findByName(String name);
 }

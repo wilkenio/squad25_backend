@@ -30,7 +30,8 @@ public class CategoryController {
 
     @GetMapping
     public ResponseEntity<List<CategoryResponseDTO>> getAll() {
-        return ResponseEntity.ok(categoryService.findAll());
+        UUID userId = getCurrentUserId();
+        return ResponseEntity.ok(categoryService.findAll(userId));
     }
 
     @GetMapping("/{id}")
@@ -46,7 +47,8 @@ public class CategoryController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
-        categoryService.delete(id);
+        UUID userId = getCurrentUserId();
+        categoryService.delete(id, userId);
         return ResponseEntity.noContent().build();
     }
 

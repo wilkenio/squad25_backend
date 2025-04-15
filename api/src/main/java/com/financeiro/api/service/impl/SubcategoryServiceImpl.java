@@ -49,14 +49,17 @@ public class SubcategoryServiceImpl implements SubcategoryService {
 
     @Override
     public List<SubcategoryResponseDTO> findAll() {
-        return subcategoryRepository.findAll().stream()
+        List<Status> statuses = List.of(Status.SIM, Status.NAO);
+        return subcategoryRepository.findAllByStatusIn(statuses).stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
     public SubcategoryResponseDTO findById(UUID id) {
-        Subcategory subcategory = subcategoryRepository.findById(id).orElseThrow(
+        Subcategory subcategory = subcategoryRepository.findById(id)
+        .filter(s -> s.getStatus() != Status.EXC)
+        .orElseThrow(
                 () -> new EntityNotFoundException("Subcategory not found")
         );
         return toDTO(subcategory);
@@ -95,8 +98,9 @@ public class SubcategoryServiceImpl implements SubcategoryService {
     }
 
     @Override
-    public List<SubcategoryResponseDTO> findByCategoryId(UUID categoryId) {
-        List<Subcategory> subcategories = subcategoryRepository.findByCategoryId(categoryId);
+    public List<SubcategoryResponseDTO> findByCategoryIdAndUserId(UUID categoryId, UUID userId) {
+        List<Status> statuses = List.of(Status.SIM, Status.NAO);
+        List<Subcategory> subcategories = subcategoryRepository.findByCategoryIdAndCategoryUserIdAndStatusIn(categoryId, userId, statuses);
         return subcategories.stream().map(this::toDTO).collect(Collectors.toList());
     }
 
