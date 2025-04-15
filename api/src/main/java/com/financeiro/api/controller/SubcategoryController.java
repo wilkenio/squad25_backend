@@ -5,6 +5,10 @@ import com.financeiro.api.dto.subcategoryDTO.SubcategoryResponseDTO;
 import com.financeiro.api.service.SubcategoryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+import com.financeiro.api.domain.User;
 
 import java.util.List;
 import java.util.UUID;
@@ -36,7 +40,14 @@ public class SubcategoryController {
 
     @GetMapping("/by-category/{categoryId}")
     public ResponseEntity<List<SubcategoryResponseDTO>> getByCategoryId(@PathVariable UUID categoryId) {
-        return ResponseEntity.ok(service.findByCategoryId(categoryId));
+        UUID userId = getCurrentUserId();
+        return ResponseEntity.ok(service.findByCategoryIdAndUser(categoryId, userId));
+    }
+
+    private UUID getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        return user.getId();
     }
 
     @PutMapping("/{id}")

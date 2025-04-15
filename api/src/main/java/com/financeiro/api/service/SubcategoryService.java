@@ -12,5 +12,5 @@ public interface SubcategoryService {
     SubcategoryResponseDTO findById(UUID id);
     SubcategoryResponseDTO update(UUID id, SubcategoryRequestDTO dto);
     void delete(UUID id);
-    List<SubcategoryResponseDTO> findByCategoryId(UUID categoryId);
+    List<SubcategoryResponseDTO> findByCategoryIdAndUser(UUID categoryId, UUID userId);
 }
