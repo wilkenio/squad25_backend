@@ -10,7 +10,6 @@ import com.financeiro.api.repository.SubcategoryRepository;
 import com.financeiro.api.service.SubcategoryService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.security.access.AccessDeniedException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -96,14 +95,8 @@ public class SubcategoryServiceImpl implements SubcategoryService {
     }
 
     @Override
-    public List<SubcategoryResponseDTO> findByCategoryIdAndUser(UUID categoryId, UUID userId) {
-        Category category = categoryRepository.findById(categoryId)
-        .orElseThrow(() -> new EntityNotFoundException("Category not found"));
-
-        if (!category.getUser().getId().equals(userId)) {
-        throw new AccessDeniedException("You don't have permission to access this category");
-    }
-        List<Subcategory> subcategories = subcategoryRepository.findByCategoryId(categoryId);
+    public List<SubcategoryResponseDTO> findByCategoryIdAndUserId(UUID categoryId, UUID userId) {
+        List<Subcategory> subcategories = subcategoryRepository.findByCategoryIdAndCategoryUserId(categoryId, userId);
         return subcategories.stream().map(this::toDTO).collect(Collectors.toList());
     }
 

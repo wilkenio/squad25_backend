@@ -7,5 +7,5 @@ import java.util.UUID;
 import java.util.List;
 
 public interface SubcategoryRepository extends JpaRepository<Subcategory, UUID> {
-    List<Subcategory> findByCategoryId(UUID categoryId);
+    List<Subcategory> findByCategoryIdAndCategoryUserId(UUID categoryId, UUID userId);
 }

@@ -41,7 +41,7 @@ public class SubcategoryController {
     @GetMapping("/by-category/{categoryId}")
     public ResponseEntity<List<SubcategoryResponseDTO>> getByCategoryId(@PathVariable UUID categoryId) {
         UUID userId = getCurrentUserId();
-        return ResponseEntity.ok(service.findByCategoryIdAndUser(categoryId, userId));
+        return ResponseEntity.ok(service.findByCategoryIdAndUserId(categoryId, userId));
     }
 
     private UUID getCurrentUserId() {
