@@ -4,10 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e2d3c55a-4899-440c-b353-0760b0a222d4" name="Changes" comment="📦NEW: realocação de arquivos service e melhoria na implementação de services e controllers">
-      <change afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/AccountServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/CardServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/TransactionServiceImpl.java" afterDir="false" />
+    <list default="true" id="e2d3c55a-4899-440c-b353-0760b0a222d4" name="Changes" comment="&#10; 👌IMPROVE: finalização dos filtros de AccountController">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/controller/AccountController.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/controller/AccountController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/controller/CategoryController.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/controller/CategoryController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/controller/SubcategoryController.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/controller/SubcategoryController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/repository/CategoryRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/repository/CategoryRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/repository/TransactionRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/repository/TransactionRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/CategoryService.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/CategoryService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/SubcategoryService.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/SubcategoryService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/CategoryServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/CategoryServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/SubcategoryServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/SubcategoryServiceImpl.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -18,9 +25,9 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="com.intellij.jpb.JpaRepository" />
-        <option value="Record" />
         <option value="Class" />
         <option value="Interface" />
+        <option value="Record" />
       </list>
     </option>
   </component>
@@ -58,18 +65,18 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Application.run-application.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;com.codeium.enabled&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;cleybson&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/cleyb/Documents/login-auth-api&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.intellij.jpb.viewMode&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.run-application.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "com.codeium.enabled": "true",
+    "git-widget-placeholder": "cleybson",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/cleyb/Documents/login-auth-api",
+    "settings.editor.selected.configurable": "preferences.pluginManager"
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration name="run-application" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="com.financeiro.api.ApiApplication" />
@@ -120,7 +127,31 @@
       <option name="project" value="LOCAL" />
       <updated>1743973463913</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="👌IMPROVE: implementação melhorada dos sevices">
+      <option name="closed" value="true" />
+      <created>1743974438894</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1743974438894</updated>
+    </task>
+    <task id="LOCAL-00006" summary="📦NEW: adição do DTO especial para o AccountController&#10; 👌IMPROVE: adição de dois filtros para gerenciamento financeiro">
+      <option name="closed" value="true" />
+      <created>1744586048525</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1744586048525</updated>
+    </task>
+    <task id="LOCAL-00007" summary="&#10; 👌IMPROVE: finalização dos filtros de AccountController">
+      <option name="closed" value="true" />
+      <created>1744660637962</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1744660637962</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -128,6 +159,10 @@
     <MESSAGE value="IMPROVE: ligação entre tabelas" />
     <MESSAGE value="NEW: Adição da configuração de segurança. ⏳FUTURE: implementar o service e os controllers" />
     <MESSAGE value="NEW: realocação de arquivos service e melhoria na implementação de services e controllers" />
-    <option name="LAST_COMMIT_MESSAGE" value="NEW: realocação de arquivos service e melhoria na implementação de services e controllers" />
+    <MESSAGE value="NEW: realocação de arquivos service e melhoria na implementação de services e controllers" />
+    <MESSAGE value="IMPROVE: implementação melhorada dos sevices" />
+    <MESSAGE value="NEW: adição do DTO especial para o AccountController&#10; IMPROVE: adição de dois filtros para gerenciamento financeiro" />
+    <MESSAGE value="&#10; IMPROVE: finalização dos filtros de AccountController" />
+    <option name="LAST_COMMIT_MESSAGE" value="&#10; IMPROVE: finalização dos filtros de AccountController" />
   </component>
 </project>

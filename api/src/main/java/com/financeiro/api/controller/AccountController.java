@@ -1,5 +1,7 @@
 package com.financeiro.api.controller;
 
+import com.financeiro.api.domain.enums.Status;
+import com.financeiro.api.dto.accountDTO.AccountRangeValueDTO;
 import com.financeiro.api.dto.accountDTO.AccountRequestDTO;
 import com.financeiro.api.dto.accountDTO.AccountResponseDTO;
 import com.financeiro.api.service.impl.AccountServiceImpl;
@@ -30,6 +32,46 @@ public class AccountController {
     }
 
     @GetMapping("/{id}")
+    public ResponseEntity<AccountResponseDTO> getById(@PathVariable UUID id) {
+        return ResponseEntity.ok(accountServiceImpl.findById(id));
+    }
+
+    @GetMapping("/accountName/{accountName}")
+    public ResponseEntity<List<AccountResponseDTO>> findByAccountName(@PathVariable String accountName) {
+        List<AccountResponseDTO> accounts = accountServiceImpl.findByAccountName(accountName);
+
+        return ResponseEntity.ok(accounts);
+    }
+
+    /*
+     *AIDCIONE OS DOIS VALORES NO PARAMS CASO VÁ TESTAR. Exemplo:
+     * KEY= minValue VALUE= 10.00
+     * KEY= maxValue VALUE= 1000.00
+     */
+    @GetMapping("/openingBalance")
+    public ResponseEntity<List<AccountResponseDTO>> findByOpeningBalanceBetween(@ModelAttribute AccountRangeValueDTO filter){
+        List<AccountResponseDTO> accounts = accountServiceImpl.findByOpeningBalanceBetween(filter.minValue(), filter.maxValue());
+
+        return ResponseEntity.ok(accounts);
+    }
+
+    /*
+    *AIDCIONE OS DOIS VALORES NO PARAMS CASO VÁ TESTAR. Exemplo:
+    * KEY= minValue VALUE= 10.00
+    * KEY= maxValue VALUE= 1000.00
+    */
+    @GetMapping("/specialCheck")
+    public ResponseEntity<List<AccountResponseDTO>> findBySpecialCheck(@ModelAttribute AccountRangeValueDTO filter) {
+        List<AccountResponseDTO> accounts = accountServiceImpl.findBySpecialCheckBetween(filter.minValue(), filter.maxValue());
+
+        return ResponseEntity.ok(accounts);
+    }
+
+    @GetMapping("/status/{status}")
+    public ResponseEntity<List<AccountResponseDTO>> findByStatus(@PathVariable Status status) {
+        return ResponseEntity.ok(accountServiceImpl.findByStatus(status));
+    }
+
     public ResponseEntity<AccountResponseDTO> findById(@PathVariable UUID id) {
         return ResponseEntity.ok(accountServiceImpl.findById(id));
     }

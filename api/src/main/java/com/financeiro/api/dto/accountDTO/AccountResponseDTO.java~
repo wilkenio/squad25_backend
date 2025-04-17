@@ -1,11 +1,13 @@
 package com.financeiro.api.dto.accountDTO;
 
 import com.financeiro.api.domain.enums.Status;
-
+import com.financeiro.api.dto.categoryDTO.CategoryResponseDTO;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-public record AccountRequestDTO(
+public record AccountResponseDTO(
+    UUID id,
     UUID userId,
     String accountName,
     String accountDescription,
@@ -13,5 +15,6 @@ public record AccountRequestDTO(
     Double openingBalance,
     Double specialCheck,
     Status status,
-    List<UUID> categoryIds
+    LocalDateTime createdAt,
+    LocalDateTime updatedAt
 ) {}
