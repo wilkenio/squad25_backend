@@ -7,6 +7,7 @@ public record AccountResponseDTO(
     UUID id,
     UUID userId,
     String accountName,
+    UUID categoryId,
     String accountDescription,
     String additionalInformation,
     Double openingBalance,
