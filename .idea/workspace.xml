@@ -5,15 +5,28 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e2d3c55a-4899-440c-b353-0760b0a222d4" name="Changes" comment="&#10; 👌IMPROVE: finalização dos filtros de AccountController">
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_09_04_2025_18_47_[Changes]/shelved.patch" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_09_04_2025_18_47__Changes_.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_13_04_2025_17_45_[Changes]/shelved.patch" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_13_04_2025_17_45__Changes_.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/dto/accountDTO/AccountRangeValueDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/dto/categoryDTO/CategoryListDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/dto/subcategoryDTO/SubcategoryWithTransactionDTO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/controller/AccountController.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/controller/AccountController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/controller/CategoryController.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/controller/CategoryController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/controller/SubcategoryController.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/controller/SubcategoryController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/domain/Account.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/domain/Account.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/domain/Category.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/domain/Category.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/dto/accountDTO/AccountRequestDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/dto/accountDTO/AccountRequestDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/dto/accountDTO/AccountResponseDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/dto/accountDTO/AccountResponseDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/dto/categoryDTO/CategoryResponseDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/dto/categoryDTO/CategoryResponseDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/infra/exceptions/UserNotFoundException.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/infra/exceptions/UserNotFoundException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/repository/AccountRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/repository/AccountRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/repository/CategoryRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/repository/CategoryRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/repository/TransactionRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/repository/TransactionRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/AccountService.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/AccountService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/CategoryService.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/CategoryService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/SubcategoryService.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/SubcategoryService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/CategoryServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/CategoryServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/AccountServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/AccountServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/SubcategoryServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/SubcategoryServiceImpl.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -71,7 +84,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "com.codeium.enabled": "true",
-    "git-widget-placeholder": "cleybson",
+    "git-widget-placeholder": "Merging develop",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/cleyb/Documents/login-auth-api",
     "settings.editor.selected.configurable": "preferences.pluginManager"
