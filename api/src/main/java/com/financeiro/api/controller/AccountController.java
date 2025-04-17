@@ -32,7 +32,6 @@ public class AccountController {
     }
 
     @GetMapping("/{id}")
-<<<<<<< HEAD
     public ResponseEntity<AccountResponseDTO> getById(@PathVariable UUID id) {
         return ResponseEntity.ok(accountServiceImpl.findById(id));
     }
@@ -73,12 +72,10 @@ public class AccountController {
         return ResponseEntity.ok(accountServiceImpl.findByStatus(status));
     }
 
-=======
     public ResponseEntity<AccountResponseDTO> findById(@PathVariable UUID id) {
         return ResponseEntity.ok(accountServiceImpl.findById(id));
     }
 
->>>>>>> origin/denis
     @PutMapping("/{id}")
     public ResponseEntity<AccountResponseDTO> update(@PathVariable UUID id, @RequestBody AccountRequestDTO dto) {
         return ResponseEntity.ok(accountServiceImpl.update(id, dto));

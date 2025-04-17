@@ -2,6 +2,7 @@ package com.financeiro.api.controller;
 
 import com.financeiro.api.dto.subcategoryDTO.SubcategoryRequestDTO;
 import com.financeiro.api.dto.subcategoryDTO.SubcategoryResponseDTO;
+import com.financeiro.api.dto.subcategoryDTO.SubcategoryWithTransactionDTO;
 import com.financeiro.api.service.SubcategoryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,16 +25,6 @@ public class SubcategoryController {
         return ResponseEntity.ok(service.create(dto));
     }
 
-    @GetMapping
-    public ResponseEntity<List<SubcategoryResponseDTO>> findAll() {
-        return ResponseEntity.ok(service.findAll());
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<SubcategoryResponseDTO> findById(@PathVariable UUID id) {
-        return ResponseEntity.ok(service.findById(id));
-    }
-
     @PutMapping("/{id}")
     public ResponseEntity<SubcategoryResponseDTO> update(@PathVariable UUID id, @RequestBody SubcategoryRequestDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
@@ -43,5 +34,20 @@ public class SubcategoryController {
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<List<SubcategoryResponseDTO>> findAll() {
+        return ResponseEntity.ok(service.findAll());
+    }
+
+    @GetMapping("/by-category/{categoryId}")
+    public ResponseEntity<List<SubcategoryWithTransactionDTO>> listByCategory(@PathVariable UUID categoryId) {
+        return ResponseEntity.ok(service.listSubcategoriesByCategory(categoryId));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<SubcategoryResponseDTO> findById(@PathVariable UUID id) {
+        return ResponseEntity.ok(service.findById(id));
     }
 }

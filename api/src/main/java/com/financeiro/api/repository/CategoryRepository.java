@@ -11,15 +11,10 @@ import java.util.UUID;
 import java.util.Optional;
 
 public interface CategoryRepository extends JpaRepository<Category, UUID> {
-<<<<<<< HEAD
     
     // tenta "advinhar" o nome da categoria e buscar por ela
     List<Category> findByNameContainingIgnoreCase(String name);
-    
     List<Category> findByStatus(Status status);
-    
     List<Category> findByCreatedAtBetween(LocalDateTime startDate, LocalDateTime endDate);
-=======
     Optional<Category> findByName(String name);
->>>>>>> origin/denis
 }

@@ -2,6 +2,7 @@ package com.financeiro.api.controller;
 
 import com.financeiro.api.domain.User;
 import com.financeiro.api.domain.enums.Status;
+import com.financeiro.api.dto.categoryDTO.CategoryListDTO;
 import com.financeiro.api.dto.categoryDTO.CategoryRequestDTO;
 import com.financeiro.api.dto.categoryDTO.CategoryResponseDTO;
 import com.financeiro.api.service.impl.CategoryServiceImpl;
@@ -31,19 +32,6 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.create(dto, userId));
     }
 
-<<<<<<< HEAD
-=======
-    @GetMapping
-    public ResponseEntity<List<CategoryResponseDTO>> getAll() {
-        return ResponseEntity.ok(categoryService.findAll());
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<CategoryResponseDTO> getById(@PathVariable UUID id) {
-        return ResponseEntity.ok(categoryService.findById(id));
-    }
-
->>>>>>> origin/denis
     @PutMapping("/{id}")
     public ResponseEntity<CategoryResponseDTO> update(@PathVariable UUID id, @RequestBody CategoryRequestDTO dto) {
         UUID userId = getCurrentUserId();
@@ -61,15 +49,15 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.findAll());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<CategoryResponseDTO> getById(@PathVariable UUID id) {
+        return ResponseEntity.ok(categoryService.findById(id));
+    }
+
     private UUID getCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
         return user.getId();
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<CategoryResponseDTO> getById(@PathVariable UUID id) {
-        return ResponseEntity.ok(categoryService.findById(id));
     }
 
     @GetMapping("name/{name}")
@@ -79,12 +67,18 @@ public class CategoryController {
 
     @GetMapping("date/{finalDate}")
     public ResponseEntity<List<CategoryResponseDTO>> getByDateRange(LocalDateTime initialDate) {
-        LocalDateTime finalDate = LocalDateTime.now();//comparar a data atual com a data de busca do usuário
+        //comparar a data atual com a data de busca do usuário
+        LocalDateTime finalDate = LocalDateTime.now();
         return ResponseEntity.ok(categoryService.findByDateRange(initialDate, finalDate));
     }
 
     @GetMapping("status/{status}")
     public ResponseEntity<List<CategoryResponseDTO>> getByStatus(Status status) {
         return ResponseEntity.ok(categoryService.findByStatus(status));
+    }
+
+    @GetMapping("list")
+    public ResponseEntity<List<CategoryListDTO>> listCategories() {
+        return ResponseEntity.ok(categoryService.listCategories());
     }
 }

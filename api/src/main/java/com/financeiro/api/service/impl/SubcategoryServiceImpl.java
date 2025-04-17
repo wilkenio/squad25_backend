@@ -2,14 +2,19 @@ package com.financeiro.api.service.impl;
 
 import com.financeiro.api.domain.Category;
 import com.financeiro.api.domain.Subcategory;
+import com.financeiro.api.domain.Transaction;
 import com.financeiro.api.dto.subcategoryDTO.SubcategoryRequestDTO;
 import com.financeiro.api.dto.subcategoryDTO.SubcategoryResponseDTO;
+import com.financeiro.api.dto.subcategoryDTO.SubcategoryWithTransactionDTO;
 import com.financeiro.api.domain.enums.Status;
 import com.financeiro.api.repository.CategoryRepository;
 import com.financeiro.api.repository.SubcategoryRepository;
+import com.financeiro.api.repository.TransactionRepository;
 import com.financeiro.api.service.SubcategoryService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,10 +26,14 @@ public class SubcategoryServiceImpl implements SubcategoryService {
 
     private final SubcategoryRepository subcategoryRepository;
     private final CategoryRepository categoryRepository;
+    private final TransactionRepository transactionRepository;
 
-    public SubcategoryServiceImpl(SubcategoryRepository subcategoryRepository, CategoryRepository categoryRepository) {
+    public SubcategoryServiceImpl(SubcategoryRepository subcategoryRepository, 
+                                CategoryRepository categoryRepository,
+                                TransactionRepository transactionRepository) {
         this.subcategoryRepository = subcategoryRepository;
         this.categoryRepository = categoryRepository;
+        this.transactionRepository = transactionRepository;
     }
 
     @Override
@@ -88,6 +97,31 @@ public class SubcategoryServiceImpl implements SubcategoryService {
         subcategory.setStatus(Status.EXC);
         subcategory.setUpdatedAt(LocalDateTime.now());
         subcategoryRepository.save(subcategory);
+    }
+
+    @Override
+    public List<SubcategoryWithTransactionDTO> listSubcategoriesByCategory(UUID categoryId) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada"));
+
+        return subcategoryRepository.findAll().stream()
+                .filter(subcategory -> subcategory.getCategory().getId().equals(categoryId))
+                .map(subcategory -> {
+                    BigDecimal totalValue = transactionRepository.findAll().stream()
+                            .filter(transaction -> 
+                                transaction.getSubcategory() != null &&
+                                transaction.getSubcategory().getId().equals(subcategory.getId())
+                            )
+                            .map(Transaction::getValue)
+                            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                    return new SubcategoryWithTransactionDTO(
+                            subcategory.getName(),
+                            subcategory.getIconClass(),
+                            totalValue
+                    );
+                })
+                .collect(Collectors.toList());
     }
 
     private SubcategoryResponseDTO toDTO(Subcategory subcategory) {
