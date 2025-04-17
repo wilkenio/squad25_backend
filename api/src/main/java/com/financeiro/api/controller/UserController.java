@@ -1,11 +1,8 @@
 package com.financeiro.api.controller;
 
-import com.financeiro.api.domain.User;
 import com.financeiro.api.dto.userDTO.UserRequestDTO;
 import com.financeiro.api.dto.userDTO.UserResponseDTO;
-import com.financeiro.api.repository.UserRepository;
 import com.financeiro.api.service.impl.UserServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/card")
+@RequestMapping
 public class CardController {
 
     @Autowired

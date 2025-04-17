@@ -23,6 +23,10 @@ public class Category {
     @JoinColumn(name = "user_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "FK_category_user"))
     private User user;
 
+    @ManyToOne
+    @JoinColumn(name = "account_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "FK_category_account"))
+    private Account account;
+
     @Column(name = "name", nullable = false)
     private String name;
 

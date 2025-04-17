@@ -8,8 +8,10 @@ import com.financeiro.api.domain.enums.Status;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.Optional;
 
 public interface CategoryRepository extends JpaRepository<Category, UUID> {
+<<<<<<< HEAD
     
     // tenta "advinhar" o nome da categoria e buscar por ela
     List<Category> findByNameContainingIgnoreCase(String name);
@@ -17,4 +19,7 @@ public interface CategoryRepository extends JpaRepository<Category, UUID> {
     List<Category> findByStatus(Status status);
     
     List<Category> findByCreatedAtBetween(LocalDateTime startDate, LocalDateTime endDate);
+=======
+    Optional<Category> findByName(String name);
+>>>>>>> origin/denis
 }

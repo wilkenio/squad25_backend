@@ -76,16 +76,16 @@ public class AccountServiceImpl implements AccountService{
         Account account = accountRepository.findById(id).orElseThrow(
                 () -> new UserNotFoundException()
         );
-        
+
         return new AccountResponseDTO(
-            account.getId(),
-            account.getUser().getId(),
-            account.getAccountName(),
-            account.getAccountDescription(),
-            account.getAdditionalInformation(),
-            account.getOpeningBalance(),
-            account.getSpecialCheck(),
-            account.getStatus()
+                account.getId(),
+                account.getUser().getId(),
+                account.getAccountName(),
+                account.getAccountDescription(),
+                account.getAdditionalInformation(),
+                account.getOpeningBalance(),
+                account.getSpecialCheck(),
+                account.getStatus()
         );
     }
 
@@ -110,14 +110,14 @@ public class AccountServiceImpl implements AccountService{
 
         Account saved = accountRepository.save(account);
         return new AccountResponseDTO(
-            saved.getId(),
-            saved.getUser().getId(),
-            saved.getAccountName(),
-            saved.getAccountDescription(),
-            saved.getAdditionalInformation(),
-            saved.getOpeningBalance(),
-            saved.getSpecialCheck(),
-            saved.getStatus()
+                saved.getId(),
+                saved.getUser().getId(),
+                saved.getAccountName(),
+                saved.getAccountDescription(),
+                saved.getAdditionalInformation(),
+                saved.getOpeningBalance(),
+                saved.getSpecialCheck(),
+                saved.getStatus()
         );
     }
 

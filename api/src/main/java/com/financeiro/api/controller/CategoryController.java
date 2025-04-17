@@ -31,6 +31,19 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.create(dto, userId));
     }
 
+<<<<<<< HEAD
+=======
+    @GetMapping
+    public ResponseEntity<List<CategoryResponseDTO>> getAll() {
+        return ResponseEntity.ok(categoryService.findAll());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<CategoryResponseDTO> getById(@PathVariable UUID id) {
+        return ResponseEntity.ok(categoryService.findById(id));
+    }
+
+>>>>>>> origin/denis
     @PutMapping("/{id}")
     public ResponseEntity<CategoryResponseDTO> update(@PathVariable UUID id, @RequestBody CategoryRequestDTO dto) {
         UUID userId = getCurrentUserId();

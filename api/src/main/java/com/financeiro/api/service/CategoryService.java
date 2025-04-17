@@ -18,7 +18,12 @@ public interface CategoryService {
     CategoryResponseDTO findById(UUID id);
 
     List<CategoryResponseDTO> findAll();
+<<<<<<< HEAD
     List<CategoryResponseDTO> findByName(String name);
     List<CategoryResponseDTO> findByDateRange(LocalDateTime initialDate, LocalDateTime finalDate);
     List<CategoryResponseDTO> findByStatus(Status status);
+=======
+
+    CategoryResponseDTO findByName(String name);
+>>>>>>> origin/denis
 }
