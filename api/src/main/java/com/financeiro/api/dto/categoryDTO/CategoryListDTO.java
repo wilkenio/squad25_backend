@@ -1,9 +1,12 @@
 package com.financeiro.api.dto.categoryDTO;
 
-import java.math.BigDecimal;
+import com.financeiro.api.domain.enums.CategoryType;
+import com.financeiro.api.domain.enums.Status;
+import java.util.UUID;
 
 public record CategoryListDTO(
-    String iconClass,
+    UUID id,
     String name,
-    BigDecimal value
+    CategoryType type,
+    Status status
 ) {}

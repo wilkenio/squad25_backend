@@ -107,7 +107,7 @@ public class SubcategoryServiceImpl implements SubcategoryService {
     }
 
     @Override
-    public List<SubcategoryWithTransactionDTO> listSubcategoriesByCategory(UUID categoryId) {
+ public List<SubcategoryWithTransactionDTO> findByCategoryIdAndUserId(UUID categoryId, UUID userId) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada"));
 
