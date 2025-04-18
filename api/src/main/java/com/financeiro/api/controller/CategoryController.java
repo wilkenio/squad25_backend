@@ -78,8 +78,8 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.findByStatus(status));
     }
 
-    @GetMapping("list/{accountId}")
-    public ResponseEntity<List<CategoryListDTO>> listCategories(@PathVariable UUID accountId) {
-        return ResponseEntity.ok(categoryService.listCategories(accountId));
+    @GetMapping("list")
+    public ResponseEntity<List<CategoryListDTO>> listCategories() {
+        return ResponseEntity.ok(categoryService.listCategories());
     }
 }
