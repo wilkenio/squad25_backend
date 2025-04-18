@@ -5,6 +5,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import com.financeiro.api.domain.enums.Status;
+import java.util.List;
 
 @Entity
 @Table(name = "account")
@@ -17,10 +18,6 @@ public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
 
     private String accountName;
 
@@ -42,4 +39,12 @@ public class Account {
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @OneToMany
+    @JoinColumn(name = "account_id")
+    private List<Category> categories;
 }

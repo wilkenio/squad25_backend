@@ -2,6 +2,7 @@ package com.financeiro.api.controller;
 
 import com.financeiro.api.dto.subcategoryDTO.SubcategoryRequestDTO;
 import com.financeiro.api.dto.subcategoryDTO.SubcategoryResponseDTO;
+import com.financeiro.api.dto.subcategoryDTO.SubcategoryWithTransactionDTO;
 import com.financeiro.api.service.SubcategoryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,7 +40,7 @@ public class SubcategoryController {
     }
 
     @GetMapping("/by-category/{categoryId}")
-    public ResponseEntity<List<SubcategoryResponseDTO>> getByCategoryId(@PathVariable UUID categoryId) {
+    public ResponseEntity<List<SubcategoryWithTransactionDTO>> getByCategoryId(@PathVariable UUID categoryId) {
         UUID userId = getCurrentUserId();
         return ResponseEntity.ok(service.findByCategoryIdAndUserId(categoryId, userId));
     }
