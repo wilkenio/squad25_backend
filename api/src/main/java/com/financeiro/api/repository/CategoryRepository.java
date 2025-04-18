@@ -18,6 +18,7 @@ public interface CategoryRepository extends JpaRepository<Category, UUID> {
     List<Category> findByNameContainingIgnoreCase(String name);
     List<Category> findByStatus(Status status);
     List<Category> findByCreatedAtBetween(LocalDateTime startDate, LocalDateTime endDate);
+    List<Category> findByAccountId(UUID accountId);
     Optional<Category> findByName(String name);
     List<Category> findAllByUserIdAndStatusIn(UUID userId, List<Status> statuses );
 }

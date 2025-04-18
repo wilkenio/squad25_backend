@@ -113,10 +113,18 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryListDTO> listCategories() {
-        List<Category> categories = categoryRepository.findAll();
+    public List<CategoryResponseDTO> findByName(String name) {
+        List<Category> categories = categoryRepository.findByNameContainingIgnoreCase(name);
         return categories.stream()
-                .map(this::toListDTO) // Usando o método de conversão para CategoryListDTO
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CategoryListDTO> listCategories(UUID accountId) {
+        List<Category> categories = categoryRepository.findByAccountId(accountId);
+        return categories.stream()
+                .map(this::toListDTO)
                 .collect(Collectors.toList());
     }
 
@@ -143,12 +151,5 @@ public class CategoryServiceImpl implements CategoryService {
                 category.getType(),
                 category.getStatus()
         );
-    }
-
-    @Override
-    public CategoryResponseDTO findByName(String name) {
-        Category category = categoryRepository.findByName(name)
-            .orElseThrow(() -> new EntityNotFoundException("Category not found with name: " + name));
-        return toDTO(category);
     }
 }
