@@ -2,16 +2,16 @@ package com.financeiro.api.service.impl;
 
 import com.financeiro.api.domain.Account;
 import com.financeiro.api.domain.User;
+import com.financeiro.api.domain.Category;
 import com.financeiro.api.domain.enums.Status;
 import com.financeiro.api.dto.accountDTO.AccountRequestDTO;
 import com.financeiro.api.dto.accountDTO.AccountResponseDTO;
 import com.financeiro.api.infra.exceptions.UserNotFoundException;
 import com.financeiro.api.repository.AccountRepository;
-import com.financeiro.api.repository.CategoryRepository;
 import com.financeiro.api.repository.UserRepository;
+import com.financeiro.api.repository.CategoryRepository;
 import com.financeiro.api.service.AccountService;
 import org.springframework.stereotype.Service;
-import com.financeiro.api.domain.Category;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -40,10 +40,11 @@ public class AccountServiceImpl implements AccountService{
                 () -> new RuntimeException("Category not found")
         );
 
+
         Account account = new Account();
         account.setUser(user);
-        account.setAccountName(dto.accountName());
         account.setCategory(category);
+        account.setAccountName(dto.accountName());
         account.setAccountDescription(dto.accountDescription());
         account.setAdditionalInformation(dto.additionalInformation());
         account.setOpeningBalance(dto.openingBalance());
@@ -89,14 +90,15 @@ public class AccountServiceImpl implements AccountService{
         );
 
         return new AccountResponseDTO(
-            account.getId(),
-            account.getUser().getId(),
-            account.getAccountName(),
-            account.getAccountDescription(),
-            account.getAdditionalInformation(),
-            account.getOpeningBalance(),
-            account.getSpecialCheck(),
-            account.getStatus()
+                account.getId(),
+                account.getUser().getId(),
+                account.getAccountName(),
+                account.getCategory() != null ? account.getCategory().getId() : null,
+                account.getAccountDescription(),
+                account.getAdditionalInformation(),
+                account.getOpeningBalance(),
+                account.getSpecialCheck(),
+                account.getStatus()
         );
     }
 
@@ -114,6 +116,7 @@ public class AccountServiceImpl implements AccountService{
                 () -> new RuntimeException("Category not found")
         );
 
+
         account.setUser(user);
         account.setAccountName(dto.accountName());
         account.setCategory(category);
@@ -126,14 +129,15 @@ public class AccountServiceImpl implements AccountService{
 
         Account saved = accountRepository.save(account);
         return new AccountResponseDTO(
-            saved.getId(),
-            saved.getUser().getId(),
-            saved.getAccountName(),
-            saved.getAccountDescription(),
-            saved.getAdditionalInformation(),
-            saved.getOpeningBalance(),
-            saved.getSpecialCheck(),
-            saved.getStatus()
+                saved.getId(),
+                saved.getUser().getId(),
+                saved.getAccountName(),
+                saved.getCategory().getId(),
+                saved.getAccountDescription(),
+                saved.getAdditionalInformation(),
+                saved.getOpeningBalance(),
+                saved.getSpecialCheck(),
+                saved.getStatus()
         );
     }
 
@@ -155,6 +159,7 @@ public class AccountServiceImpl implements AccountService{
                         acc.getId(),
                         acc.getUser().getId(),
                         acc.getAccountName(),
+                        acc.getCategory() != null ? acc.getCategory().getId() : null,
                         acc.getAccountDescription(),
                         acc.getAdditionalInformation(),
                         acc.getOpeningBalance(),
@@ -170,6 +175,7 @@ public class AccountServiceImpl implements AccountService{
                         acc.getId(),
                         acc.getUser().getId(),
                         acc.getAccountName(),
+                        acc.getCategory() != null ? acc.getCategory().getId() : null,
                         acc.getAccountDescription(),
                         acc.getAdditionalInformation(),
                         acc.getOpeningBalance(),
@@ -185,6 +191,7 @@ public class AccountServiceImpl implements AccountService{
                         acc.getId(),
                         acc.getUser().getId(),
                         acc.getAccountName(),
+                        acc.getCategory() != null ? acc.getCategory().getId() : null,
                         acc.getAccountDescription(),
                         acc.getAdditionalInformation(),
                         acc.getOpeningBalance(),
@@ -200,6 +207,7 @@ public class AccountServiceImpl implements AccountService{
                         acc.getId(),
                         acc.getUser().getId(),
                         acc.getAccountName(),
+                        acc.getCategory() != null ? acc.getCategory().getId() : null,
                         acc.getAccountDescription(),
                         acc.getAdditionalInformation(),
                         acc.getOpeningBalance(),

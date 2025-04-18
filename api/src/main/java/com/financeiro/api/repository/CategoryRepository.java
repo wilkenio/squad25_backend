@@ -20,4 +20,5 @@ public interface CategoryRepository extends JpaRepository<Category, UUID> {
     List<Category> findByCreatedAtBetween(LocalDateTime startDate, LocalDateTime endDate);
     Optional<Category> findByName(String name);
     List<Category> findAllByUserIdAndStatusIn(UUID userId, List<Status> statuses );
+    Optional<Category> findByIdAndUserId(UUID id, UUID userId);
 }
