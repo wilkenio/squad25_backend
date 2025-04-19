@@ -19,7 +19,7 @@ public interface CategoryService {
     CategoryResponseDTO findById(UUID id);
 
     List<CategoryResponseDTO> findAll(UUID userId);
-    CategoryResponseDTO findByName(String name);
+    List<CategoryResponseDTO> findByName(String name);
     List<CategoryResponseDTO> findByDateRange(LocalDateTime initialDate, LocalDateTime finalDate);
     List<CategoryResponseDTO> findByStatus(Status status);
 

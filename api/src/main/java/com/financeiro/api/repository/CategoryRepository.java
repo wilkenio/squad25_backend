@@ -2,23 +2,28 @@ package com.financeiro.api.repository;
 
 import com.financeiro.api.domain.Category;
 
+import com.financeiro.api.domain.enums.CategoryType;
+import com.financeiro.api.dto.categoryDTO.CategoryListDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
-import com.financeiro.api.domain.enums.*;
 
 import com.financeiro.api.domain.enums.Status;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-import java.util.Optional;
-import java.util.List;
 
 public interface CategoryRepository extends JpaRepository<Category, UUID> {
     
     // tenta "advinhar" o nome da categoria e buscar por ela
     List<Category> findByNameContainingIgnoreCase(String name);
     List<Category> findByStatus(Status status);
+    @Query("SELECT c.type FROM Category c WHERE c.id = :id")
+    CategoryType findTypeById(@Param("id") UUID id);
     List<Category> findByCreatedAtBetween(LocalDateTime startDate, LocalDateTime endDate);
-    Optional<Category> findByName(String name);
+    List<Category> findByAccountId(UUID accountId);
     List<Category> findAllByUserIdAndStatusIn(UUID userId, List<Status> statuses );
-    Optional<Category> findByIdAndUserId(UUID id, UUID userId);
+
+    List<Category> findAllByStatusIn(List<Status> statuses);
 }

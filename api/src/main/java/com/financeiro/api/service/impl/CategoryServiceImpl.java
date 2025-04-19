@@ -1,11 +1,13 @@
 package com.financeiro.api.service.impl;
 
 import com.financeiro.api.domain.Category;
+import com.financeiro.api.domain.Transaction;
 import com.financeiro.api.domain.User;
 import com.financeiro.api.dto.categoryDTO.CategoryRequestDTO;
 import com.financeiro.api.dto.categoryDTO.CategoryListDTO; // Importação ajustada
 import com.financeiro.api.dto.categoryDTO.CategoryResponseDTO;
 import com.financeiro.api.repository.CategoryRepository;
+import com.financeiro.api.repository.TransactionRepository;
 import com.financeiro.api.repository.UserRepository;
 import com.financeiro.api.service.CategoryService;
 import jakarta.persistence.EntityNotFoundException;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.financeiro.api.domain.enums.Status;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -26,6 +29,8 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private TransactionRepository transactionRepository;
 
     @Override
     public CategoryResponseDTO create(CategoryRequestDTO dto, UUID userId) {
@@ -113,10 +118,39 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    public List<CategoryResponseDTO> findByName(String name) {
+        List<Category> categories = categoryRepository.findByNameContainingIgnoreCase(name);
+        return categories.stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<CategoryListDTO> listCategories() {
         List<Category> categories = categoryRepository.findAll();
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startOfMonth = now.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime endOfMonth = now.withDayOfMonth(now.toLocalDate().lengthOfMonth()).withHour(23).withMinute(59).withSecond(59).withNano(999999999);
+
         return categories.stream()
-                .map(this::toListDTO) // Usando o método de conversão para CategoryListDTO
+                .map(category -> {
+                    BigDecimal totalValue = transactionRepository.findByCategoryId(category.getId())
+                            .stream()
+                            .filter(transaction -> {
+                                LocalDateTime transactionDate = transaction.getCreatedAt();
+                                return !transactionDate.isBefore(startOfMonth) && !transactionDate.isAfter(endOfMonth);
+                            })
+                            .map(Transaction::getValue)
+                            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                    return new CategoryListDTO(
+                            category.getId(),
+                            category.getName(),
+                            category.getType(),
+                            category.getIconClass(),
+                            totalValue
+                    );
+                })
                 .collect(Collectors.toList());
     }
 
@@ -136,19 +170,4 @@ public class CategoryServiceImpl implements CategoryService {
         );
     }
 
-    private CategoryListDTO toListDTO(Category category) {
-        return new CategoryListDTO(
-                category.getId(),
-                category.getName(),
-                category.getType(),
-                category.getStatus()
-        );
-    }
-
-    @Override
-    public CategoryResponseDTO findByName(String name) {
-        Category category = categoryRepository.findByName(name)
-            .orElseThrow(() -> new EntityNotFoundException("Category not found with name: " + name));
-        return toDTO(category);
-    }
 }
