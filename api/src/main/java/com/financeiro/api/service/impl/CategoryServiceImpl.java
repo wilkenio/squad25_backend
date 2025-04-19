@@ -126,12 +126,14 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryListDTO> listCategories() {
-        List<Category> categories = categoryRepository.findAll();
+    public List<CategoryListDTO> listCategories(UUID userId) {
+        List<Status> statuses = List.of(Status.SIM, Status.NAO);
+    
+        List<Category> categories = categoryRepository.findAllByUserIdAndStatusIn(userId, statuses);
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime startOfMonth = now.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
         LocalDateTime endOfMonth = now.withDayOfMonth(now.toLocalDate().lengthOfMonth()).withHour(23).withMinute(59).withSecond(59).withNano(999999999);
-
+    
         return categories.stream()
                 .map(category -> {
                     BigDecimal totalValue = transactionRepository.findByCategoryId(category.getId())
@@ -142,7 +144,7 @@ public class CategoryServiceImpl implements CategoryService {
                             })
                             .map(Transaction::getValue)
                             .reduce(BigDecimal.ZERO, BigDecimal::add);
-
+    
                     return new CategoryListDTO(
                             category.getId(),
                             category.getName(),
@@ -153,6 +155,7 @@ public class CategoryServiceImpl implements CategoryService {
                 })
                 .collect(Collectors.toList());
     }
+    
 
     private CategoryResponseDTO toDTO(Category category) {
         return new CategoryResponseDTO(

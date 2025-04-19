@@ -61,25 +61,26 @@ public class CategoryController {
         return user.getId();
     }
 
-    @GetMapping("name/{name}")
+    @GetMapping("/name/{name}")
     public ResponseEntity<List<CategoryResponseDTO>> getByName(@PathVariable String name) {
         return ResponseEntity.ok(categoryService.findByName(name));
     }
 
-    @GetMapping("date/{finalDate}")
+    @GetMapping("/date/{finalDate}")
     public ResponseEntity<List<CategoryResponseDTO>> getByDateRange(LocalDateTime initialDate) {
         //comparar a data atual com a data de busca do usuário
         LocalDateTime finalDate = LocalDateTime.now();
         return ResponseEntity.ok(categoryService.findByDateRange(initialDate, finalDate));
     }
 
-    @GetMapping("status/{status}")
+    @GetMapping("/status/{status}")
     public ResponseEntity<List<CategoryResponseDTO>> getByStatus(Status status) {
         return ResponseEntity.ok(categoryService.findByStatus(status));
     }
 
-    @GetMapping("list")
+    @GetMapping("/list")
     public ResponseEntity<List<CategoryListDTO>> listCategories() {
-        return ResponseEntity.ok(categoryService.listCategories());
-    }
+        UUID userId = getCurrentUserId();
+        return ResponseEntity.ok(categoryService.listCategories(userId));
+    }    
 }

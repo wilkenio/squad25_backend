@@ -23,5 +23,5 @@ public interface CategoryService {
     List<CategoryResponseDTO> findByDateRange(LocalDateTime initialDate, LocalDateTime finalDate);
     List<CategoryResponseDTO> findByStatus(Status status);
 
-    List<CategoryListDTO> listCategories();
+    List<CategoryListDTO> listCategories(UUID userId);
 }
