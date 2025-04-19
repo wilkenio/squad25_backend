@@ -77,11 +77,11 @@ public class SubcategoryServiceImpl implements SubcategoryService {
     @Override
     public SubcategoryResponseDTO update(UUID id, SubcategoryRequestDTO dto) {
         Subcategory subcategory = subcategoryRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("Subcategory not found")
+                () -> new EntityNotFoundException("Subcategoria não encontrada")
         );
 
         Category category = categoryRepository.findById(dto.categoryId())
-                .orElseThrow(() -> new EntityNotFoundException("Category not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada"));
 
         subcategory.setName(dto.name());
         subcategory.setStandardRecommendation(dto.standardRecommendation());
@@ -99,17 +99,20 @@ public class SubcategoryServiceImpl implements SubcategoryService {
     public void delete(UUID id) {
         Subcategory subcategory = subcategoryRepository.findById(id)
                 .orElseThrow(
-                        () -> new EntityNotFoundException("Subcategory not found")
+                        () -> new EntityNotFoundException("Subcategoria não encontrada")
                 );
         subcategory.setStatus(Status.EXC);
         subcategory.setUpdatedAt(LocalDateTime.now());
         subcategoryRepository.save(subcategory);
     }
-
-    @Override
+ @Override
  public List<SubcategoryWithTransactionDTO> findByCategoryIdAndUserId(UUID categoryId, UUID userId) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada"));
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startOfMonth = now.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime endOfMonth = now.withDayOfMonth(now.toLocalDate().lengthOfMonth()).withHour(23).withMinute(59).withSecond(59).withNano(999999999);
 
         return subcategoryRepository.findAll().stream()
                 .filter(subcategory -> subcategory.getCategory().getId().equals(categoryId))
@@ -117,14 +120,18 @@ public class SubcategoryServiceImpl implements SubcategoryService {
                     BigDecimal totalValue = transactionRepository.findAll().stream()
                             .filter(transaction -> 
                                 transaction.getSubcategory() != null &&
-                                transaction.getSubcategory().getId().equals(subcategory.getId())
+                                transaction.getSubcategory().getId().equals(subcategory.getId()) &&
+                                !transaction.getCreatedAt().isBefore(startOfMonth) &&
+                                !transaction.getCreatedAt().isAfter(endOfMonth)
                             )
                             .map(Transaction::getValue)
                             .reduce(BigDecimal.ZERO, BigDecimal::add);
 
                     return new SubcategoryWithTransactionDTO(
+                            subcategory.getId(),
                             subcategory.getName(),
                             subcategory.getIconClass(),
+                            subcategory.getCategory().getType(),
                             totalValue
                     );
                 })

@@ -2,12 +2,14 @@ package com.financeiro.api.service.impl;
 
 import com.financeiro.api.domain.Account;
 import com.financeiro.api.domain.User;
+import com.financeiro.api.domain.Category;
 import com.financeiro.api.domain.enums.Status;
 import com.financeiro.api.dto.accountDTO.AccountRequestDTO;
 import com.financeiro.api.dto.accountDTO.AccountResponseDTO;
 import com.financeiro.api.infra.exceptions.UserNotFoundException;
 import com.financeiro.api.repository.AccountRepository;
 import com.financeiro.api.repository.UserRepository;
+import com.financeiro.api.repository.CategoryRepository;
 import com.financeiro.api.service.AccountService;
 import org.springframework.stereotype.Service;
 
@@ -21,10 +23,12 @@ public class AccountServiceImpl implements AccountService{
 
     private final AccountRepository accountRepository;
     private final UserRepository userRepository;
+    private final CategoryRepository categoryRepository;
 
-    public AccountServiceImpl(AccountRepository accountRepository, UserRepository userRepository) {
+    public AccountServiceImpl(AccountRepository accountRepository, UserRepository userRepository, CategoryRepository categoryRepository) {
         this.accountRepository = accountRepository;
         this.userRepository = userRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     public AccountResponseDTO create(AccountRequestDTO dto) {
@@ -32,8 +36,14 @@ public class AccountServiceImpl implements AccountService{
                 () -> new UserNotFoundException()
         );
 
+        Category category = categoryRepository.findById(dto.categoryId()).orElseThrow(
+                () -> new RuntimeException("Category not found")
+        );
+
+
         Account account = new Account();
         account.setUser(user);
+        account.setCategory(category);
         account.setAccountName(dto.accountName());
         account.setAccountDescription(dto.accountDescription());
         account.setAdditionalInformation(dto.additionalInformation());
@@ -49,6 +59,7 @@ public class AccountServiceImpl implements AccountService{
                 saved.getId(),
                 saved.getUser().getId(),
                 saved.getAccountName(),
+                saved.getCategory().getId(),
                 saved.getAccountDescription(),
                 saved.getAdditionalInformation(),
                 saved.getOpeningBalance(),
@@ -63,6 +74,7 @@ public class AccountServiceImpl implements AccountService{
                         acc.getId(),
                         acc.getUser().getId(),
                         acc.getAccountName(),
+                        acc.getCategory() != null ? acc.getCategory().getId() : null,
                         acc.getAccountDescription(),
                         acc.getAdditionalInformation(),
                         acc.getOpeningBalance(),
@@ -81,6 +93,7 @@ public class AccountServiceImpl implements AccountService{
                 account.getId(),
                 account.getUser().getId(),
                 account.getAccountName(),
+                account.getCategory() != null ? account.getCategory().getId() : null,
                 account.getAccountDescription(),
                 account.getAdditionalInformation(),
                 account.getOpeningBalance(),
@@ -99,8 +112,14 @@ public class AccountServiceImpl implements AccountService{
                 () -> new UserNotFoundException()
         );
 
+        Category category = categoryRepository.findById(dto.categoryId()).orElseThrow(
+                () -> new RuntimeException("Category not found")
+        );
+
+
         account.setUser(user);
         account.setAccountName(dto.accountName());
+        account.setCategory(category);
         account.setAccountDescription(dto.accountDescription());
         account.setAdditionalInformation(dto.additionalInformation());
         account.setOpeningBalance(dto.openingBalance());
@@ -113,6 +132,7 @@ public class AccountServiceImpl implements AccountService{
                 saved.getId(),
                 saved.getUser().getId(),
                 saved.getAccountName(),
+                saved.getCategory().getId(),
                 saved.getAccountDescription(),
                 saved.getAdditionalInformation(),
                 saved.getOpeningBalance(),
@@ -139,6 +159,7 @@ public class AccountServiceImpl implements AccountService{
                         acc.getId(),
                         acc.getUser().getId(),
                         acc.getAccountName(),
+                        acc.getCategory() != null ? acc.getCategory().getId() : null,
                         acc.getAccountDescription(),
                         acc.getAdditionalInformation(),
                         acc.getOpeningBalance(),
@@ -154,6 +175,7 @@ public class AccountServiceImpl implements AccountService{
                         acc.getId(),
                         acc.getUser().getId(),
                         acc.getAccountName(),
+                        acc.getCategory() != null ? acc.getCategory().getId() : null,
                         acc.getAccountDescription(),
                         acc.getAdditionalInformation(),
                         acc.getOpeningBalance(),
@@ -169,6 +191,7 @@ public class AccountServiceImpl implements AccountService{
                         acc.getId(),
                         acc.getUser().getId(),
                         acc.getAccountName(),
+                        acc.getCategory() != null ? acc.getCategory().getId() : null,
                         acc.getAccountDescription(),
                         acc.getAdditionalInformation(),
                         acc.getOpeningBalance(),
@@ -184,6 +207,7 @@ public class AccountServiceImpl implements AccountService{
                         acc.getId(),
                         acc.getUser().getId(),
                         acc.getAccountName(),
+                        acc.getCategory() != null ? acc.getCategory().getId() : null,
                         acc.getAccountDescription(),
                         acc.getAdditionalInformation(),
                         acc.getOpeningBalance(),

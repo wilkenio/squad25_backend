@@ -4,30 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e2d3c55a-4899-440c-b353-0760b0a222d4" name="Changes" comment="&#10; 👌IMPROVE: finalização dos filtros de AccountController">
-      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_09_04_2025_18_47_[Changes]/shelved.patch" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_09_04_2025_18_47__Changes_.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_13_04_2025_17_45_[Changes]/shelved.patch" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_13_04_2025_17_45__Changes_.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/dto/accountDTO/AccountRangeValueDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/dto/categoryDTO/CategoryListDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/dto/subcategoryDTO/SubcategoryWithTransactionDTO.java" afterDir="false" />
+    <list default="true" id="e2d3c55a-4899-440c-b353-0760b0a222d4" name="Changes" comment="&#10; 👌IMPROVE: adição da checagem por mês">
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/controller/AccountController.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/controller/AccountController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/controller/UserController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/domain/Account.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/domain/Account.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/domain/Category.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/domain/Category.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/dto/accountDTO/AccountRequestDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/dto/accountDTO/AccountRequestDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/dto/accountDTO/AccountResponseDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/dto/accountDTO/AccountResponseDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/dto/categoryDTO/CategoryResponseDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/dto/categoryDTO/CategoryResponseDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/infra/exceptions/UserNotFoundException.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/infra/exceptions/UserNotFoundException.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/repository/AccountRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/repository/AccountRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/repository/CategoryRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/repository/CategoryRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/repository/TransactionRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/repository/TransactionRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/AccountService.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/AccountService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/controller/CategoryController.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/controller/CategoryController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/CategoryService.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/CategoryService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/AccountServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/AccountServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/SubcategoryServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/SubcategoryServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/DefaultCategoryInitializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/DefaultCategoryInitializer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/CategoryServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/CategoryServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/UserServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/UserServiceImpl.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -84,13 +69,16 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "com.codeium.enabled": "true",
-    "git-widget-placeholder": "Merging develop",
+    "git-widget-placeholder": "denis",
+    "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/cleyb/Documents/login-auth-api",
-    "settings.editor.selected.configurable": "preferences.pluginManager"
+    "last_opened_file_path": "C:/Users/Meu Computador/squad25_backend",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Application.run-application">
     <configuration name="run-application" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="com.financeiro.api.ApiApplication" />
       <module name="api" />
@@ -98,6 +86,22 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="ApiApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
+      <module name="api" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.financeiro.api.ApiApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-b114ca120d71-intellij.indexing.shared.core-IU-242.21829.142" />
+        <option value="bundled-js-predefined-d6986cc7102b-7c0b70fcd90d-JavaScript-IU-242.21829.142" />
+      </set>
+    </attachedChunks>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -107,6 +111,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1743285815581</updated>
+      <workItem from="1745068267060" duration="237000" />
     </task>
     <task id="LOCAL-00001" summary="📦NEW: Adição das versões base do domain e repository">
       <option name="closed" value="true" />
@@ -164,8 +169,35 @@
       <option name="project" value="LOCAL" />
       <updated>1744660637962</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="&#10; 👌IMPROVE: adição de id da conta como entrada para listagem de categorias">
+      <option name="closed" value="true" />
+      <created>1744983260351</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1744983260351</updated>
+    </task>
+    <task id="LOCAL-00009" summary="&#10; 👌IMPROVE: correção do ID">
+      <option name="closed" value="true" />
+      <created>1744983867377</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1744983867377</updated>
+    </task>
+    <task id="LOCAL-00010" summary="&#10; 👌IMPROVE: adição da checagem por mês">
+      <option name="closed" value="true" />
+      <created>1744988443513</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1744988443513</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="NEW: Adição das versões base do domain e repository" />
@@ -176,6 +208,9 @@
     <MESSAGE value="IMPROVE: implementação melhorada dos sevices" />
     <MESSAGE value="NEW: adição do DTO especial para o AccountController&#10; IMPROVE: adição de dois filtros para gerenciamento financeiro" />
     <MESSAGE value="&#10; IMPROVE: finalização dos filtros de AccountController" />
-    <option name="LAST_COMMIT_MESSAGE" value="&#10; IMPROVE: finalização dos filtros de AccountController" />
+    <MESSAGE value="&#10; IMPROVE: adição de id da conta como entrada para listagem de categorias" />
+    <MESSAGE value="&#10; IMPROVE: correção do ID" />
+    <MESSAGE value="&#10; IMPROVE: adição da checagem por mês" />
+    <option name="LAST_COMMIT_MESSAGE" value="&#10; IMPROVE: adição da checagem por mês" />
   </component>
 </project>

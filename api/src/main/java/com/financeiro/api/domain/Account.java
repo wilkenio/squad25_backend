@@ -21,6 +21,10 @@ public class Account {
 
     private String accountName;
 
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
+
     private String accountDescription;
 
     private String additionalInformation;

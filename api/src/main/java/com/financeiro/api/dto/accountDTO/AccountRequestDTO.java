@@ -8,6 +8,7 @@ import java.util.UUID;
 public record AccountRequestDTO(
     UUID userId,
     String accountName,
+    UUID categoryId,
     String accountDescription,
     String additionalInformation,
     Double openingBalance,

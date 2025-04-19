@@ -6,6 +6,7 @@ import com.financeiro.api.dto.userDTO.UserResponseDTO;
 import com.financeiro.api.domain.enums.Status;
 import com.financeiro.api.infra.exceptions.UserNotFoundException;
 import com.financeiro.api.repository.UserRepository;
+import com.financeiro.api.service.DefaultCategoryInitializer;
 import com.financeiro.api.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,6 +26,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private DefaultCategoryInitializer defaultCategoryInitializer;
+
     @Override
     public UserResponseDTO create(UserRequestDTO dto) {
         User user = new User();
@@ -35,6 +39,7 @@ public class UserServiceImpl implements UserService {
         user.setCreatedAt(LocalDateTime.now());
 
         User saved = repository.save(user);
+        defaultCategoryInitializer.createDefaultCategoriesForUser(user);
         return toDTO(saved);
     }
 

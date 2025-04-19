@@ -27,6 +27,10 @@ public class Category {
     @JoinColumn(name = "account_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "FK_category_account"))
     private Account account;
 
+    @ManyToOne
+    @JoinColumn(name = "id_category")
+    private Category category;
+
     @Column(name = "name", nullable = false)
     private String name;
 
