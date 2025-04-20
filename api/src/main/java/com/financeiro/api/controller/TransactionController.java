@@ -1,5 +1,6 @@
 package com.financeiro.api.controller;
 
+import com.financeiro.api.domain.enums.TransactionState;
 import com.financeiro.api.dto.transactionDTO.*;
 import com.financeiro.api.service.impl.TransactionServiceImpl;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +32,14 @@ public class TransactionController {
     @GetMapping("/{id}")
     public ResponseEntity<TransactionResponseDTO> getById(@PathVariable UUID id) {
         return ResponseEntity.ok(service.findById(id));
+    }
+
+    @PatchMapping("/{id}/state")
+    public ResponseEntity<TransactionResponseDTO> updateState(
+            @PathVariable UUID id,
+            @RequestParam TransactionState state
+    ) {
+        return ResponseEntity.ok(service.updateState(id, state));
     }
 
     @DeleteMapping("/{id}")

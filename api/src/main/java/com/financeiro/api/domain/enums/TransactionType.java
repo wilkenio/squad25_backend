@@ -5,5 +5,6 @@ public enum TransactionType {
     EXPENSE,
     IMPORT,
     TRANSFER,
-    EXPENSE_CARD
+    EXPENSE_CARD,
+    INCOME
 }
