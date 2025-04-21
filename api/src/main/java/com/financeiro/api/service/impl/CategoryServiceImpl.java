@@ -148,6 +148,7 @@ public class CategoryServiceImpl implements CategoryService {
                             category.getName(),
                             category.getType(),
                             category.getIconClass(),
+                            category.getColor(),
                             totalValue
                     );
                 })

@@ -10,5 +10,6 @@ public record CategoryListDTO(
     String name,
     CategoryType type,
     String iconClass,
+    String color,
     BigDecimal value
 ) {}
