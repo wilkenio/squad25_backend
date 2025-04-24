@@ -4,8 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e2d3c55a-4899-440c-b353-0760b0a222d4" name="Changes" comment="">
+    <list default="true" id="e2d3c55a-4899-440c-b353-0760b0a222d4" name="Changes" comment="👌IMPROVE: reorganizando a ordem das variáveis das entidades">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/dto/accountDTO/AccountResponseDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/dto/accountDTO/AccountResponseDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/AccountServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/AccountServiceImpl.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -182,7 +184,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745270311947</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="👌IMPROVE: reorganizando a ordem das variáveis das entidades">
+      <option name="closed" value="true" />
+      <created>1745358341922</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1745358341922</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -199,6 +209,7 @@
     <MESSAGE value="&#10; IMPROVE: adição da checagem por mês" />
     <MESSAGE value="&#10; IMPROVE: correção do retorno de dados da SubcategoryServiceImpl" />
     <MESSAGE value=" FIX: Correção da cor" />
-    <option name="LAST_COMMIT_MESSAGE" value=" FIX: Correção da cor" />
+    <MESSAGE value="IMPROVE: reorganizando a ordem das variáveis das entidades" />
+    <option name="LAST_COMMIT_MESSAGE" value="IMPROVE: reorganizando a ordem das variáveis das entidades" />
   </component>
 </project>

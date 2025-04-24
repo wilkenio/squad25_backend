@@ -47,13 +47,13 @@ public class AccountServiceImpl implements AccountService{
 
         return new AccountResponseDTO(
                 saved.getId(),
-                saved.getUser().getId(),
                 saved.getAccountName(),
                 saved.getAccountDescription(),
                 saved.getAdditionalInformation(),
                 saved.getOpeningBalance(),
                 saved.getSpecialCheck(),
-                saved.getStatus()
+                saved.getStatus(),
+                saved.getCategories()
         );
     }
 
@@ -61,13 +61,13 @@ public class AccountServiceImpl implements AccountService{
         return accountRepository.findAll().stream()
                 .map(acc -> new AccountResponseDTO(
                         acc.getId(),
-                        acc.getUser().getId(),
                         acc.getAccountName(),
                         acc.getAccountDescription(),
                         acc.getAdditionalInformation(),
                         acc.getOpeningBalance(),
                         acc.getSpecialCheck(),
-                        acc.getStatus()
+                        acc.getStatus(),
+                        acc.getCategories()
                 )).collect(Collectors.toList());
     }
 
@@ -79,13 +79,13 @@ public class AccountServiceImpl implements AccountService{
 
         return new AccountResponseDTO(
                 account.getId(),
-                account.getUser().getId(),
                 account.getAccountName(),
                 account.getAccountDescription(),
                 account.getAdditionalInformation(),
                 account.getOpeningBalance(),
                 account.getSpecialCheck(),
-                account.getStatus()
+                account.getStatus(),
+                account.getCategories()
         );
     }
 
@@ -111,13 +111,13 @@ public class AccountServiceImpl implements AccountService{
         Account saved = accountRepository.save(account);
         return new AccountResponseDTO(
                 saved.getId(),
-                saved.getUser().getId(),
                 saved.getAccountName(),
                 saved.getAccountDescription(),
                 saved.getAdditionalInformation(),
                 saved.getOpeningBalance(),
                 saved.getSpecialCheck(),
-                saved.getStatus()
+                saved.getStatus(),
+                saved.getCategories()
         );
     }
 
@@ -137,13 +137,13 @@ public class AccountServiceImpl implements AccountService{
         return accountRepository.findByAccountNameContainingIgnoreCase(accountName).stream()
                 .map(acc -> new AccountResponseDTO(
                         acc.getId(),
-                        acc.getUser().getId(),
                         acc.getAccountName(),
                         acc.getAccountDescription(),
                         acc.getAdditionalInformation(),
                         acc.getOpeningBalance(),
                         acc.getSpecialCheck(),
-                        acc.getStatus()
+                        acc.getStatus(),
+                        acc.getCategories()
                 )).collect(Collectors.toList());
     }
 
@@ -152,13 +152,13 @@ public class AccountServiceImpl implements AccountService{
         return accountRepository.findByOpeningBalanceBetween(minValue, maxValue).stream()
                 .map(acc -> new AccountResponseDTO(
                         acc.getId(),
-                        acc.getUser().getId(),
                         acc.getAccountName(),
                         acc.getAccountDescription(),
                         acc.getAdditionalInformation(),
                         acc.getOpeningBalance(),
                         acc.getSpecialCheck(),
-                        acc.getStatus()
+                        acc.getStatus(),
+                        acc.getCategories()
                 )).collect(Collectors.toList());
     }
 
@@ -167,13 +167,13 @@ public class AccountServiceImpl implements AccountService{
         return accountRepository.findBySpecialCheckBetween(minValue, maxValue).stream()
                 .map(acc -> new AccountResponseDTO(
                         acc.getId(),
-                        acc.getUser().getId(),
                         acc.getAccountName(),
                         acc.getAccountDescription(),
                         acc.getAdditionalInformation(),
                         acc.getOpeningBalance(),
                         acc.getSpecialCheck(),
-                        acc.getStatus()
+                        acc.getStatus(),
+                        acc.getCategories()
                 )).collect(Collectors.toList());
     }
 
@@ -182,13 +182,13 @@ public class AccountServiceImpl implements AccountService{
         return accountRepository.findByStatus(status).stream()
                 .map(acc -> new AccountResponseDTO(
                         acc.getId(),
-                        acc.getUser().getId(),
                         acc.getAccountName(),
                         acc.getAccountDescription(),
                         acc.getAdditionalInformation(),
                         acc.getOpeningBalance(),
                         acc.getSpecialCheck(),
-                        acc.getStatus()
+                        acc.getStatus(),
+                        acc.getCategories()
                 )).collect(Collectors.toList());
     }
 
