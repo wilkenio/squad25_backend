@@ -131,6 +131,7 @@ public class SubcategoryServiceImpl implements SubcategoryService {
                             subcategory.getId(),
                             subcategory.getName(),
                             subcategory.getIconClass(),
+                            subcategory.getColor(),
                             subcategory.getCategory().getType(),
                             totalValue
                     );

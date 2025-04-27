@@ -4,6 +4,7 @@ import com.financeiro.api.domain.enums.Status;
 import com.financeiro.api.dto.accountDTO.AccountRangeValueDTO;
 import com.financeiro.api.dto.accountDTO.AccountRequestDTO;
 import com.financeiro.api.dto.accountDTO.AccountResponseDTO;
+import com.financeiro.api.dto.accountDTO.AccountSaveResponseDTO;
 import com.financeiro.api.service.impl.AccountServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +23,7 @@ public class AccountController {
     }
 
     @PostMapping
-    public ResponseEntity<AccountResponseDTO> create(@RequestBody AccountRequestDTO dto) {
+    public ResponseEntity<AccountSaveResponseDTO> create(@RequestBody AccountRequestDTO dto) {
         return ResponseEntity.ok(accountServiceImpl.create(dto));
     }
 
@@ -77,7 +78,7 @@ public class AccountController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<AccountResponseDTO> update(@PathVariable UUID id, @RequestBody AccountRequestDTO dto) {
+    public ResponseEntity<AccountSaveResponseDTO> update(@PathVariable UUID id, @RequestBody AccountRequestDTO dto) {
         return ResponseEntity.ok(accountServiceImpl.update(id, dto));
     }
 

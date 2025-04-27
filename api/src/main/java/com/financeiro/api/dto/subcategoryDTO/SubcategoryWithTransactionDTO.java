@@ -8,6 +8,7 @@ public record SubcategoryWithTransactionDTO(
     UUID id,
     String name,
     String iconClass,
+    String color,
     CategoryType categoryType,
     BigDecimal totalValue
 ) {}

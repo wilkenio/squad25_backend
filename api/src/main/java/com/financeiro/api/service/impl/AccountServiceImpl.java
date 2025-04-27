@@ -5,6 +5,7 @@ import com.financeiro.api.domain.User;
 import com.financeiro.api.domain.enums.Status;
 import com.financeiro.api.dto.accountDTO.AccountRequestDTO;
 import com.financeiro.api.dto.accountDTO.AccountResponseDTO;
+import com.financeiro.api.dto.accountDTO.AccountSaveResponseDTO;
 import com.financeiro.api.infra.exceptions.UserNotFoundException;
 import com.financeiro.api.repository.AccountRepository;
 import com.financeiro.api.repository.UserRepository;
@@ -27,13 +28,9 @@ public class AccountServiceImpl implements AccountService{
         this.userRepository = userRepository;
     }
 
-    public AccountResponseDTO create(AccountRequestDTO dto) {
-        User user = userRepository.findById(dto.userId()).orElseThrow(
-                () -> new UserNotFoundException()
-        );
+    public AccountSaveResponseDTO create(AccountRequestDTO dto) {
 
         Account account = new Account();
-        account.setUser(user);
         account.setAccountName(dto.accountName());
         account.setAccountDescription(dto.accountDescription());
         account.setAdditionalInformation(dto.additionalInformation());
@@ -45,15 +42,14 @@ public class AccountServiceImpl implements AccountService{
 
         Account saved = accountRepository.save(account);
 
-        return new AccountResponseDTO(
+        return new AccountSaveResponseDTO(
                 saved.getId(),
                 saved.getAccountName(),
                 saved.getAccountDescription(),
                 saved.getAdditionalInformation(),
                 saved.getOpeningBalance(),
                 saved.getSpecialCheck(),
-                saved.getStatus(),
-                saved.getCategories()
+                saved.getStatus()
         );
     }
 
@@ -90,16 +86,11 @@ public class AccountServiceImpl implements AccountService{
     }
 
     @Override
-    public AccountResponseDTO update(UUID id, AccountRequestDTO dto) {
+    public AccountSaveResponseDTO update(UUID id, AccountRequestDTO dto) {
         Account account = accountRepository.findById(id).orElseThrow(
                 () -> new UserNotFoundException()
         );
 
-        User user = userRepository.findById(dto.userId()).orElseThrow(
-                () -> new UserNotFoundException()
-        );
-
-        account.setUser(user);
         account.setAccountName(dto.accountName());
         account.setAccountDescription(dto.accountDescription());
         account.setAdditionalInformation(dto.additionalInformation());
@@ -109,15 +100,14 @@ public class AccountServiceImpl implements AccountService{
         account.setUpdatedAt(LocalDateTime.now());
 
         Account saved = accountRepository.save(account);
-        return new AccountResponseDTO(
+        return new AccountSaveResponseDTO(
                 saved.getId(),
                 saved.getAccountName(),
                 saved.getAccountDescription(),
                 saved.getAdditionalInformation(),
                 saved.getOpeningBalance(),
                 saved.getSpecialCheck(),
-                saved.getStatus(),
-                saved.getCategories()
+                saved.getStatus()
         );
     }
 

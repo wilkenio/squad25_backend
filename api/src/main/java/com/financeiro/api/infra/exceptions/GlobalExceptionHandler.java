@@ -22,6 +22,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<String>> handleGenericException(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ApiResponse<>(500, "An unexpected error occurred"));
+                .body(new ApiResponse<>(500, "Um erro inesperado ocorreu!"));
     }
 }
