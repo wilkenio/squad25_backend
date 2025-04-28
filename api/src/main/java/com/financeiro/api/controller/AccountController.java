@@ -1,10 +1,7 @@
 package com.financeiro.api.controller;
 
 import com.financeiro.api.domain.enums.Status;
-import com.financeiro.api.dto.accountDTO.AccountRangeValueDTO;
-import com.financeiro.api.dto.accountDTO.AccountRequestDTO;
-import com.financeiro.api.dto.accountDTO.AccountResponseDTO;
-import com.financeiro.api.dto.accountDTO.AccountSaveResponseDTO;
+import com.financeiro.api.dto.accountDTO.*;
 import com.financeiro.api.service.impl.AccountServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,59 +19,37 @@ public class AccountController {
         this.accountServiceImpl = accountServiceImpl;
     }
 
-    @PostMapping
-    public ResponseEntity<AccountSaveResponseDTO> create(@RequestBody AccountRequestDTO dto) {
-        return ResponseEntity.ok(accountServiceImpl.create(dto));
+    /*JSON exemplo da requisição
+    {
+      "accountName": "Conta Principal",
+      "accountDescription": "Conta para despesas mensais",
+      "additionalInformation": "Conta utilizada para controle financeiro pessoal",
+      "openingBalance": 1000.00,
+      "specialCheck": 500.00,
+      "openingBalanceMonth": 3,
+      "categoryName": "Despesas Pessoais",
+      "transactions": [
+        {
+          "type": "RECEITA",
+          "value": 3000.00,
+          "description": "Salário mensal"
+        },
+        {
+          "type": "DESPESA",
+          "value": 800.00,
+          "description": "Aluguel"
+        },
+        {
+          "type": "DESPESA",
+          "value": 400.00,
+          "description": "Conta de luz e água"
+        }
+      ]
     }
-
-    @GetMapping
-    public ResponseEntity<List<AccountResponseDTO>> getAll() {
-        return ResponseEntity.ok(accountServiceImpl.getAll());
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<AccountResponseDTO> getById(@PathVariable UUID id) {
-        return ResponseEntity.ok(accountServiceImpl.findById(id));
-    }
-
-    @GetMapping("/accountName/{accountName}")
-    public ResponseEntity<List<AccountResponseDTO>> findByAccountName(@PathVariable String accountName) {
-        List<AccountResponseDTO> accounts = accountServiceImpl.findByAccountName(accountName);
-
-        return ResponseEntity.ok(accounts);
-    }
-
-    /*
-     *AIDCIONE OS DOIS VALORES NO PARAMS CASO VÁ TESTAR. Exemplo:
-     * KEY= minValue VALUE= 10.00
-     * KEY= maxValue VALUE= 1000.00
-     */
-    @GetMapping("/openingBalance")
-    public ResponseEntity<List<AccountResponseDTO>> findByOpeningBalanceBetween(@ModelAttribute AccountRangeValueDTO filter){
-        List<AccountResponseDTO> accounts = accountServiceImpl.findByOpeningBalanceBetween(filter.minValue(), filter.maxValue());
-
-        return ResponseEntity.ok(accounts);
-    }
-
-    /*
-    *AIDCIONE OS DOIS VALORES NO PARAMS CASO VÁ TESTAR. Exemplo:
-    * KEY= minValue VALUE= 10.00
-    * KEY= maxValue VALUE= 1000.00
     */
-    @GetMapping("/specialCheck")
-    public ResponseEntity<List<AccountResponseDTO>> findBySpecialCheck(@ModelAttribute AccountRangeValueDTO filter) {
-        List<AccountResponseDTO> accounts = accountServiceImpl.findBySpecialCheckBetween(filter.minValue(), filter.maxValue());
-
-        return ResponseEntity.ok(accounts);
-    }
-
-    @GetMapping("/status/{status}")
-    public ResponseEntity<List<AccountResponseDTO>> findByStatus(@PathVariable Status status) {
-        return ResponseEntity.ok(accountServiceImpl.findByStatus(status));
-    }
-
-    public ResponseEntity<AccountResponseDTO> findById(@PathVariable UUID id) {
-        return ResponseEntity.ok(accountServiceImpl.findById(id));
+    @PostMapping
+    public ResponseEntity<AccountCalculationResponseDTO> create(@RequestBody AccountCalculationRequestDTO dto) {
+        return ResponseEntity.ok(accountServiceImpl.calculateAccountBalance(dto));
     }
 
     @PutMapping("/{id}")
@@ -87,4 +62,52 @@ public class AccountController {
         accountServiceImpl.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping
+    public ResponseEntity<List<AccountCalculationResponseDTO>> getAll() {
+        return ResponseEntity.ok(accountServiceImpl.getAll());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<AccountCalculationResponseDTO> findById(@PathVariable UUID id) {
+        return ResponseEntity.ok(accountServiceImpl.findById(id));
+    }
+
+    @GetMapping("/accountName/{accountName}")
+    public ResponseEntity<List<AccountCalculationResponseDTO>> findByAccountName(@PathVariable String accountName) {
+        List<AccountCalculationResponseDTO> accounts = accountServiceImpl.findByAccountName(accountName);
+
+        return ResponseEntity.ok(accounts);
+    }
+
+    /*
+     *AIDCIONE OS DOIS VALORES NO PARAMS CASO VÁ TESTAR. Exemplo:
+     * KEY= minValue VALUE= 10.00
+     * KEY= maxValue VALUE= 1000.00
+     */
+    @GetMapping("/openingBalance")
+    public ResponseEntity<List<AccountCalculationResponseDTO>> findByOpeningBalanceBetween(@ModelAttribute AccountRangeValueDTO filter){
+        List<AccountCalculationResponseDTO> accounts = accountServiceImpl.findByOpeningBalanceBetween(filter.minValue(), filter.maxValue());
+
+        return ResponseEntity.ok(accounts);
+    }
+
+    /*
+    *AIDCIONE OS DOIS VALORES NO PARAMS CASO VÁ TESTAR. Exemplo:
+    * KEY= minValue VALUE= 10.00
+    * KEY= maxValue VALUE= 1000.00
+    */
+    @GetMapping("/specialCheck")
+    public ResponseEntity<List<AccountCalculationResponseDTO>> findBySpecialCheck(@ModelAttribute AccountRangeValueDTO filter) {
+        List<AccountCalculationResponseDTO> accounts = accountServiceImpl.findBySpecialCheckBetween(filter.minValue(), filter.maxValue());
+
+        return ResponseEntity.ok(accounts);
+    }
+
+    @GetMapping("/status/{status}")
+    public ResponseEntity<List<AccountCalculationResponseDTO>> findByStatus(@PathVariable Status status) {
+        return ResponseEntity.ok(accountServiceImpl.findByStatus(status));
+    }
+
+
 }
