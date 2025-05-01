@@ -1,7 +1,5 @@
 package com.financeiro.api.controller;
 
-import com.financeiro.api.dto.accountDTO.AccountCalculationRequestDTO;
-import com.financeiro.api.dto.accountDTO.AccountCalculationResponseDTO;
 import com.financeiro.api.dto.transactionDTO.*;
 import com.financeiro.api.service.impl.TransactionServiceImpl;
 import org.springframework.http.ResponseEntity;
@@ -26,12 +24,12 @@ public class TransactionController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TransactionResponseDTO>> getAll() {
+    public ResponseEntity<List<TransactionSimplifiedResponseDTO>> getAll() {
         return ResponseEntity.ok(service.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TransactionResponseDTO> getById(@PathVariable UUID id) {
+    public ResponseEntity<TransactionSimplifiedResponseDTO> getById(@PathVariable UUID id) {
         return ResponseEntity.ok(service.findById(id));
     }
 

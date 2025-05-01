@@ -47,7 +47,7 @@ public class CategoryController {
     @GetMapping
     public ResponseEntity<List<CategoryResponseDTO>> getAll() {
         UUID userId = getCurrentUserId();
-        return ResponseEntity.ok(categoryService.findAll(userId));
+        return ResponseEntity.ok(categoryService.findAll());
     }
 
     @GetMapping("/{id}")

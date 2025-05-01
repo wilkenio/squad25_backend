@@ -1,13 +1,15 @@
 package com.financeiro.api.dto.accountDTO;
 
+import com.financeiro.api.domain.Category;
+
 public record AccountCalculationResponseDTO(
-        String iconClass,
-        String color,
-        String accountName,
+        Category category,
+        String categoryName,
         String accountDescription,
         String additionalInformation,
         //dados separados do calculo
         Double saldoInicial,
+        Double chequeEspecial,
         Double receitas,
         Double despesas,
         Double receitasPrevistas,

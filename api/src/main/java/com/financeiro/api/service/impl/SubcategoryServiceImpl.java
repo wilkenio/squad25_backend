@@ -14,7 +14,7 @@ import com.financeiro.api.service.SubcategoryService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
+
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -117,7 +117,7 @@ public class SubcategoryServiceImpl implements SubcategoryService {
         return subcategoryRepository.findAll().stream()
                 .filter(subcategory -> subcategory.getCategory().getId().equals(categoryId))
                 .map(subcategory -> {
-                    BigDecimal totalValue = transactionRepository.findAll().stream()
+                    Double totalValue = transactionRepository.findAll().stream()
                             .filter(transaction -> 
                                 transaction.getSubcategory() != null &&
                                 transaction.getSubcategory().getId().equals(subcategory.getId()) &&
@@ -125,7 +125,7 @@ public class SubcategoryServiceImpl implements SubcategoryService {
                                 !transaction.getCreatedAt().isAfter(endOfMonth)
                             )
                             .map(Transaction::getValue)
-                            .reduce(BigDecimal.ZERO, BigDecimal::add);
+                            .reduce(0.0, Double::sum);
 
                     return new SubcategoryWithTransactionDTO(
                             subcategory.getId(),

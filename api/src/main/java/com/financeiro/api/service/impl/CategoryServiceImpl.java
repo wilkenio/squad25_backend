@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.financeiro.api.domain.enums.Status;
 
-import java.math.BigDecimal;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -86,19 +86,19 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    public List<CategoryResponseDTO> findAll() {
+        List<Status> statuses = List.of(Status.SIM, Status.NAO);
+        return categoryRepository.findAllByStatusIn(statuses)
+                .stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public CategoryResponseDTO findById(UUID id) {
         return categoryRepository.findById(id)
             .map(this::toDTO)
             .orElseThrow(() -> new EntityNotFoundException("Category not found"));
-    }
-
-    @Override
-    public List<CategoryResponseDTO> findAll(UUID userId) {
-        List<Status> statuses = List.of(Status.SIM, Status.NAO);
-        return categoryRepository.findAllByUserIdAndStatusIn(userId, statuses)
-            .stream()
-            .map(this::toDTO)
-            .collect(Collectors.toList());
     }
 
     @Override
@@ -134,14 +134,14 @@ public class CategoryServiceImpl implements CategoryService {
 
         return categories.stream()
                 .map(category -> {
-                    BigDecimal totalValue = transactionRepository.findByCategoryId(category.getId())
+                    Double totalValue = transactionRepository.findByCategoryId(category.getId())
                             .stream()
                             .filter(transaction -> {
                                 LocalDateTime transactionDate = transaction.getCreatedAt();
                                 return !transactionDate.isBefore(startOfMonth) && !transactionDate.isAfter(endOfMonth);
                             })
                             .map(Transaction::getValue)
-                            .reduce(BigDecimal.ZERO, BigDecimal::add);
+                            .reduce(0.0, Double::sum);
 
                     return new CategoryListDTO(
                             category.getId(),

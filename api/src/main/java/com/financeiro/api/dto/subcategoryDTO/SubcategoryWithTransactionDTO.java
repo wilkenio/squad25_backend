@@ -1,7 +1,6 @@
 package com.financeiro.api.dto.subcategoryDTO;
 
 import com.financeiro.api.domain.enums.CategoryType;
-import java.math.BigDecimal;
 import java.util.UUID;
 
 public record SubcategoryWithTransactionDTO(
@@ -10,5 +9,5 @@ public record SubcategoryWithTransactionDTO(
     String iconClass,
     String color,
     CategoryType categoryType,
-    BigDecimal totalValue
+    Double totalValue
 ) {}

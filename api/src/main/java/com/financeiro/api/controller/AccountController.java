@@ -19,43 +19,15 @@ public class AccountController {
         this.accountServiceImpl = accountServiceImpl;
     }
 
-    /*JSON exemplo da requisição
-    {
-      "accountName": "Conta Principal",
-      "accountDescription": "Conta para despesas mensais",
-      "additionalInformation": "Conta utilizada para controle financeiro pessoal",
-      "openingBalance": 1000.00,
-      "specialCheck": 500.00,
-      "openingBalanceMonth": 3,
-      "categoryName": "Despesas Pessoais",
-      "transactions": [
-        {
-          "type": "RECEITA",
-          "value": 3000.00,
-          "description": "Salário mensal"
-        },
-        {
-          "type": "DESPESA",
-          "value": 800.00,
-          "description": "Aluguel"
-        },
-        {
-          "type": "DESPESA",
-          "value": 400.00,
-          "description": "Conta de luz e água"
-        }
-      ]
-    }
-    */
     @PostMapping
     public ResponseEntity<AccountCalculationResponseDTO> create(@RequestBody AccountCalculationRequestDTO dto) {
-        return ResponseEntity.ok(accountServiceImpl.calculateAccountBalance(dto));
+        return ResponseEntity.ok(accountServiceImpl.create(dto));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<AccountSaveResponseDTO> update(@PathVariable UUID id, @RequestBody AccountRequestDTO dto) {
-        return ResponseEntity.ok(accountServiceImpl.update(id, dto));
-    }
+    // @PutMapping("/{id}")
+    // public ResponseEntity<AccountSaveResponseDTO> update(@PathVariable UUID id, @RequestBody AccountRequestDTO dto) {
+    //     return ResponseEntity.ok(accountServiceImpl.update(id, dto));
+    // }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
@@ -65,7 +37,7 @@ public class AccountController {
 
     @GetMapping
     public ResponseEntity<List<AccountCalculationResponseDTO>> getAll() {
-        return ResponseEntity.ok(accountServiceImpl.getAll());
+        return ResponseEntity.ok(accountServiceImpl.findAll());
     }
 
     @GetMapping("/{id}")

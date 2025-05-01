@@ -13,4 +13,5 @@ public interface AccountRepository extends JpaRepository<Account, UUID> {
     List<Account> findByOpeningBalanceBetween(Double minValue, Double maxValue);
     List<Account> findBySpecialCheckBetween(Double minValue, Double maxValue);
     List<Account> findByStatus(Status status);
+    List<Account> findAllByStatusIn(List<Status> statuses);
 }

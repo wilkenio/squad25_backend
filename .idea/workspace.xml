@@ -4,15 +4,28 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e2d3c55a-4899-440c-b353-0760b0a222d4" name="Changes" comment="📦NEW: implementação dos dados da transação">
+    <list default="true" id="e2d3c55a-4899-440c-b353-0760b0a222d4" name="Changes" comment="IMPLEMENT: - Simplificação dos DTOs relacionados à conta&#10;            - Introdução de novos DTOs específicos para cálculos&#10;            - Melhoria na lógica de cálculo de saldo&#10;            - Implementação de previsões financeiras&#10;            - Aumento da manutenibilidade do código">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/controller/AccountController.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/controller/AccountController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/controller/CategoryController.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/controller/CategoryController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/controller/TransactionController.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/controller/TransactionController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/domain/enums/TransactionType.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/domain/enums/TransactionType.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/dto/accountDTO/AccountRequestDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/dto/accountDTO/AccountRequestDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/domain/Account.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/domain/Account.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/domain/Transaction.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/domain/Transaction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/domain/enums/Frequency.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/domain/enums/Frequency.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/dto/accountDTO/AccountCalculationRequestDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/dto/accountDTO/AccountCalculationRequestDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/dto/accountDTO/AccountCalculationResponseDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/dto/accountDTO/AccountCalculationResponseDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/dto/categoryDTO/CategoryListDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/dto/categoryDTO/CategoryListDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/dto/subcategoryDTO/SubcategoryWithTransactionDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/dto/subcategoryDTO/SubcategoryWithTransactionDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/dto/transactionDTO/TransactionRequestDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/dto/transactionDTO/TransactionRequestDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/dto/transactionDTO/TransactionResponseDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/dto/transactionDTO/TransactionResponseDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/infra/exceptions/GlobalExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/infra/exceptions/GlobalExceptionHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/repository/AccountRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/repository/AccountRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/AccountService.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/AccountService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/CategoryService.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/CategoryService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/TransactionService.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/TransactionService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/AccountServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/AccountServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/CategoryServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/CategoryServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/SubcategoryServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/SubcategoryServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/TransactionServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/TransactionServiceImpl.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -215,7 +228,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745713064274</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="👌IMPLEMENT: - Simplificação dos DTOs relacionados à conta&#10;            - Introdução de novos DTOs específicos para cálculos&#10;            - Melhoria na lógica de cálculo de saldo&#10;            - Implementação de previsões financeiras&#10;            - Aumento da manutenibilidade do código">
+      <option name="closed" value="true" />
+      <created>1745882257674</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1745882257674</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -235,6 +256,7 @@
     <MESSAGE value="IMPROVE: reorganizando a ordem das variáveis das entidades" />
     <MESSAGE value="IMPROVE: adição do atributo de categorias na AccountServiceImpl" />
     <MESSAGE value="IMPROVE: correção de requisitos ao salvar uma conta e ao retornar" />
-    <option name="LAST_COMMIT_MESSAGE" value="IMPROVE: correção de requisitos ao salvar uma conta e ao retornar" />
+    <MESSAGE value="IMPLEMENT: - Simplificação dos DTOs relacionados à conta&#10;            - Introdução de novos DTOs específicos para cálculos&#10;            - Melhoria na lógica de cálculo de saldo&#10;            - Implementação de previsões financeiras&#10;            - Aumento da manutenibilidade do código" />
+    <option name="LAST_COMMIT_MESSAGE" value="IMPLEMENT: - Simplificação dos DTOs relacionados à conta&#10;            - Introdução de novos DTOs específicos para cálculos&#10;            - Melhoria na lógica de cálculo de saldo&#10;            - Implementação de previsões financeiras&#10;            - Aumento da manutenibilidade do código" />
   </component>
 </project>
