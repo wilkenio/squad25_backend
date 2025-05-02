@@ -93,26 +93,28 @@ public class AccountServiceImpl implements AccountService {
                 Account account = accountRepository.findById(id).orElseThrow(
                                 () -> new UserNotFoundException());
 
+                // Cálculo do saldo atual
+                Double currentBalance = account.getOpeningBalance() + account.getIncome() - account.getExpense();
+
+                // Cálculo do saldo previsto considerando as previsões mensais
+                Double expectedBalance = currentBalance + account.getSpecialCheck() +
+                        account.getExpectedIncomeMonth() - account.getExpectedExpenseMonth();
+
                 // Atualizando os dados básicos da conta
                 account.setAccountName(dto.accountName());
                 account.setAccountDescription(dto.accountDescription());
                 account.setAdditionalInformation(dto.additionalInformation());
                 account.setOpeningBalance(dto.openingBalance());
+                account.setExpectedBalance(expectedBalance);
                 account.setSpecialCheck(dto.specialCheck());
                 account.setIncome(dto.income());
+                account.setCurrentBalance(currentBalance);
                 account.setExpense(dto.expense());
                 account.setExpectedIncomeMonth(dto.expectedIncomeMonth());
                 account.setExpectedExpenseMonth(dto.expectedExpenseMonth());
                 account.setStatus(dto.status());
                 account.setCategory(dto.category());
                 account.setUpdatedAt(LocalDateTime.now());
-
-                // Cálculo do saldo atual
-                Double currentBalance = account.getOpeningBalance() + account.getIncome() - account.getExpense();
-
-                // Cálculo do saldo previsto considerando as previsões mensais
-                Double expectedBalance = currentBalance + account.getSpecialCheck() +
-                                account.getExpectedIncomeMonth() - account.getExpectedExpenseMonth();
 
                 Account saved = accountRepository.save(account);
 

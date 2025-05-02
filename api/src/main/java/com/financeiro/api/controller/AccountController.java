@@ -24,10 +24,10 @@ public class AccountController {
         return ResponseEntity.ok(accountServiceImpl.create(dto));
     }
 
-    // @PutMapping("/{id}")
-    // public ResponseEntity<AccountSaveResponseDTO> update(@PathVariable UUID id, @RequestBody AccountRequestDTO dto) {
-    //     return ResponseEntity.ok(accountServiceImpl.update(id, dto));
-    // }
+     @PutMapping("/{id}")
+     public ResponseEntity<AccountTransactionResponseDTO> update(@PathVariable UUID id, @RequestBody AccountTransactionRequestDTO dto) {
+         return ResponseEntity.ok(accountServiceImpl.update(id, dto));
+     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
