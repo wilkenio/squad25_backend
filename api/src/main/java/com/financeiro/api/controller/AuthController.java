@@ -5,8 +5,11 @@ import com.financeiro.api.dto.authDTO.ApiResponse;
 import com.financeiro.api.dto.authDTO.LoginRequestDTO;
 import com.financeiro.api.dto.authDTO.RegisterRequestDTO;
 import com.financeiro.api.dto.authDTO.ResponseDTO;
+import com.financeiro.api.dto.userDTO.UserRequestDTO;
+import com.financeiro.api.dto.userDTO.UserResponseDTO;
 import com.financeiro.api.infra.security.TokenService;
 import com.financeiro.api.repository.UserRepository;
+import com.financeiro.api.service.impl.UserServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -17,13 +20,15 @@ import org.springframework.web.client.RestTemplate;
 public class AuthController {
 
     private final UserRepository userRepository;
+    private final UserServiceImpl userService;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
 
     private final String RECAPTCHA_SECRET_KEY = "6LeuaOYqAAAAACs9m3ysAu2cPbZD5ft0cqIwrf4d"; // Chave secreta do reCAPTCHA
 
-    public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder, TokenService tokenService) {
+    public AuthController(UserRepository userRepository, UserServiceImpl userService, PasswordEncoder passwordEncoder, TokenService tokenService) {
         this.userRepository = userRepository;
+        this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.tokenService = tokenService;
     }
@@ -78,8 +83,15 @@ public class AuthController {
             newUser.setPassword(passwordEncoder.encode(body.password()));
             userRepository.save(newUser);
 
+            UserRequestDTO userReq = new UserRequestDTO(
+                    body.name(),
+                    body.email(),
+                    body.password()
+            );
+            UserResponseDTO created = userService.create(userReq);
+
             String token = tokenService.generateToken(newUser);
-            return ResponseEntity.ok(new ApiResponse<>(200, new ResponseDTO(newUser.getName(), token)));
+            return ResponseEntity.ok(new ApiResponse<>(200, new ResponseDTO(created.name(), token)));
 
         } catch (Exception e) {
             e.printStackTrace();

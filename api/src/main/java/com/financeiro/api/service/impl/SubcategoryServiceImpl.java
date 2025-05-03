@@ -14,8 +14,6 @@ import com.financeiro.api.service.SubcategoryService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
-
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
