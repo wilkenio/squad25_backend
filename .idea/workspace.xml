@@ -4,11 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e2d3c55a-4899-440c-b353-0760b0a222d4" name="Changes" comment="🚀RELEASE: Versão base do back end(futuras mudanças serão implementadas)">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/controller/AuthController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/UserServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/UserServiceImpl.java" afterDir="false" />
-    </list>
+    <list default="true" id="e2d3c55a-4899-440c-b353-0760b0a222d4" name="Changes" comment="👌IMPROVE: adição das categorias padrôes" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -225,7 +221,15 @@
       <option name="project" value="LOCAL" />
       <updated>1746139311975</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="👌IMPROVE: adição das categorias padrôes">
+      <option name="closed" value="true" />
+      <created>1746306546130</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1746306546130</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -247,6 +251,7 @@
     <MESSAGE value="IMPROVE: correção de requisitos ao salvar uma conta e ao retornar" />
     <MESSAGE value="IMPLEMENT: - Simplificação dos DTOs relacionados à conta&#10;            - Introdução de novos DTOs específicos para cálculos&#10;            - Melhoria na lógica de cálculo de saldo&#10;            - Implementação de previsões financeiras&#10;            - Aumento da manutenibilidade do código" />
     <MESSAGE value="RELEASE: Versão base do back end(futuras mudanças serão implementadas)" />
-    <option name="LAST_COMMIT_MESSAGE" value="RELEASE: Versão base do back end(futuras mudanças serão implementadas)" />
+    <MESSAGE value="IMPROVE: adição das categorias padrôes" />
+    <option name="LAST_COMMIT_MESSAGE" value="IMPROVE: adição das categorias padrôes" />
   </component>
 </project>

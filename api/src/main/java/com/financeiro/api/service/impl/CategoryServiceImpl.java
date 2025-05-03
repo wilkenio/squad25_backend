@@ -4,7 +4,7 @@ import com.financeiro.api.domain.Category;
 import com.financeiro.api.domain.Transaction;
 import com.financeiro.api.domain.User;
 import com.financeiro.api.dto.categoryDTO.CategoryRequestDTO;
-import com.financeiro.api.dto.categoryDTO.CategoryListDTO; // Importação ajustada
+import com.financeiro.api.dto.categoryDTO.CategoryListDTO;
 import com.financeiro.api.dto.categoryDTO.CategoryResponseDTO;
 import com.financeiro.api.repository.CategoryRepository;
 import com.financeiro.api.repository.TransactionRepository;
@@ -12,6 +12,7 @@ import com.financeiro.api.repository.UserRepository;
 import com.financeiro.api.service.CategoryService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import com.financeiro.api.domain.enums.Status;
 
@@ -85,10 +86,17 @@ public class CategoryServiceImpl implements CategoryService {
         categoryRepository.save(category);    
     }
 
+    private User getCurrentUser() {
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
+    }
+
     @Override
     public List<CategoryResponseDTO> findAll() {
         List<Status> statuses = List.of(Status.SIM, Status.NAO);
-        return categoryRepository.findAllByStatusIn(statuses)
+        User currentUser = getCurrentUser();
+        return categoryRepository.findAllByStatusInAndUser(statuses, currentUser)
                 .stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
@@ -127,7 +135,8 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<CategoryListDTO> listCategories() {
-        List<Category> categories = categoryRepository.findAll();
+        User currentUser = getCurrentUser();
+        List<Category> categories = categoryRepository.findAllByUser(currentUser);
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime startOfMonth = now.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
         LocalDateTime endOfMonth = now.withDayOfMonth(now.toLocalDate().lengthOfMonth()).withHour(23).withMinute(59).withSecond(59).withNano(999999999);
