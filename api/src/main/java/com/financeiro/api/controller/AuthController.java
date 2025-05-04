@@ -77,18 +77,15 @@ public class AuthController {
                 return ResponseEntity.badRequest().body(new ApiResponse<>(400, "Email já cadastrado"));
             }
 
-            User newUser = new User();
-            newUser.setName(body.name());
-            newUser.setEmail(body.email());
-            newUser.setPassword(passwordEncoder.encode(body.password()));
-            userRepository.save(newUser);
-
             UserRequestDTO userReq = new UserRequestDTO(
                     body.name(),
                     body.email(),
                     body.password()
             );
             UserResponseDTO created = userService.create(userReq);
+
+            User newUser = userRepository.findByEmail(body.email())
+                .orElseThrow(() -> new RuntimeException("Erro ao criar usuário"));
 
             String token = tokenService.generateToken(newUser);
             return ResponseEntity.ok(new ApiResponse<>(200, new ResponseDTO(created.name(), token)));
