@@ -12,10 +12,10 @@ import com.financeiro.api.repository.UserRepository;
 import com.financeiro.api.service.CategoryService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import com.financeiro.api.domain.enums.Status;
-
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -87,9 +87,8 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     private User getCurrentUser() {
-        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return (User) authentication.getPrincipal();
     }
 
     @Override
@@ -111,24 +110,24 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<CategoryResponseDTO> findByStatus(Status status) {
-        List<Category> categories = categoryRepository.findByStatus(status);
-        return categories.stream()
+        return categoryRepository.findByStatus(status)
+                .stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<CategoryResponseDTO> findByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
-        List<Category> categories = categoryRepository.findByCreatedAtBetween(startDate, endDate);
-        return categories.stream()
+        return categoryRepository.findByCreatedAtBetween(startDate, endDate)
+                .stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<CategoryResponseDTO> findByName(String name) {
-        List<Category> categories = categoryRepository.findByNameContainingIgnoreCase(name);
-        return categories.stream()
+        return categoryRepository.findByNameContainingIgnoreCase(name)
+                .stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
@@ -138,8 +137,11 @@ public class CategoryServiceImpl implements CategoryService {
         User currentUser = getCurrentUser();
         List<Category> categories = categoryRepository.findAllByUser(currentUser);
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime startOfMonth = now.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
-        LocalDateTime endOfMonth = now.withDayOfMonth(now.toLocalDate().lengthOfMonth()).withHour(23).withMinute(59).withSecond(59).withNano(999999999);
+        LocalDateTime startOfMonth = now.withDayOfMonth(1)
+                .withHour(0).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime endOfMonth = now.withDayOfMonth(now.toLocalDate()
+                .lengthOfMonth()).withHour(23).withMinute(59)
+                .withSecond(59).withNano(999999999);
 
         return categories.stream()
                 .map(category -> {
@@ -147,7 +149,8 @@ public class CategoryServiceImpl implements CategoryService {
                             .stream()
                             .filter(transaction -> {
                                 LocalDateTime transactionDate = transaction.getCreatedAt();
-                                return !transactionDate.isBefore(startOfMonth) && !transactionDate.isAfter(endOfMonth);
+                                return !transactionDate.isBefore(startOfMonth)
+                                        && !transactionDate.isAfter(endOfMonth);
                             })
                             .map(Transaction::getValue)
                             .reduce(0.0, Double::sum);

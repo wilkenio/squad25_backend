@@ -16,6 +16,7 @@ import com.financeiro.api.service.SubcategoryService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.security.core.Authentication;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -41,10 +42,9 @@ public class SubcategoryServiceImpl implements SubcategoryService {
         }
 
         private User getCurrentUser() {
-                String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-                return userRepository.findByEmail(userEmail)
-                                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
-        }
+                Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+                return (User) auth.getPrincipal();
+            }
 
         @Override
         public SubcategoryResponseDTO create(SubcategoryRequestDTO dto) {
@@ -116,38 +116,41 @@ public class SubcategoryServiceImpl implements SubcategoryService {
 
         @Override
         public List<SubcategoryWithTransactionDTO> findByCategoryIdAndUserId(UUID categoryId, UUID userId) {
-                Category category = categoryRepository.findById(categoryId)
-                                .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada"));
-
-                LocalDateTime now = LocalDateTime.now();
-                LocalDateTime startOfMonth = now.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
-                LocalDateTime endOfMonth = now.withDayOfMonth(now.toLocalDate().lengthOfMonth()).withHour(23)
-                                .withMinute(59).withSecond(59).withNano(999999999);
-
-                return subcategoryRepository.findAll().stream()
-                                .filter(subcategory -> subcategory.getCategory().getId().equals(categoryId))
-                                .map(subcategory -> {
-                                        Double totalValue = transactionRepository.findAll().stream()
-                                                        .filter(transaction -> transaction.getSubcategory() != null &&
-                                                                        transaction.getSubcategory().getId()
-                                                                                        .equals(subcategory.getId())
-                                                                        &&
-                                                                        !transaction.getCreatedAt()
-                                                                                        .isBefore(startOfMonth)
-                                                                        &&
-                                                                        !transaction.getCreatedAt().isAfter(endOfMonth))
-                                                        .map(Transaction::getValue)
-                                                        .reduce(0.0, Double::sum);
-
-                                        return new SubcategoryWithTransactionDTO(
-                                                        subcategory.getId(),
-                                                        subcategory.getName(),
-                                                        subcategory.getIconClass(),
-                                                        subcategory.getColor(),
-                                                        subcategory.getCategory().getType(),
-                                                        totalValue);
-                                })
-                                .collect(Collectors.toList());
+            
+            Category category = categoryRepository.findById(categoryId)
+                    .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada"));
+            User currentUser = getCurrentUser();
+            if (!category.getUser().getId().equals(currentUser.getId())) {
+                throw new EntityNotFoundException("Categoria não encontrada para este usuário");
+            }
+    
+            List<Status> statuses = List.of(Status.SIM, Status.NAO);
+            List<Subcategory> subs = subcategoryRepository
+                    .findByCategoryIdAndCategoryUserIdAndStatusIn(categoryId, currentUser.getId(), statuses);
+    
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime start = now.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
+            LocalDateTime end = now.withDayOfMonth(now.toLocalDate().lengthOfMonth()).withHour(23).withMinute(59).withSecond(59).withNano(999999999);
+    
+            return subs.stream()
+                    .map(sub -> {
+                        double total = transactionRepository.findByCategoryId(categoryId).stream()
+                                .filter(tx -> tx.getSubcategory() != null
+                                        && tx.getSubcategory().getId().equals(sub.getId())
+                                        && !tx.getCreatedAt().isBefore(start)
+                                        && !tx.getCreatedAt().isAfter(end))
+                                .mapToDouble(Transaction::getValue)
+                                .sum();
+                        return new SubcategoryWithTransactionDTO(
+                                sub.getId(),
+                                sub.getName(),
+                                sub.getIconClass(),
+                                sub.getColor(),
+                                sub.getCategory().getType(),
+                                total
+                        );
+                    })
+                    .collect(Collectors.toList());
         }
 
         private SubcategoryResponseDTO toDTO(Subcategory subcategory) {
