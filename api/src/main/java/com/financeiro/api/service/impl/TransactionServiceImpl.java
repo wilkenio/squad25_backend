@@ -77,9 +77,9 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionRepository.findAll().stream()
                 .map(transaction -> new TransactionSimplifiedResponseDTO(
                         transaction.getName(),
+                        transaction.getDescription(),
                         transaction.getType(),
                         transaction.getAccount().getAccountName(),
-                        transaction.getReleaseDate(),
                         transaction.getFrequency(),
                         transaction.getValue()))
                 .toList();
@@ -90,9 +90,9 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionRepository.findById(id)
                 .map(transaction -> new TransactionSimplifiedResponseDTO(
                         transaction.getName(),
+                        transaction.getDescription(),
                         transaction.getType(),
                         transaction.getAccount().getAccountName(),
-                        transaction.getReleaseDate(),
                         transaction.getFrequency(),
                         transaction.getValue()))
                 .orElseThrow(() -> new TransactionNotFoundException());
@@ -105,10 +105,13 @@ public class TransactionServiceImpl implements TransactionService {
 
     private TransactionResponseDTO toDTO(Transaction transaction) {
         return new TransactionResponseDTO(
-                transaction.getAccount(),
-                transaction.getCategory(),
-                transaction.getSubcategory(),
-                transaction.getId(),
+                transaction.getAccount().getAccountName(),
+                transaction.getCategory().getName(),
+                transaction.getCategory().getIconClass(),
+                transaction.getCategory().getColor(),
+                transaction.getSubcategory().getName(),
+                transaction.getSubcategory().getIconClass(),
+                transaction.getSubcategory().getColor(),
                 transaction.getName(),
                 transaction.getType(),
                 transaction.getStatus(),
@@ -118,8 +121,7 @@ public class TransactionServiceImpl implements TransactionService {
                 transaction.getState(),
                 transaction.getAdditionalInformation(),
                 transaction.getFrequency(),
-                transaction.getInstallments(),
-                transaction.getCreatedAt(),
-                transaction.getUpdatedAt());
+                transaction.getInstallments()
+                );
     }
 }

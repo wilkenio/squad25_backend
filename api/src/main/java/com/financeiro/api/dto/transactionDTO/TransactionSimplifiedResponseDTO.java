@@ -7,9 +7,9 @@ import java.time.LocalDateTime;
 
 public record TransactionSimplifiedResponseDTO(
         String name,
+        String description,
         TransactionType type,
         String accountName,
-        LocalDateTime releaseDate,
         Frequency frequency,
         Double value) {
 }

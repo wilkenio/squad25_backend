@@ -8,10 +8,13 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record TransactionResponseDTO(
-                Account account,
-                Category category,
-                Subcategory subcategory,
-                UUID id,
+                String accountName,
+                String categoryName,
+                String categoryIconClass,
+                String categoryColor,
+                String subcategoryName,
+                String subcategoryIconClass,
+                String subcategoryColor,
                 String name,
                 TransactionType type,
                 Status status,
@@ -21,8 +24,6 @@ public record TransactionResponseDTO(
                 TransactionState state,
                 String additionalInformation,
                 Frequency frequency,
-                Integer installments,
-                LocalDateTime createdAt,
-                LocalDateTime updatedAt
+                Integer installments
 ) {
 }
