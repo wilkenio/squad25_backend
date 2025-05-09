@@ -71,12 +71,13 @@ public class AccountServiceImpl implements AccountService {
                 accountRepository.save(account);
 
                 return new AccountCalculationResponseDTO(
+                                account.getId(),
+                                category.getId(),
                                 category.getName(),
                                 category.getIconClass(),
                                 category.getColor(),
                                 dto.accountName(),
                                 dto.accountDescription(),
-                                dto.additionalInformation(),
                                 openingBalance,
                                 specialCheck,
                                 receitas,
@@ -126,7 +127,6 @@ public class AccountServiceImpl implements AccountService {
                         saved.getCategory().getColor(),
                         saved.getAccountName(),
                         saved.getAccountDescription(),
-                        saved.getAdditionalInformation(),
                         saved.getOpeningBalance(),
                         currentBalance,
                         expectedBalance,
@@ -176,12 +176,13 @@ public class AccountServiceImpl implements AccountService {
                                                                                         "Categoria não encontrada"));
 
                                         return new AccountCalculationResponseDTO(
+                                                        acc.getId(),
+                                                        category.getId(),
                                                         category.getName(),
                                                         category.getIconClass(),
                                                         category.getColor(),
                                                         acc.getAccountName(),
                                                         acc.getAccountDescription(),
-                                                        acc.getAdditionalInformation(),
                                                         saldoInicial,
                                                         chequeEspecial,
                                                         receitas,
@@ -220,12 +221,13 @@ public class AccountServiceImpl implements AccountService {
                                                 () -> new EntityNotFoundException("Categoria não encontrada"));
 
                 return new AccountCalculationResponseDTO(
+                                account.getId(),
+                                category.getId(),
                                 category.getName(),
                                 category.getIconClass(),
                                 category.getColor(),
                                 account.getAccountName(),
                                 account.getAccountDescription(),
-                                account.getAdditionalInformation(),
                                 saldoInicial,
                                 chequeEspecial,
                                 receitas,
@@ -266,12 +268,13 @@ public class AccountServiceImpl implements AccountService {
                                                                                         "Categoria não encontrada"));
 
                                         return new AccountCalculationResponseDTO(
+                                                        acc.getId(),
+                                                        category.getId(),
                                                         category.getName(),
                                                         category.getIconClass(),
                                                         category.getColor(),
                                                         acc.getAccountName(),
                                                         acc.getAccountDescription(),
-                                                        acc.getAdditionalInformation(),
                                                         saldoInicial,
                                                         chequeEspecial,
                                                         receitas,
@@ -312,12 +315,13 @@ public class AccountServiceImpl implements AccountService {
                                                                                         "Categoria não encontrada"));
 
                                         return new AccountCalculationResponseDTO(
+                                                        acc.getId(),
+                                                        category.getId(),
                                                         category.getName(),
                                                         category.getIconClass(),
                                                         category.getColor(),
                                                         acc.getAccountName(),
                                                         acc.getAccountDescription(),
-                                                        acc.getAdditionalInformation(),
                                                         saldoInicial,
                                                         chequeEspecial,
                                                         receitas,
@@ -358,12 +362,13 @@ public class AccountServiceImpl implements AccountService {
                                                                                         "Categoria não encontrada"));
 
                                         return new AccountCalculationResponseDTO(
+                                                        acc.getId(),
+                                                        category.getId(),
                                                         category.getName(),
                                                         category.getIconClass(),
                                                         category.getColor(),
                                                         acc.getAccountName(),
                                                         acc.getAccountDescription(),
-                                                        acc.getAdditionalInformation(),
                                                         saldoInicial,
                                                         chequeEspecial,
                                                         receitas,
@@ -404,12 +409,13 @@ public class AccountServiceImpl implements AccountService {
                                                                                         "Categoria não encontrada"));
 
                                         return new AccountCalculationResponseDTO(
+                                                        acc.getId(),
+                                                        category.getId(),
                                                         category.getName(),
                                                         category.getIconClass(),
                                                         category.getColor(),
                                                         acc.getAccountName(),
                                                         acc.getAccountDescription(),
-                                                        acc.getAdditionalInformation(),
                                                         saldoInicial,
                                                         chequeEspecial,
                                                         receitas,
