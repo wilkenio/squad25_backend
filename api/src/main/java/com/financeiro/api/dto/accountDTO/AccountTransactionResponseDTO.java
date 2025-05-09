@@ -1,13 +1,13 @@
 package com.financeiro.api.dto.accountDTO;
 
-import com.financeiro.api.domain.Category;
 import com.financeiro.api.domain.enums.Status;
-import java.time.LocalDateTime;
 
 public record AccountTransactionResponseDTO(
+        String categoryName,
+        String iconClass,
+        String color,
         String accountName,
         String accountDescription,
-        String additionalInformation,
         Double openingBalance,
         Double currentBalance,
         Double expectedBalance,
@@ -16,7 +16,5 @@ public record AccountTransactionResponseDTO(
         Double expense,
         Double expectedIncomeMonth,
         Double expectedExpenseMonth,
-        Status status,
-        Category category,
-        LocalDateTime updatedAt) {
+        Status status) {
 }

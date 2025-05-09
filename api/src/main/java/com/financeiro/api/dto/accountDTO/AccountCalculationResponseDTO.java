@@ -3,10 +3,11 @@ package com.financeiro.api.dto.accountDTO;
 import com.financeiro.api.domain.Category;
 
 public record AccountCalculationResponseDTO(
-        Category category,
         String categoryName,
+        String iconClass,
+        String color,
+        String accountName,
         String accountDescription,
-        String additionalInformation,
         //dados separados do calculo
         Double saldoInicial,
         Double chequeEspecial,

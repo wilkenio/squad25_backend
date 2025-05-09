@@ -4,7 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e2d3c55a-4899-440c-b353-0760b0a222d4" name="Changes" comment="👌IMPROVE: adição das categorias padrôes" />
+    <list default="true" id="e2d3c55a-4899-440c-b353-0760b0a222d4" name="Changes" comment="👌IMPROVE: adição das categorias padrôes">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/dto/accountDTO/AccountCalculationResponseDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/dto/accountDTO/AccountCalculationResponseDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/dto/accountDTO/AccountTransactionResponseDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/dto/accountDTO/AccountTransactionResponseDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/AccountServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/java/com/financeiro/api/service/impl/AccountServiceImpl.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -61,7 +66,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "com.codeium.enabled": "true",
-    "git-widget-placeholder": "develop",
+    "git-widget-placeholder": "feature/Account",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/cleyb/Documents/login-auth-api",
     "settings.editor.selected.configurable": "preferences.pluginManager"
