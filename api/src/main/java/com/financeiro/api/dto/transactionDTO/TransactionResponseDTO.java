@@ -8,6 +8,8 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record TransactionResponseDTO(
+                UUID id,
+                UUID accountId,
                 String accountName,
                 String categoryName,
                 String categoryIconClass,

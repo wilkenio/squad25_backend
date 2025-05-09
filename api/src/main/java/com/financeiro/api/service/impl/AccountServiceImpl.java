@@ -71,6 +71,8 @@ public class AccountServiceImpl implements AccountService {
                 accountRepository.save(account);
 
                 return new AccountCalculationResponseDTO(
+                                account.getId(),
+                                category.getId(),
                                 category.getName(),
                                 category.getIconClass(),
                                 category.getColor(),
@@ -120,6 +122,8 @@ public class AccountServiceImpl implements AccountService {
                 Account saved = accountRepository.save(account);
 
                 return new AccountTransactionResponseDTO(
+                        saved.getId(),
+                        saved.getCategory().getId(),
                         saved.getCategory().getName(),
                         saved.getCategory().getIconClass(),
                         saved.getCategory().getColor(),
@@ -174,6 +178,8 @@ public class AccountServiceImpl implements AccountService {
                                                                                         "Categoria não encontrada"));
 
                                         return new AccountCalculationResponseDTO(
+                                                        acc.getId(),
+                                                        category.getId(),
                                                         category.getName(),
                                                         category.getIconClass(),
                                                         category.getColor(),
@@ -217,6 +223,8 @@ public class AccountServiceImpl implements AccountService {
                                                 () -> new EntityNotFoundException("Categoria não encontrada"));
 
                 return new AccountCalculationResponseDTO(
+                                account.getId(),
+                                category.getId(),
                                 category.getName(),
                                 category.getIconClass(),
                                 category.getColor(),
@@ -262,6 +270,8 @@ public class AccountServiceImpl implements AccountService {
                                                                                         "Categoria não encontrada"));
 
                                         return new AccountCalculationResponseDTO(
+                                                        acc.getId(),
+                                                        category.getId(),
                                                         category.getName(),
                                                         category.getIconClass(),
                                                         category.getColor(),
@@ -307,6 +317,8 @@ public class AccountServiceImpl implements AccountService {
                                                                                         "Categoria não encontrada"));
 
                                         return new AccountCalculationResponseDTO(
+                                                        acc.getId(),
+                                                        category.getId(),
                                                         category.getName(),
                                                         category.getIconClass(),
                                                         category.getColor(),
@@ -352,6 +364,8 @@ public class AccountServiceImpl implements AccountService {
                                                                                         "Categoria não encontrada"));
 
                                         return new AccountCalculationResponseDTO(
+                                                        acc.getId(),
+                                                        category.getId(),
                                                         category.getName(),
                                                         category.getIconClass(),
                                                         category.getColor(),
@@ -397,6 +411,8 @@ public class AccountServiceImpl implements AccountService {
                                                                                         "Categoria não encontrada"));
 
                                         return new AccountCalculationResponseDTO(
+                                                        acc.getId(),
+                                                        category.getId(),
                                                         category.getName(),
                                                         category.getIconClass(),
                                                         category.getColor(),

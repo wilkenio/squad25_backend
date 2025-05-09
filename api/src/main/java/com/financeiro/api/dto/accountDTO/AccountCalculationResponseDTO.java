@@ -2,7 +2,11 @@ package com.financeiro.api.dto.accountDTO;
 
 import com.financeiro.api.domain.Category;
 
+import java.util.UUID;
+
 public record AccountCalculationResponseDTO(
+        UUID id,
+        UUID categoryId,
         String categoryName,
         String iconClass,
         String color,

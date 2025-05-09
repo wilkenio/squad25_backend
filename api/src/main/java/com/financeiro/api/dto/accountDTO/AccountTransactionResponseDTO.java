@@ -2,7 +2,11 @@ package com.financeiro.api.dto.accountDTO;
 
 import com.financeiro.api.domain.enums.Status;
 
+import java.util.UUID;
+
 public record AccountTransactionResponseDTO(
+        UUID id,
+        UUID categoryId,
         String categoryName,
         String iconClass,
         String color,

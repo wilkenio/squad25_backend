@@ -76,6 +76,7 @@ public class TransactionServiceImpl implements TransactionService {
     public List<TransactionSimplifiedResponseDTO> findAll() {
         return transactionRepository.findAll().stream()
                 .map(transaction -> new TransactionSimplifiedResponseDTO(
+                        transaction.getId(),
                         transaction.getName(),
                         transaction.getDescription(),
                         transaction.getType(),
@@ -89,6 +90,7 @@ public class TransactionServiceImpl implements TransactionService {
     public TransactionSimplifiedResponseDTO findById(UUID id) {
         return transactionRepository.findById(id)
                 .map(transaction -> new TransactionSimplifiedResponseDTO(
+                        transaction.getId(),
                         transaction.getName(),
                         transaction.getDescription(),
                         transaction.getType(),
@@ -105,6 +107,8 @@ public class TransactionServiceImpl implements TransactionService {
 
     private TransactionResponseDTO toDTO(Transaction transaction) {
         return new TransactionResponseDTO(
+                transaction.getId(),
+                transaction.getAccount().getId(),
                 transaction.getAccount().getAccountName(),
                 transaction.getCategory().getName(),
                 transaction.getCategory().getIconClass(),
