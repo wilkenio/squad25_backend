@@ -65,6 +65,7 @@ public class AccountServiceImpl implements AccountService {
                 account.setExpectedIncomeMonth(receitasPrevistas);
                 account.setExpectedExpenseMonth(despesasPrevistas);
                 account.setCategory(category);
+                account.setStatus(Status.SIM);
                 account.setCreatedAt(java.time.LocalDateTime.now());
                 account.setUpdatedAt(java.time.LocalDateTime.now());
 
@@ -96,6 +97,9 @@ public class AccountServiceImpl implements AccountService {
                 Account account = accountRepository.findById(id).orElseThrow(
                                 () -> new UserNotFoundException());
 
+                Category category = categoryRepository.findById(dto.categoryId()).orElseThrow(
+                        () -> new EntityNotFoundException("Categoria não encontrada"));
+
                 // Cálculo do saldo atual
                 Double currentBalance = account.getOpeningBalance() + account.getIncome() - account.getExpense();
 
@@ -116,7 +120,7 @@ public class AccountServiceImpl implements AccountService {
                 account.setExpectedIncomeMonth(dto.expectedIncomeMonth());
                 account.setExpectedExpenseMonth(dto.expectedExpenseMonth());
                 account.setStatus(dto.status());
-                account.setCategory(dto.category());
+                account.setCategory(category);
                 account.setUpdatedAt(LocalDateTime.now());
 
                 Account saved = accountRepository.save(account);
@@ -172,7 +176,7 @@ public class AccountServiceImpl implements AccountService {
                                         Double despesaTotal = despesas + despesasPrevistas;
                                         Double saldoTotal = saldoPrevisto + saldoInicial;
 
-                                        Category category = categoryRepository.findById(acc.getId())
+                                        Category category = categoryRepository.findById(acc.getCategory().getId())
                                                         .orElseThrow(
                                                                         () -> new EntityNotFoundException(
                                                                                         "Categoria não encontrada"));
@@ -218,7 +222,7 @@ public class AccountServiceImpl implements AccountService {
                 Double despesaTotal = despesas + despesasPrevistas;
                 Double saldoTotal = saldoPrevisto + saldoInicial;
 
-                Category category = categoryRepository.findById(account.getId())
+                Category category = categoryRepository.findById(account.getCategory().getId())
                                 .orElseThrow(
                                                 () -> new EntityNotFoundException("Categoria não encontrada"));
 
@@ -264,7 +268,7 @@ public class AccountServiceImpl implements AccountService {
                                         Double despesaTotal = despesas + despesasPrevistas;
                                         Double saldoTotal = saldoPrevisto + saldoInicial;
 
-                                        Category category = categoryRepository.findById(acc.getId())
+                                        Category category = categoryRepository.findById(acc.getCategory().getId())
                                                         .orElseThrow(
                                                                         () -> new EntityNotFoundException(
                                                                                         "Categoria não encontrada"));
@@ -311,7 +315,7 @@ public class AccountServiceImpl implements AccountService {
                                         Double despesaTotal = despesas + despesasPrevistas;
                                         Double saldoTotal = saldoPrevisto + acc.getSpecialCheck();
 
-                                        Category category = categoryRepository.findById(acc.getId())
+                                        Category category = categoryRepository.findById(acc.getCategory().getId())
                                                         .orElseThrow(
                                                                         () -> new EntityNotFoundException(
                                                                                         "Categoria não encontrada"));
@@ -358,7 +362,7 @@ public class AccountServiceImpl implements AccountService {
                                         Double despesaTotal = despesas + despesasPrevistas;
                                         Double saldoTotal = saldoPrevisto + acc.getSpecialCheck();
 
-                                        Category category = categoryRepository.findById(acc.getId())
+                                        Category category = categoryRepository.findById(acc.getCategory().getId())
                                                         .orElseThrow(
                                                                         () -> new EntityNotFoundException(
                                                                                         "Categoria não encontrada"));
@@ -405,7 +409,7 @@ public class AccountServiceImpl implements AccountService {
                                         Double despesaTotal = despesas + despesasPrevistas;
                                         Double saldoTotal = saldoPrevisto + acc.getSpecialCheck();
 
-                                        Category category = categoryRepository.findById(acc.getId())
+                                        Category category = categoryRepository.findById(acc.getCategory().getId())
                                                         .orElseThrow(
                                                                         () -> new EntityNotFoundException(
                                                                                         "Categoria não encontrada"));
