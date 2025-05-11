@@ -3,6 +3,7 @@ package com.financeiro.api.service.impl;
 import com.financeiro.api.domain.Account;
 import com.financeiro.api.domain.Category;
 import com.financeiro.api.domain.enums.Status;
+import com.financeiro.api.domain.enums.TransactionType;
 import com.financeiro.api.dto.accountDTO.*;
 import com.financeiro.api.infra.exceptions.UserNotFoundException;
 import com.financeiro.api.repository.AccountRepository;
@@ -65,6 +66,7 @@ public class AccountServiceImpl implements AccountService {
                 account.setExpectedIncomeMonth(receitasPrevistas);
                 account.setExpectedExpenseMonth(despesasPrevistas);
                 account.setCategory(category);
+                account.setStatus(Status.SIM);
                 account.setCreatedAt(java.time.LocalDateTime.now());
                 account.setUpdatedAt(java.time.LocalDateTime.now());
 
@@ -96,12 +98,15 @@ public class AccountServiceImpl implements AccountService {
                 Account account = accountRepository.findById(id).orElseThrow(
                                 () -> new UserNotFoundException());
 
+                Category category = categoryRepository.findById(dto.categoryId()).orElseThrow(
+                                () -> new EntityNotFoundException("Categoria não encontrada"));
+
                 // Cálculo do saldo atual
                 Double currentBalance = account.getOpeningBalance() + account.getIncome() - account.getExpense();
 
                 // Cálculo do saldo previsto considerando as previsões mensais
                 Double expectedBalance = currentBalance + account.getSpecialCheck() +
-                        account.getExpectedIncomeMonth() - account.getExpectedExpenseMonth();
+                                account.getExpectedIncomeMonth() - account.getExpectedExpenseMonth();
 
                 // Atualizando os dados básicos da conta
                 account.setAccountName(dto.accountName());
@@ -116,29 +121,54 @@ public class AccountServiceImpl implements AccountService {
                 account.setExpectedIncomeMonth(dto.expectedIncomeMonth());
                 account.setExpectedExpenseMonth(dto.expectedExpenseMonth());
                 account.setStatus(dto.status());
-                account.setCategory(dto.category());
+                account.setCategory(category);
                 account.setUpdatedAt(LocalDateTime.now());
 
                 Account saved = accountRepository.save(account);
 
                 return new AccountTransactionResponseDTO(
-                        saved.getId(),
-                        saved.getCategory().getId(),
-                        saved.getCategory().getName(),
-                        saved.getCategory().getIconClass(),
-                        saved.getCategory().getColor(),
-                        saved.getAccountName(),
-                        saved.getAccountDescription(),
-                        saved.getOpeningBalance(),
-                        currentBalance,
-                        expectedBalance,
-                        saved.getSpecialCheck(),
-                        saved.getIncome(),
-                        saved.getExpense(),
-                        saved.getExpectedIncomeMonth(),
-                        saved.getExpectedExpenseMonth(),
-                        saved.getStatus()
-                );
+                                saved.getId(),
+                                saved.getCategory().getId(),
+                                saved.getCategory().getName(),
+                                saved.getCategory().getIconClass(),
+                                saved.getCategory().getColor(),
+                                saved.getAccountName(),
+                                saved.getAccountDescription(),
+                                saved.getOpeningBalance(),
+                                currentBalance,
+                                expectedBalance,
+                                saved.getSpecialCheck(),
+                                saved.getIncome(),
+                                saved.getExpense(),
+                                saved.getExpectedIncomeMonth(),
+                                saved.getExpectedExpenseMonth(),
+                                saved.getStatus());
+        }
+
+        // Método para atualizar a conta com base na transação
+        public void updateAccountByTransaction(UUID accountId, TransactionType type, Double value) {
+                Account account = accountRepository.findById(accountId)
+                                .orElseThrow(() -> new EntityNotFoundException("Conta não encontrada"));
+
+                // Atualiza receita ou despesa com base no tipo de transação
+                if (type == TransactionType.RECEITA) {
+                        Double currentIncome = account.getIncome() != null ? account.getIncome() : 0.0;
+                        account.setIncome(currentIncome + value);
+                } else if (type == TransactionType.DESPESA) {
+                        Double currentExpense = account.getExpense() != null ? account.getExpense() : 0.0;
+                        account.setExpense(currentExpense + value);
+                }
+
+                // Recalcula o saldo atual
+                Double currentBalance = account.getOpeningBalance() +
+                                (account.getIncome() != null ? account.getIncome() : 0.0) -
+                                (account.getExpense() != null ? account.getExpense() : 0.0);
+                account.setCurrentBalance(currentBalance);
+
+                account.setUpdatedAt(LocalDateTime.now());
+
+                // Salva as alterações
+                accountRepository.save(account);
         }
 
         @Override
@@ -172,7 +202,7 @@ public class AccountServiceImpl implements AccountService {
                                         Double despesaTotal = despesas + despesasPrevistas;
                                         Double saldoTotal = saldoPrevisto + saldoInicial;
 
-                                        Category category = categoryRepository.findById(acc.getId())
+                                        Category category = categoryRepository.findById(acc.getCategory().getId())
                                                         .orElseThrow(
                                                                         () -> new EntityNotFoundException(
                                                                                         "Categoria não encontrada"));
@@ -218,7 +248,7 @@ public class AccountServiceImpl implements AccountService {
                 Double despesaTotal = despesas + despesasPrevistas;
                 Double saldoTotal = saldoPrevisto + saldoInicial;
 
-                Category category = categoryRepository.findById(account.getId())
+                Category category = categoryRepository.findById(account.getCategory().getId())
                                 .orElseThrow(
                                                 () -> new EntityNotFoundException("Categoria não encontrada"));
 
@@ -264,7 +294,7 @@ public class AccountServiceImpl implements AccountService {
                                         Double despesaTotal = despesas + despesasPrevistas;
                                         Double saldoTotal = saldoPrevisto + saldoInicial;
 
-                                        Category category = categoryRepository.findById(acc.getId())
+                                        Category category = categoryRepository.findById(acc.getCategory().getId())
                                                         .orElseThrow(
                                                                         () -> new EntityNotFoundException(
                                                                                         "Categoria não encontrada"));
@@ -311,7 +341,7 @@ public class AccountServiceImpl implements AccountService {
                                         Double despesaTotal = despesas + despesasPrevistas;
                                         Double saldoTotal = saldoPrevisto + acc.getSpecialCheck();
 
-                                        Category category = categoryRepository.findById(acc.getId())
+                                        Category category = categoryRepository.findById(acc.getCategory().getId())
                                                         .orElseThrow(
                                                                         () -> new EntityNotFoundException(
                                                                                         "Categoria não encontrada"));
@@ -358,7 +388,7 @@ public class AccountServiceImpl implements AccountService {
                                         Double despesaTotal = despesas + despesasPrevistas;
                                         Double saldoTotal = saldoPrevisto + acc.getSpecialCheck();
 
-                                        Category category = categoryRepository.findById(acc.getId())
+                                        Category category = categoryRepository.findById(acc.getCategory().getId())
                                                         .orElseThrow(
                                                                         () -> new EntityNotFoundException(
                                                                                         "Categoria não encontrada"));
@@ -405,7 +435,7 @@ public class AccountServiceImpl implements AccountService {
                                         Double despesaTotal = despesas + despesasPrevistas;
                                         Double saldoTotal = saldoPrevisto + acc.getSpecialCheck();
 
-                                        Category category = categoryRepository.findById(acc.getId())
+                                        Category category = categoryRepository.findById(acc.getCategory().getId())
                                                         .orElseThrow(
                                                                         () -> new EntityNotFoundException(
                                                                                         "Categoria não encontrada"));
