@@ -1,8 +1,5 @@
 package com.financeiro.api.dto.transactionDTO;
 
-import com.financeiro.api.domain.Account;
-import com.financeiro.api.domain.Category;
-import com.financeiro.api.domain.Subcategory;
 import com.financeiro.api.domain.enums.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -11,9 +8,11 @@ public record TransactionResponseDTO(
                 UUID id,
                 UUID accountId,
                 String accountName,
+                UUID categoryId,
                 String categoryName,
                 String categoryIconClass,
                 String categoryColor,
+                UUID subcategoryId,
                 String subcategoryName,
                 String subcategoryIconClass,
                 String subcategoryColor,

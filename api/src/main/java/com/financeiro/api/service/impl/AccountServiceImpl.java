@@ -3,6 +3,7 @@ package com.financeiro.api.service.impl;
 import com.financeiro.api.domain.Account;
 import com.financeiro.api.domain.Category;
 import com.financeiro.api.domain.enums.Status;
+import com.financeiro.api.domain.enums.TransactionType;
 import com.financeiro.api.dto.accountDTO.*;
 import com.financeiro.api.infra.exceptions.UserNotFoundException;
 import com.financeiro.api.repository.AccountRepository;
@@ -98,14 +99,14 @@ public class AccountServiceImpl implements AccountService {
                                 () -> new UserNotFoundException());
 
                 Category category = categoryRepository.findById(dto.categoryId()).orElseThrow(
-                        () -> new EntityNotFoundException("Categoria não encontrada"));
+                                () -> new EntityNotFoundException("Categoria não encontrada"));
 
                 // Cálculo do saldo atual
                 Double currentBalance = account.getOpeningBalance() + account.getIncome() - account.getExpense();
 
                 // Cálculo do saldo previsto considerando as previsões mensais
                 Double expectedBalance = currentBalance + account.getSpecialCheck() +
-                        account.getExpectedIncomeMonth() - account.getExpectedExpenseMonth();
+                                account.getExpectedIncomeMonth() - account.getExpectedExpenseMonth();
 
                 // Atualizando os dados básicos da conta
                 account.setAccountName(dto.accountName());
@@ -126,23 +127,48 @@ public class AccountServiceImpl implements AccountService {
                 Account saved = accountRepository.save(account);
 
                 return new AccountTransactionResponseDTO(
-                        saved.getId(),
-                        saved.getCategory().getId(),
-                        saved.getCategory().getName(),
-                        saved.getCategory().getIconClass(),
-                        saved.getCategory().getColor(),
-                        saved.getAccountName(),
-                        saved.getAccountDescription(),
-                        saved.getOpeningBalance(),
-                        currentBalance,
-                        expectedBalance,
-                        saved.getSpecialCheck(),
-                        saved.getIncome(),
-                        saved.getExpense(),
-                        saved.getExpectedIncomeMonth(),
-                        saved.getExpectedExpenseMonth(),
-                        saved.getStatus()
-                );
+                                saved.getId(),
+                                saved.getCategory().getId(),
+                                saved.getCategory().getName(),
+                                saved.getCategory().getIconClass(),
+                                saved.getCategory().getColor(),
+                                saved.getAccountName(),
+                                saved.getAccountDescription(),
+                                saved.getOpeningBalance(),
+                                currentBalance,
+                                expectedBalance,
+                                saved.getSpecialCheck(),
+                                saved.getIncome(),
+                                saved.getExpense(),
+                                saved.getExpectedIncomeMonth(),
+                                saved.getExpectedExpenseMonth(),
+                                saved.getStatus());
+        }
+
+        // Método para atualizar a conta com base na transação
+        public void updateAccountByTransaction(UUID accountId, TransactionType type, Double value) {
+                Account account = accountRepository.findById(accountId)
+                                .orElseThrow(() -> new EntityNotFoundException("Conta não encontrada"));
+
+                // Atualiza receita ou despesa com base no tipo de transação
+                if (type == TransactionType.RECEITA) {
+                        Double currentIncome = account.getIncome() != null ? account.getIncome() : 0.0;
+                        account.setIncome(currentIncome + value);
+                } else if (type == TransactionType.DESPESA) {
+                        Double currentExpense = account.getExpense() != null ? account.getExpense() : 0.0;
+                        account.setExpense(currentExpense + value);
+                }
+
+                // Recalcula o saldo atual
+                Double currentBalance = account.getOpeningBalance() +
+                                (account.getIncome() != null ? account.getIncome() : 0.0) -
+                                (account.getExpense() != null ? account.getExpense() : 0.0);
+                account.setCurrentBalance(currentBalance);
+
+                account.setUpdatedAt(LocalDateTime.now());
+
+                // Salva as alterações
+                accountRepository.save(account);
         }
 
         @Override

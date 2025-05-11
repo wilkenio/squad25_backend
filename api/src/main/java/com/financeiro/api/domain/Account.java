@@ -5,7 +5,6 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import com.financeiro.api.domain.enums.Status;
-import java.util.List;
 
 @Entity
 @Table(name = "account")

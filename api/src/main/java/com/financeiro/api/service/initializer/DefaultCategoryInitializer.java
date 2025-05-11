@@ -44,7 +44,7 @@ public class DefaultCategoryInitializer {
 
         // ==== REVENUE CATEGORIES ====
 
-        createCategoryWithSubcategories("Contas", "bi-bank", "#2ecc71", CategoryType.REVENUE, user, List.of(
+        createCategoryWithSubcategoriesStatusNAO("Contas", "bi-bank", "#2ecc71", CategoryType.REVENUE, user, List.of(
                 "NuBank", "Caixa", "Banco do Brasil", "Bradesco", "Itaú", "Santander"
         ));
 
@@ -88,6 +88,34 @@ public class DefaultCategoryInitializer {
             subcategory.setIconClass("bi-circle");
             subcategory.setColor("#bdc3c7");
             subcategory.setStatus(Status.SIM);
+            subcategory.setStandardRecommendation(true);
+            subcategory.setCreatedAt(LocalDateTime.now());
+            subcategory.setUpdatedAt(LocalDateTime.now());
+            subcategoryRepository.save(subcategory);
+        }
+    }
+
+    private void createCategoryWithSubcategoriesStatusNAO(String categoryName, String icon, String color, CategoryType type, User user, List<String> subNames) {
+        Category category = new Category();
+        category.setName(categoryName);
+        category.setIconClass(icon);
+        category.setColor(color);
+        category.setType(type);
+        category.setStandardRecommendation(true);
+        category.setStatus(Status.NAO);
+        category.setCreatedAt(LocalDateTime.now());
+        category.setUpdatedAt(LocalDateTime.now());
+        category.setUser(user);
+
+        Category savedCategory = categoryRepository.save(category);
+
+        for (String sub : subNames) {
+            Subcategory subcategory = new Subcategory();
+            subcategory.setName(sub);
+            subcategory.setCategory(savedCategory);
+            subcategory.setIconClass("bi-circle");
+            subcategory.setColor("#bdc3c7");
+            subcategory.setStatus(Status.NAO);
             subcategory.setStandardRecommendation(true);
             subcategory.setCreatedAt(LocalDateTime.now());
             subcategory.setUpdatedAt(LocalDateTime.now());
