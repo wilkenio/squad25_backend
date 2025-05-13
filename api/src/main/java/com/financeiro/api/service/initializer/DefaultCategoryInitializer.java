@@ -39,7 +39,7 @@ public class DefaultCategoryInitializer {
         ));
 
         createCategoryWithSubcategories("Alimentação", "bi-utensils", "#e74c3c", CategoryType.EXPENSE, user, contaDespesa, List.of(
-                "Supermercado", "Feira", "Restaurantes", "Delivery", "Lanches"
+                "Supermercado", "Restaurante", "Delivery"
         ));
 
         createCategoryWithSubcategories("Transporte", "bi-car-front", "#2980b9", CategoryType.EXPENSE, user, contaDespesa, List.of(
@@ -51,14 +51,15 @@ public class DefaultCategoryInitializer {
                 "Celular", "Streaming"
         ));
 
-        // ==== REVENUE CATEGORIES ====
-
-        createCategoryWithSubcategories("Contas", "bi-bank", "#2ecc71", CategoryType.REVENUE, user, contaReceita, List.of(
-                "NuBank", "Caixa", "Banco do Brasil", "Bradesco", "Itaú", "Santander"
-        ));
+        createCategoryWithSubcategories("NuBank", "bi-bank", "#800080", CategoryType.ACCOUNT, user, contaReceita, List.of());
+        createCategoryWithSubcategories("Caixa", "bi-bank2", "#0074d9", CategoryType.ACCOUNT, user, contaReceita, List.of());
+        createCategoryWithSubcategories("Banco do Brasil", "bi-bank", "#ffcc00", CategoryType.ACCOUNT, user, contaReceita, List.of());
+        createCategoryWithSubcategories("Bradesco", "bi-bank2", "#ff0000", CategoryType.ACCOUNT, user, contaReceita, List.of());
+        createCategoryWithSubcategories("Itaú", "bi-bank", "#ff6600", CategoryType.ACCOUNT, user, contaReceita, List.of());
+        createCategoryWithSubcategories("Santander", "bi-bank2", "#cc0000", CategoryType.ACCOUNT, user, contaReceita, List.of());
 
         createCategoryWithSubcategories("Salário e Benefícios", "bi-wallet", "#2ecc71", CategoryType.REVENUE, user, contaReceita, List.of(
-                "Salário Base", "Bônus", "Comissões", "13º Salário", "Vale-refeição", "Reembolso de despesas"
+                "Salário", "Bônus", "Comissões", "13º Salário", "Vale-refeição", "Reembolso de despesas"
         ));
 
         createCategoryWithSubcategories("Investimentos", "bi-pie-chart", "#27ae60", CategoryType.REVENUE, user, contaReceita, List.of(
@@ -70,7 +71,7 @@ public class DefaultCategoryInitializer {
         ));
 
         createCategoryWithSubcategories("Outras Receitas", "bi-gift", "#9b59b6", CategoryType.REVENUE, user, contaReceita, List.of(
-                "Cashback", "Royalties", "Presentes"
+                "Cashback", "Royalties"
         ));
     }
 
