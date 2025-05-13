@@ -2,9 +2,6 @@ package com.financeiro.api.service.impl;
 
 import com.financeiro.api.domain.*;
 import com.financeiro.api.domain.enums.Status;
-import com.financeiro.api.domain.Account;
-import com.financeiro.api.domain.Category;
-import com.financeiro.api.domain.Subcategory;
 import com.financeiro.api.dto.transactionDTO.*;
 import com.financeiro.api.infra.exceptions.TransactionNotFoundException;
 import com.financeiro.api.repository.*;
@@ -43,10 +40,12 @@ public class TransactionServiceImpl implements TransactionService {
         Category category = categoryRepository.findById(dto.categoryId())
                 .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada"));
 
-        Subcategory subcategory = subcategoryRepository.findById(dto.subcategoryId())
-                .orElseThrow(
-                    () -> new EntityNotFoundException("Subcategoria não encontrada ou não pertence à categoria selecionada")
-                );
+        Subcategory subcategory = null;
+        if (dto.subcategoryId() != null) {
+        subcategory = subcategoryRepository.findById(dto.subcategoryId())
+                .orElseThrow(() -> new EntityNotFoundException("Subcategoria não encontrada"));
+        }
+
 
         Transaction transaction = new Transaction();
         transaction.setAccount(account);
