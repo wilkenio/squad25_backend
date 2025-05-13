@@ -19,10 +19,6 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "FK_category_user"))
-    private User user;
-
     @Column(name = "name", nullable = false)
     private String name;
 
@@ -51,4 +47,12 @@ public class Category {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt = LocalDateTime.now();
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "FK_category_user"))
+    private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "account_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "FK_category_account"))
+    private Account account;
 }

@@ -19,18 +19,6 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne
-    @JoinColumn(name = "account_id")
-    private Account account;
-
-    @ManyToOne
-    @JoinColumn(name = "category_id")
-    private Category category;
-
-    @ManyToOne
-    @JoinColumn(name = "subcategory_id")
-    private Subcategory subcategory;
-
     private String name;
 
     @Enumerated(EnumType.STRING)
@@ -41,7 +29,7 @@ public class Transaction {
 
     private LocalDateTime releaseDate;
 
-    private BigDecimal value;
+    private Double value;
 
     private String description;
 
@@ -53,9 +41,22 @@ public class Transaction {
     @Enumerated(EnumType.STRING)
     private Frequency frequency;
 
+    //quantidade de parcelas
     private Integer installments;
 
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+    @ManyToOne
+    @JoinColumn(name = "subcategory_id")
+    private Subcategory subcategory;
+
+    @ManyToOne
+    @JoinColumn(name = "account_id")
+    private Account account;
 }

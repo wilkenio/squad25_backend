@@ -19,9 +19,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse<>(401, ex.getMessage()));
     }
 
+    @ExceptionHandler(TransactionNotFoundException.class)
+    public ResponseEntity<ApiResponse<String>> handleTransactionNotFoundException(TransactionNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse<>(404, ex.getMessage()));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<String>> handleGenericException(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ApiResponse<>(500, "An unexpected error occurred"));
+                .body(new ApiResponse<>(500, "Um erro inesperado ocorreu!"));
     }
 }

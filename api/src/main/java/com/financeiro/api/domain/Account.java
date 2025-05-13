@@ -5,6 +5,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import com.financeiro.api.domain.enums.Status;
+import java.util.List;
 
 @Entity
 @Table(name = "account")
@@ -17,20 +18,35 @@ public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-
+    
     private String accountName;
 
     private String accountDescription;
 
     private String additionalInformation;
 
+    //saldo inicial
     private Double openingBalance;
 
+    //saldo atual
+    private Double currentBalance;
+
+    //saldo previsto
+    private Double expectedBalance;
+
     private Double specialCheck;
+
+    //variável para armazenar as receitas
+    private Double income;
+
+    //variável para armazenar as despesas
+    private Double expense;
+
+    //variável para armazenar as receitas previstas
+    private Double expectedIncomeMonth;
+
+    //variável para armazenar as despesas previstas
+    private Double expectedExpenseMonth;
 
     @Enumerated(EnumType.STRING)
     private Status status;
@@ -38,4 +54,12 @@ public class Account {
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @OneToOne
+    @JoinColumn(name = "account_id")
+    private Category category;
 }
