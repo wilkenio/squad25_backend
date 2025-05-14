@@ -1,5 +1,6 @@
 package com.financeiro.api.controller;
 
+import com.financeiro.api.dto.accountDTO.AccountTransactionSummaryDTO;
 import com.financeiro.api.dto.transactionDTO.*;
 import com.financeiro.api.service.impl.TransactionServiceImpl;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +32,11 @@ public class TransactionController {
     @GetMapping("/{id}")
     public ResponseEntity<TransactionSimplifiedResponseDTO> getById(@PathVariable UUID id) {
         return ResponseEntity.ok(service.findById(id));
+    }
+
+    @GetMapping("/summary")
+    public ResponseEntity<List<AccountTransactionSummaryDTO>> getSummary(@RequestBody TransactionFilterDTO dto) {
+        return ResponseEntity.ok(service.filtrarTransacoes(dto));
     }
 
     @DeleteMapping("/{id}")
