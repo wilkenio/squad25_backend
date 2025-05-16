@@ -97,7 +97,7 @@ public class DefaultCategoryInitializer {
     private void createCategoryWithSubcategories(String categoryName, String icon, String color,
                                                  CategoryType type, User user, Account account, List<String> subNames) {
         Category category = new Category();
-        category.setName(categoryName);
+        category.setName(categoryName);  
         category.setIconClass(icon);
         category.setColor(color);
         category.setType(type);

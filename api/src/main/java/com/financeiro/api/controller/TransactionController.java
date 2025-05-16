@@ -1,5 +1,6 @@
 package com.financeiro.api.controller;
 
+import com.financeiro.api.dto.accountDTO.AccountTransactionSummaryDTO;
 import com.financeiro.api.dto.transactionDTO.*;
 import com.financeiro.api.service.CsvImportService;
 import com.financeiro.api.service.impl.TransactionServiceImpl;
@@ -60,6 +61,11 @@ public class TransactionController {
             @PathVariable UUID id,
             @RequestBody TransactionRequestDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
+    }
+
+    @GetMapping("/summary")
+    public ResponseEntity<List<AccountTransactionSummaryDTO>> getSummary(@RequestBody TransactionFilterDTO dto) {
+        return ResponseEntity.ok(service.filtrarTransacoes(dto));
     }
 
     @DeleteMapping("/{id}")
