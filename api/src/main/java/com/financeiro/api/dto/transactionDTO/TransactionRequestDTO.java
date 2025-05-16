@@ -18,5 +18,7 @@ public record TransactionRequestDTO(
         TransactionState state,
         String additionalInformation,
         Frequency frequency,
-        Integer installments
+        Integer installments,
+        Periodicity periodicity,         
+        Boolean businessDayOnly         
 ) {}

@@ -8,6 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import com.financeiro.api.domain.User;
+import com.financeiro.api.domain.enums.TransactionState;
 
 import java.util.List;
 import java.util.UUID;
@@ -25,7 +26,7 @@ public class TransactionController {
     }
 
     @PostMapping
-    public ResponseEntity<TransactionResponseDTO> create(@RequestBody TransactionRequestDTO dto) {
+    public ResponseEntity<List<TransactionResponseDTO>> create(@RequestBody TransactionRequestDTO dto) {
         return ResponseEntity.ok(service.create(dto));
     }
 
@@ -41,9 +42,24 @@ public class TransactionController {
         return ResponseEntity.ok(service.findAll());
     }
 
+    @PatchMapping("/{id}/state")
+    public ResponseEntity<TransactionResponseDTO> updateState(
+            @PathVariable UUID id,
+            @RequestParam TransactionState state
+    ) {
+        return ResponseEntity.ok(service.updateState(id, state));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<TransactionSimplifiedResponseDTO> getById(@PathVariable UUID id) {
         return ResponseEntity.ok(service.findById(id));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<TransactionResponseDTO> update(
+            @PathVariable UUID id,
+            @RequestBody TransactionRequestDTO dto) {
+        return ResponseEntity.ok(service.update(id, dto));
     }
 
     @DeleteMapping("/{id}")

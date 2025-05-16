@@ -90,7 +90,9 @@ public class BancoDoBrasilCsvParser implements BankCsvParser {
                         TransactionState.EFFECTIVE,
                         "Importado via CSV",
                         Frequency.NON_RECURRING,
-                        1
+                        1,
+                        null,
+                        false
                 );
 
                 transactions.add(dto);

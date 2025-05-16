@@ -41,8 +41,16 @@ public class Transaction {
     @Enumerated(EnumType.STRING)
     private Frequency frequency;
 
-    //quantidade de parcelas
-    private Integer installments;
+    private Integer installments; 
+
+    @Enumerated(EnumType.STRING)
+    private Periodicity periodicity; 
+
+    private Boolean businessDayOnly; 
+
+    private Integer installmentNumber; 
+
+    private UUID recurringGroupId; 
 
     private LocalDateTime createdAt;
 

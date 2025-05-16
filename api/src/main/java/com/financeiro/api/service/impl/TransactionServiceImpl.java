@@ -1,7 +1,7 @@
 package com.financeiro.api.service.impl;
 
 import com.financeiro.api.domain.*;
-import com.financeiro.api.domain.enums.Status;
+import com.financeiro.api.domain.enums.*;
 import com.financeiro.api.dto.transactionDTO.*;
 import com.financeiro.api.infra.exceptions.TransactionNotFoundException;
 import com.financeiro.api.repository.*;
@@ -9,9 +9,10 @@ import com.financeiro.api.service.TransactionService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class TransactionServiceImpl implements TransactionService {
@@ -22,9 +23,9 @@ public class TransactionServiceImpl implements TransactionService {
     private final SubcategoryRepository subcategoryRepository;
 
     public TransactionServiceImpl(TransactionRepository repository,
-            AccountRepository accountRepository,
-            CategoryRepository categoryRepository,
-            SubcategoryRepository subcategoryRepository) {
+                                  AccountRepository accountRepository,
+                                  CategoryRepository categoryRepository,
+                                  SubcategoryRepository subcategoryRepository) {
         this.transactionRepository = repository;
         this.accountRepository = accountRepository;
         this.categoryRepository = categoryRepository;
@@ -32,7 +33,17 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public TransactionResponseDTO create(TransactionRequestDTO dto) {
+    public List<TransactionResponseDTO> create(TransactionRequestDTO dto) {
+        // ⚠️ Validação de campos obrigatórios por tipo de frequência
+        if (dto.frequency() == Frequency.REPEAT) {
+            if (dto.installments() == null || dto.installments() < 2) {
+                throw new IllegalArgumentException("Número de parcelas deve ser no mínimo 2 para transações repetidas.");
+            }
+
+            if (dto.periodicity() == null) {
+                throw new IllegalArgumentException("Periodicidade é obrigatória para transações repetidas.");
+            }
+        }
 
         Account account = accountRepository.findById(dto.accounId())
                 .orElseThrow(() -> new EntityNotFoundException("Conta não encontrada"));
@@ -42,33 +53,72 @@ public class TransactionServiceImpl implements TransactionService {
 
         Subcategory subcategory = null;
         if (dto.subcategoryId() != null) {
-        subcategory = subcategoryRepository.findById(dto.subcategoryId())
-                .orElseThrow(() -> new EntityNotFoundException("Subcategoria não encontrada"));
+            subcategory = subcategoryRepository.findById(dto.subcategoryId())
+                    .orElseThrow(() -> new EntityNotFoundException("Subcategoria não encontrada"));
         }
 
+        UUID groupId = UUID.randomUUID();
+        int total = dto.frequency() == Frequency.REPEAT ? dto.installments() : 1;
 
-        Transaction transaction = new Transaction();
-        transaction.setAccount(account);
-        transaction.setCategory(category);
-        transaction.setSubcategory(subcategory);
-        transaction.setName(dto.name());
-        transaction.setType(dto.type());
-        transaction.setStatus(dto.status());
-        transaction.setReleaseDate(dto.releaseDate());
-        transaction.setValue(dto.value());
-        transaction.setDescription(dto.description());
-        transaction.setState(dto.state());
-        transaction.setAdditionalInformation(dto.additionalInformation());
-        transaction.setFrequency(dto.frequency());
-        transaction.setInstallments(dto.installments());
+        List<TransactionResponseDTO> responses = new ArrayList<>();
 
-        LocalDateTime now = java.time.LocalDateTime.now();
-        transaction.setCreatedAt(now);
-        transaction.setUpdatedAt(now);
+        for (int i = 0; i < total; i++) {
+            LocalDateTime releaseDateTime = dto.releaseDate();
 
-        // Salva a transação e retorna o DTO
-        Transaction savedTransaction = transactionRepository.save(transaction);
-        return toDTO(savedTransaction);
+            if (dto.frequency() == Frequency.REPEAT && dto.periodicity() != null) {
+                releaseDateTime = calcularDataParcela(dto.releaseDate(), dto.periodicity(), i, dto.businessDayOnly());
+            }
+
+            Transaction transaction = new Transaction();
+            transaction.setAccount(account);
+            transaction.setCategory(category);
+            transaction.setSubcategory(subcategory);
+            transaction.setName(dto.name());
+            transaction.setType(dto.type());
+            transaction.setStatus(dto.status());
+            transaction.setReleaseDate(releaseDateTime);
+            transaction.setValue(dto.value());
+            transaction.setDescription(dto.description());
+            transaction.setState(dto.state());
+            transaction.setAdditionalInformation(dto.additionalInformation());
+            transaction.setFrequency(dto.frequency());
+            transaction.setInstallments(dto.installments());
+            transaction.setPeriodicity(dto.periodicity());
+            transaction.setBusinessDayOnly(dto.businessDayOnly());
+            transaction.setInstallmentNumber(dto.frequency() == Frequency.REPEAT ? i + 1 : null);
+            transaction.setRecurringGroupId(dto.frequency() == Frequency.REPEAT ? groupId : null);
+
+            LocalDateTime now = LocalDateTime.now();
+            transaction.setCreatedAt(now);
+            transaction.setUpdatedAt(now);
+
+            Transaction saved = transactionRepository.save(transaction);
+            responses.add(toDTO(saved));
+        }
+
+        return responses;
+    }
+
+    private LocalDateTime calcularDataParcela(LocalDateTime dataInicial, Periodicity periodicidade, int parcelaIndex, Boolean diasUteis) {
+        LocalDate data = dataInicial.toLocalDate();
+
+        data = switch (periodicidade) {
+            case DIARIO -> data.plusDays(parcelaIndex);
+            case SEMANAL -> data.plusWeeks(parcelaIndex);
+            case QUINZENAL -> data.plusWeeks(parcelaIndex * 2L);
+            case MENSAL -> data.plusMonths(parcelaIndex);
+            case TRIMESTRAL -> data.plusMonths(parcelaIndex * 3L);
+            case SEMESTRAL -> data.plusMonths(parcelaIndex * 6L);
+            case ANUAL -> data.plusYears(parcelaIndex);
+        };
+
+        if (Boolean.TRUE.equals(diasUteis)) {
+            while (data.getDayOfWeek() == DayOfWeek.SATURDAY || data.getDayOfWeek() == DayOfWeek.SUNDAY) {
+                data = data.plusDays(1);
+            }
+        }
+
+        return dataInicial.withYear(data.getYear()).withMonth(data.getMonthValue()).withDayOfMonth(data.getDayOfMonth());
     }
 
     @Override
@@ -94,7 +144,57 @@ public class TransactionServiceImpl implements TransactionService {
                         transaction.getReleaseDate(),
                         transaction.getFrequency(),
                         transaction.getValue()))
+                .orElseThrow(TransactionNotFoundException::new);
+    }
+
+    @Override
+    public TransactionResponseDTO updateState(UUID id, TransactionState state) {
+        Transaction transaction = transactionRepository.findById(id)
                 .orElseThrow(() -> new TransactionNotFoundException());
+
+        transaction.setState(state);
+        transaction.setUpdatedAt(LocalDateTime.now());
+
+        Transaction updated = transactionRepository.save(transaction);
+        return toDTO(updated);
+    }
+
+    @Override
+    public TransactionResponseDTO update(UUID id, TransactionRequestDTO dto) {
+        Transaction transaction = transactionRepository.findById(id)
+                .orElseThrow(TransactionNotFoundException::new);
+
+        Account account = accountRepository.findById(dto.accounId())
+                .orElseThrow(() -> new EntityNotFoundException("Conta não encontrada"));
+
+        Category category = categoryRepository.findById(dto.categoryId())
+                .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada"));
+
+        Subcategory subcategory = null;
+        if (dto.subcategoryId() != null) {
+            subcategory = subcategoryRepository.findById(dto.subcategoryId())
+                    .orElseThrow(() -> new EntityNotFoundException("Subcategoria não encontrada"));
+        }
+
+        transaction.setAccount(account);
+        transaction.setCategory(category);
+        transaction.setSubcategory(subcategory);
+        transaction.setName(dto.name());
+        transaction.setType(dto.type());
+        transaction.setStatus(dto.status());
+        transaction.setReleaseDate(dto.releaseDate());
+        transaction.setValue(dto.value());
+        transaction.setDescription(dto.description());
+        transaction.setState(dto.state());
+        transaction.setAdditionalInformation(dto.additionalInformation());
+        transaction.setFrequency(dto.frequency());
+        transaction.setInstallments(dto.installments());
+        transaction.setPeriodicity(dto.periodicity());
+        transaction.setBusinessDayOnly(dto.businessDayOnly());
+        transaction.setUpdatedAt(LocalDateTime.now());
+
+        Transaction updated = transactionRepository.save(transaction);
+        return toDTO(updated);
     }
 
     @Override
@@ -118,7 +218,12 @@ public class TransactionServiceImpl implements TransactionService {
                 transaction.getAdditionalInformation(),
                 transaction.getFrequency(),
                 transaction.getInstallments(),
+                transaction.getPeriodicity(),
+                transaction.getBusinessDayOnly(),
+                transaction.getInstallmentNumber(),
+                transaction.getRecurringGroupId(),
                 transaction.getCreatedAt(),
-                transaction.getUpdatedAt());
+                transaction.getUpdatedAt()
+        );
     }
 }
