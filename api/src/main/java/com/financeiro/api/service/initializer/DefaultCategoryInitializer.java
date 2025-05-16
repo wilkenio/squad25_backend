@@ -38,7 +38,7 @@ public class DefaultCategoryInitializer {
                 "Aluguel", "Manutenção", "IPTU", "Seguro residencial"
         ));
 
-        createCategoryWithSubcategories("Alimentação", "bi-utensils", "#e74c3c", CategoryType.EXPENSE, user, contaDespesa, List.of(
+        createCategoryWithSubcategories("Alimentação", "bi-fork-knife", "#e74c3c", CategoryType.EXPENSE, user, contaDespesa, List.of(
                 "Supermercado", "Restaurante", "Delivery"
         ));
 
@@ -51,12 +51,17 @@ public class DefaultCategoryInitializer {
                 "Celular", "Streaming"
         ));
 
-        createCategoryWithSubcategories("NuBank", "bi-bank", "#800080", CategoryType.ACCOUNT, user, contaReceita, List.of());
-        createCategoryWithSubcategories("Caixa", "bi-bank2", "#0074d9", CategoryType.ACCOUNT, user, contaReceita, List.of());
-        createCategoryWithSubcategories("Banco do Brasil", "bi-bank", "#ffcc00", CategoryType.ACCOUNT, user, contaReceita, List.of());
-        createCategoryWithSubcategories("Bradesco", "bi-bank2", "#ff0000", CategoryType.ACCOUNT, user, contaReceita, List.of());
-        createCategoryWithSubcategories("Itaú", "bi-bank", "#ff6600", CategoryType.ACCOUNT, user, contaReceita, List.of());
-        createCategoryWithSubcategories("Santander", "bi-bank2", "#cc0000", CategoryType.ACCOUNT, user, contaReceita, List.of());
+
+createCategoryWithSubcategories("Conta Corrente", "bi-wallet2", "#1f77b4", CategoryType.ACCOUNT, user, contaReceita, List.of());
+createCategoryWithSubcategories("Conta Poupança", "bi-piggy-bank", "#2ca02c", CategoryType.ACCOUNT, user, contaReceita, List.of());
+createCategoryWithSubcategories("Carteira", "bi-cash", "#ff851b", CategoryType.ACCOUNT, user, contaReceita, List.of());
+createCategoryWithSubcategories("Cartão de Crédito", "bi-credit-card", "#d62728", CategoryType.ACCOUNT, user, contaReceita, List.of());
+createCategoryWithSubcategories("Conta Salário", "bi-currency-dollar", "#008080", CategoryType.ACCOUNT, user, contaReceita, List.of());
+createCategoryWithSubcategories("Conta Investimento", "bi-graph-up", "#9467bd", CategoryType.ACCOUNT, user, contaReceita, List.of());
+createCategoryWithSubcategories("Conta Digital", "bi-phone", "#00b894", CategoryType.ACCOUNT, user, contaReceita, List.of());
+createCategoryWithSubcategories("Conta Conjunta", "bi-people", "#ff69b4", CategoryType.ACCOUNT, user, contaReceita, List.of());
+
+
 
         createCategoryWithSubcategories("Salário e Benefícios", "bi-wallet", "#2ecc71", CategoryType.REVENUE, user, contaReceita, List.of(
                 "Salário", "Bônus", "Comissões", "13º Salário", "Vale-refeição", "Reembolso de despesas"
@@ -66,7 +71,7 @@ public class DefaultCategoryInitializer {
                 "Dividendos", "Juros de Poupança", "Juros de CDB", "Ganho de Capital", "Aluguel de imóveis"
         ));
 
-        createCategoryWithSubcategories("Receitas Financeiras", "bi-coins", "#2980b9", CategoryType.REVENUE, user, contaReceita, List.of(
+        createCategoryWithSubcategories("Receitas Financeiras", "bi-currency-dollar", "#103030", CategoryType.REVENUE, user, contaReceita, List.of(
                 "Juros de Conta Corrente", "Previdência Privada", "Rendimentos de Criptomoedas"
         ));
 
