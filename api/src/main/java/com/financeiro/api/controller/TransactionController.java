@@ -32,10 +32,11 @@ public class TransactionController {
     }
 
     @PostMapping("/import/csv")
-    public ResponseEntity<String> importar(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<String> importar(@RequestParam("file") MultipartFile file, 
+    @RequestParam(value = "accountId", required = false) UUID accountId) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        csvImportService.importFromCsv(file, user);
-        return ResponseEntity.ok("Importação concluída.");
+        csvImportService.importFromCsv(file, user, accountId);
+        return ResponseEntity.ok("Importação concluída com sucesso.");
     }
 
     @GetMapping

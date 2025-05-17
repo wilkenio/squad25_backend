@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class CsvImportService {
@@ -19,12 +20,12 @@ public class CsvImportService {
         this.transactionService = transactionService;
     }
 
-    public void importFromCsv(MultipartFile file, User user) {
+    public void importFromCsv(MultipartFile file, User user, UUID accountId) {
         parsers.stream()
             .filter(p -> p.supports(file))
             .findFirst()
             .ifPresentOrElse(p -> {
-                List<TransactionRequestDTO> dtos = p.parse(file, user);
+                List<TransactionRequestDTO> dtos = p.parse(file, user, accountId);
                 dtos.forEach(transactionService::create);
             }, () -> {
                 throw new RuntimeException("Formato de CSV não suportado.");

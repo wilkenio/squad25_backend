@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Component
 public class PagBankCsvParser implements BankCsvParser {
@@ -37,7 +38,7 @@ public class PagBankCsvParser implements BankCsvParser {
     }
 
     @Override
-    public List<TransactionRequestDTO> parse(MultipartFile file, User user) {
+    public List<TransactionRequestDTO> parse(MultipartFile file, User user, UUID accountId) {
         List<TransactionRequestDTO> transactions = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
             String line;
@@ -68,11 +69,15 @@ public class PagBankCsvParser implements BankCsvParser {
                         .findFirst()
                         .orElseThrow(() -> new RuntimeException("Categoria padrão não encontrada."));
 
-                if (category.getAccount() == null)
-                    throw new RuntimeException("Categoria sem conta associada.");
+                UUID finalAccountId = accountId != null ? accountId : (
+                        category.getAccount() != null ? category.getAccount().getId() : null
+                );
+
+                if (finalAccountId == null)
+                    throw new RuntimeException("Conta bancária não especificada nem associada à categoria.");
 
                 TransactionRequestDTO dto = new TransactionRequestDTO(
-                        category.getAccount().getId(),
+                        finalAccountId,
                         category.getId(),
                         null,
                         tipoDesc,
@@ -85,7 +90,7 @@ public class PagBankCsvParser implements BankCsvParser {
                         "Importado via CSV",
                         Frequency.NON_RECURRING,
                         1,
-                        null, 
+                        null,
                         false
                 );
 

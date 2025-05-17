@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Component
 public class BancoDoBrasilCsvParser implements BankCsvParser {
@@ -38,7 +39,7 @@ public class BancoDoBrasilCsvParser implements BankCsvParser {
     }
 
     @Override
-    public List<TransactionRequestDTO> parse(MultipartFile file, User user) {
+    public List<TransactionRequestDTO> parse(MultipartFile file, User user, UUID accountId) {
         List<TransactionRequestDTO> transactions = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(file.getInputStream(), Charset.forName("Windows-1252")))) {
@@ -59,7 +60,6 @@ public class BancoDoBrasilCsvParser implements BankCsvParser {
                 String date = fields[0].replace("\"", "").trim();
                 String title = fields[1].replace("\"", "").trim();
                 String details = fields[2].replace("\"", "").trim();
-
                 String value = fields[4].replace("\"", "").replace(".", "").replace(",", ".").trim();
 
                 if (date.equals("00/00/0000") || date.isBlank() || value.isBlank()) continue;
@@ -74,11 +74,15 @@ public class BancoDoBrasilCsvParser implements BankCsvParser {
                         .findFirst()
                         .orElseThrow(() -> new RuntimeException("Categoria padrão não encontrada."));
 
-                if (category.getAccount() == null)
-                    throw new RuntimeException("Categoria sem conta associada.");
+                UUID finalAccountId = accountId != null ? accountId : (
+                        category.getAccount() != null ? category.getAccount().getId() : null
+                );
+
+                if (finalAccountId == null)
+                    throw new RuntimeException("Conta bancária não especificada nem associada à categoria.");
 
                 TransactionRequestDTO dto = new TransactionRequestDTO(
-                        category.getAccount().getId(),
+                        finalAccountId,
                         category.getId(),
                         null,
                         title,
