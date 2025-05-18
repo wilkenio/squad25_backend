@@ -1,6 +1,8 @@
 package com.financeiro.api.service;
 
 import com.financeiro.api.domain.enums.TransactionState;
+import com.financeiro.api.dto.accountDTO.AccountTransactionSummaryDTO;
+import com.financeiro.api.dto.transactionDTO.TransactionFilterDTO;
 import com.financeiro.api.dto.transactionDTO.TransactionRequestDTO;
 import com.financeiro.api.dto.transactionDTO.TransactionResponseDTO;
 import com.financeiro.api.dto.transactionDTO.TransactionSimplifiedResponseDTO;
@@ -21,4 +23,6 @@ public interface TransactionService {
     TransactionResponseDTO update(UUID id, TransactionRequestDTO dto);
 
     void delete(UUID id);
+
+    List<AccountTransactionSummaryDTO> filtrarTransacoes(TransactionFilterDTO filtro);
 }

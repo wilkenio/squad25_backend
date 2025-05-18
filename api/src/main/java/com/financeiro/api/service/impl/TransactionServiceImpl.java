@@ -2,9 +2,6 @@ package com.financeiro.api.service.impl;
 
 import com.financeiro.api.domain.*;
 import com.financeiro.api.domain.enums.*;
-import com.financeiro.api.domain.Account;
-import com.financeiro.api.domain.Category;
-import com.financeiro.api.domain.Subcategory;
 import com.financeiro.api.dto.accountDTO.AccountTransactionSummaryDTO;
 import com.financeiro.api.dto.transactionDTO.*;
 import com.financeiro.api.infra.exceptions.TransactionNotFoundException;
@@ -17,9 +14,6 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,14 +36,13 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public List<TransactionResponseDTO> create(TransactionRequestDTO dto) {
-        // ⚠️ Validação de campos obrigatórios por tipo de frequência
         if (dto.frequency() == Frequency.REPEAT) {
             if (dto.installments() == null || dto.installments() < 2) {
-                throw new IllegalArgumentException("Número de parcelas deve ser no mínimo 2 para transações repetidas.");
+                throw new IllegalArgumentException("Número de parcelas deve ser no mínimo 2 para transações REPEATs.");
             }
 
             if (dto.periodicity() == null) {
-                throw new IllegalArgumentException("Periodicidade é obrigatória para transações repetidas.");
+                throw new IllegalArgumentException("Periodicidade é obrigatória para transações REPEATs.");
             }
         }
 
@@ -101,7 +94,14 @@ public class TransactionServiceImpl implements TransactionService {
             transaction.setUpdatedAt(now);
 
             Transaction saved = transactionRepository.save(transaction);
-            responses.add(toDTO(saved));
+
+            boolean isDespesaEfetivada = saved.getType() == TransactionType.DESPESA
+                    && saved.getState() == TransactionState.EFFECTIVE;
+
+            boolean saldoNegativo = isDespesaEfetivada
+                    && saved.getValue() > saved.getAccount().getCurrentBalance();
+
+                        responses.add(toDTO(saved, saldoNegativo));
         }
 
         return responses;
@@ -158,13 +158,13 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public TransactionResponseDTO updateState(UUID id, TransactionState state) {
         Transaction transaction = transactionRepository.findById(id)
-                .orElseThrow(() -> new TransactionNotFoundException());
+                .orElseThrow(TransactionNotFoundException::new);
 
         transaction.setState(state);
         transaction.setUpdatedAt(LocalDateTime.now());
 
         Transaction updated = transactionRepository.save(transaction);
-        return toDTO(updated);
+        return toDTO(updated, false);
     }
 
     @Override
@@ -202,7 +202,7 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setUpdatedAt(LocalDateTime.now());
 
         Transaction updated = transactionRepository.save(transaction);
-        return toDTO(updated);
+        return toDTO(updated, false);
     }
 
     @Override
@@ -210,12 +210,15 @@ public class TransactionServiceImpl implements TransactionService {
         transactionRepository.deleteById(id);
     }
 
-    private TransactionResponseDTO toDTO(Transaction transaction) {
+    private TransactionResponseDTO toDTO(Transaction transaction, boolean saldoNegativo) {
         return new TransactionResponseDTO(
-                transaction.getAccount(),
-                transaction.getCategory(),
-                transaction.getSubcategory(),
                 transaction.getId(),
+                transaction.getAccount().getId(),
+                transaction.getAccount().getAccountName(),
+                transaction.getCategory() != null ? transaction.getCategory().getId() : null,
+                transaction.getCategory() != null ? transaction.getCategory().getName() : null,
+                transaction.getSubcategory() != null ? transaction.getSubcategory().getId() : null,
+                transaction.getSubcategory() != null ? transaction.getSubcategory().getName() : null,
                 transaction.getName(),
                 transaction.getType(),
                 transaction.getStatus(),
@@ -231,57 +234,45 @@ public class TransactionServiceImpl implements TransactionService {
                 transaction.getInstallmentNumber(),
                 transaction.getRecurringGroupId(),
                 transaction.getCreatedAt(),
-                transaction.getUpdatedAt()
+                transaction.getUpdatedAt(),
+                saldoNegativo
         );
     }
 
+    @Override
+    public List<AccountTransactionSummaryDTO> filtrarTransacoes(TransactionFilterDTO filtro) {
+        List<Transaction> transacoes = transactionRepository.findAll().stream()
+                .filter(t -> filtro.contaIds() == null || filtro.contaIds().isEmpty() || filtro.contaIds().contains(t.getAccount().getId()))
+                .filter(t -> filtro.categoriaIds() == null || filtro.categoriaIds().isEmpty() || filtro.categoriaIds().contains(t.getCategory().getId()))
+                .filter(t -> (filtro.dataInicio() == null || !t.getReleaseDate().isBefore(filtro.dataInicio())) &&
+                             (filtro.dataFim() == null || !t.getReleaseDate().isAfter(filtro.dataFim())))
+                .collect(Collectors.toList());
 
-        public List<AccountTransactionSummaryDTO> filtrarTransacoes(TransactionFilterDTO filtro) {
-                // Busca todas as transações conforme os filtros básicos
-                List<Transaction> transacoes = transactionRepository.findAll().stream()
-                    .filter(t -> filtro.contaIds() == null || filtro.contaIds().isEmpty() || filtro.contaIds().contains(t.getAccount().getId()))
-                    .filter(t -> filtro.categoriaIds() == null || filtro.categoriaIds().isEmpty() || filtro.categoriaIds().contains(t.getCategory().getId()))
-                    .filter(t -> (filtro.dataInicio() == null || !t.getReleaseDate().isBefore(filtro.dataInicio())) &&
-                                 (filtro.dataFim() == null || !t.getReleaseDate().isAfter(filtro.dataFim())))
-                    .collect(Collectors.toList());
-            
-                // Ordenação conforme TransactionOrder
-                Comparator<Transaction> comparator = Comparator.comparing(Transaction::getReleaseDate); // padrão: DATA
-                if (filtro.ordenacao() != null) {
-                    switch (filtro.ordenacao()) {
-                        case DATA:
-                            comparator = Comparator.comparing(Transaction::getReleaseDate);
-                            break;
-                        case CATEGORIA:
-                            comparator = Comparator.comparing(t -> t.getCategory().getName(), String.CASE_INSENSITIVE_ORDER);
-                            break;
-                        case VALOR_CRESCENTE:
-                            comparator = Comparator.comparing(Transaction::getValue);
-                            break;
-                        case VALOR_DECRESCENTE:
-                            comparator = Comparator.comparing(Transaction::getValue).reversed();
-                            break;
-                    }
-                }
-            
-                // Ordena e limita a 10 resultados
-                List<Transaction> transacoesOrdenadas = transacoes.stream()
-                    .sorted(comparator)
-                    .limit(10)
-                    .collect(Collectors.toList());
-            
-                // Monta o DTO de retorno (ajuste conforme sua lógica de agregação)
-                // Aqui, para cada transação, retorna um resumo da conta (pode ser ajustado para agrupar por conta, se necessário)
-                return transacoesOrdenadas.stream()
-                    .map(t -> new AccountTransactionSummaryDTO(
-                        t.getAccount().getAccountName(),
-                        t.getType() != null && t.getType().name().equals("INCOME") ? t.getValue() : null,
-                        null, // expectedIncomeMonth (ajuste se necessário)
-                        t.getType() != null && t.getType().name().equals("EXPENSE") ? t.getValue() : null,
-                        null, // expectedExpenseMonth (ajuste se necessário)
-                        List.of(), // transferencias (ajuste se necessário)
-                        List.of()  // categorias (ajuste se necessário)
-                    ))
-                    .collect(Collectors.toList());
+        Comparator<Transaction> comparator = Comparator.comparing(Transaction::getReleaseDate);
+        if (filtro.ordenacao() != null) {
+            switch (filtro.ordenacao()) {
+                case DATA -> comparator = Comparator.comparing(Transaction::getReleaseDate);
+                case CATEGORIA -> comparator = Comparator.comparing(t -> t.getCategory().getName(), String.CASE_INSENSITIVE_ORDER);
+                case VALOR_CRESCENTE -> comparator = Comparator.comparing(Transaction::getValue);
+                case VALOR_DECRESCENTE -> comparator = Comparator.comparing(Transaction::getValue).reversed();
+            }
         }
+
+        List<Transaction> transacoesOrdenadas = transacoes.stream()
+                .sorted(comparator)
+                .limit(10)
+                .collect(Collectors.toList());
+
+        return transacoesOrdenadas.stream()
+                .map(t -> new AccountTransactionSummaryDTO(
+                        t.getAccount().getAccountName(),
+                        t.getType() == TransactionType.RECEITA ? t.getValue() : null,
+                        null,
+                        t.getType() == TransactionType.DESPESA ? t.getValue() : null,
+                        null,
+                        List.of(),
+                        List.of()
+                ))
+                .collect(Collectors.toList());
+    }
 }
