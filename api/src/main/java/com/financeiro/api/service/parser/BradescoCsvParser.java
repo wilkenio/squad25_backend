@@ -44,6 +44,10 @@ public class BradescoCsvParser implements BankCsvParser {
 
     @Override
     public List<TransactionRequestDTO> parse(MultipartFile file, User user, UUID accountId) {
+        if (accountId == null) {
+            throw new RuntimeException("O ID da conta bancária é obrigatório para importação.");
+        }
+
         List<TransactionRequestDTO> transactions = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.ISO_8859_1))) {
             String line;
@@ -83,15 +87,8 @@ public class BradescoCsvParser implements BankCsvParser {
                         .findFirst()
                         .orElseThrow(() -> new RuntimeException("Categoria padrão não encontrada."));
 
-                UUID finalAccountId = accountId != null ? accountId : (
-                        category.getAccount() != null ? category.getAccount().getId() : null
-                );
-
-                if (finalAccountId == null)
-                    throw new RuntimeException("Conta bancária não especificada nem associada à categoria.");
-
                 TransactionRequestDTO dto = new TransactionRequestDTO(
-                        finalAccountId,
+                        accountId,
                         category.getId(),
                         null,
                         historico,
