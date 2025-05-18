@@ -94,14 +94,7 @@ public class TransactionServiceImpl implements TransactionService {
             transaction.setUpdatedAt(now);
 
             Transaction saved = transactionRepository.save(transaction);
-
-            boolean isDespesaEfetivada = saved.getType() == TransactionType.DESPESA
-                    && saved.getState() == TransactionState.EFFECTIVE;
-
-            boolean saldoNegativo = isDespesaEfetivada
-                    && saved.getValue() > saved.getAccount().getCurrentBalance();
-
-                        responses.add(toDTO(saved, saldoNegativo));
+            responses.add(toDTO(saved, false));
         }
 
         return responses;
