@@ -2,17 +2,23 @@ package com.financeiro.api.service.impl;
 
 import com.financeiro.api.domain.Account;
 import com.financeiro.api.domain.Category;
+import com.financeiro.api.domain.Transaction;
 import com.financeiro.api.domain.enums.Status;
+import com.financeiro.api.domain.enums.TransactionOrder;
 import com.financeiro.api.domain.enums.TransactionType;
 import com.financeiro.api.dto.accountDTO.*;
+import com.financeiro.api.dto.categoryDTO.CategorySummaryDTO;
+import com.financeiro.api.dto.transactionDTO.TransactionSummaryDTO;
 import com.financeiro.api.infra.exceptions.UserNotFoundException;
 import com.financeiro.api.repository.AccountRepository;
 import com.financeiro.api.repository.CategoryRepository;
+import com.financeiro.api.repository.TransactionRepository;
 import com.financeiro.api.service.AccountService;
 import org.springframework.stereotype.Service;
 import jakarta.persistence.EntityNotFoundException;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -22,10 +28,12 @@ public class AccountServiceImpl implements AccountService {
 
         private final AccountRepository accountRepository;
         private final CategoryRepository categoryRepository;
+        private final TransactionRepository transactionRepository;
 
-        public AccountServiceImpl(AccountRepository accountRepository, CategoryRepository categoryRepository) {
+        public AccountServiceImpl(AccountRepository accountRepository, CategoryRepository categoryRepository, TransactionRepository transactionRepository) {
                 this.accountRepository = accountRepository;
                 this.categoryRepository = categoryRepository;
+                this.transactionRepository = transactionRepository;
         }
 
         // transformar no metodo GET
@@ -460,5 +468,67 @@ public class AccountServiceImpl implements AccountService {
                                                         despesaTotal,
                                                         saldoTotal);
                                 }).collect(Collectors.toList());
+        }
+
+        public List<SummaryDTO> findSummary(List<UUID> accountsId, List<UUID> categoriesId, TransactionOrder order) {
+                List<Account> accounts = accountRepository.findAllById(accountsId);
+                List<Category> categories = categoryRepository.findAllById(categoriesId);
+
+                // Mapear contas para AccountSummaryDTO
+                List<AccountSummaryDTO> accountSummaries = accounts.stream()
+                                .map(account -> new AccountSummaryDTO(
+                                                account.getAccountName(),
+                                                account.getIncome(),
+                                                account.getExpectedIncomeMonth(),
+                                                account.getExpense(),
+                                                account.getExpectedExpenseMonth()))
+                                .collect(Collectors.toList());
+
+                // Mapear categorias para CategorySummaryDTO
+                List<CategorySummaryDTO> categorySummaries = categories.stream()
+                                .map(category -> new CategorySummaryDTO(
+                                                category.getName(),
+                                                category.getIconClass(),
+                                                category.getColor(),
+                                                category.getAdditionalInfo()))
+                                .collect(Collectors.toList());
+
+                // Buscar transações relacionadas às contas e categorias
+                List<Transaction> transactions = transactionRepository.findByAccountInAndCategoryIn(accounts,
+                                categories);
+
+                // Ordenar transações de acordo com o TransactionOrder
+                List<Transaction> orderedTransactions = switch (order) {
+                        case VALOR_CRESCENTE -> transactions.stream()
+                                        .sorted(Comparator.comparing(Transaction::getValue))
+                                        .collect(Collectors.toList());
+                        case VALOR_DECRESCENTE -> transactions.stream()
+                                        .sorted(Comparator.comparing(Transaction::getValue).reversed())
+                                        .collect(Collectors.toList());
+                        case DATA -> transactions.stream()
+                                        .sorted(Comparator.comparing(Transaction::getReleaseDate).reversed())
+                                        .collect(Collectors.toList());
+                        case CATEGORIA -> transactions.stream()
+                                        .sorted(Comparator.comparing(t -> t.getCategory().getName()))
+                                        .collect(Collectors.toList());
+                        default -> transactions;
+                };
+
+                // Limitar a 10 transações e mapear para TransactionSummaryDTO
+                List<TransactionSummaryDTO> transactionSummaries = orderedTransactions.stream()
+                                .limit(10)
+                                .map(transaction -> new TransactionSummaryDTO(
+                                                transaction.getName(),
+                                                transaction.getValue()))
+                                .collect(Collectors.toList());
+
+                // Criar e retornar o SummaryDTO
+                return List.of(new SummaryDTO(
+                                LocalDateTime.now().minusDays(30), // Período de 30 dias
+                                LocalDateTime.now(),
+                                accountSummaries,
+                                categorySummaries,
+                                transactionSummaries,
+                                order));
         }
 }

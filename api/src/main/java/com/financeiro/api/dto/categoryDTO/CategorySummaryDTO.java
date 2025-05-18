@@ -1,6 +1,6 @@
 package com.financeiro.api.dto.categoryDTO;
 
-public record CategoriaResumoDTO(
+public record CategorySummaryDTO(
     String name,
     String iconClass,
     String color,
