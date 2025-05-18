@@ -11,6 +11,7 @@ import com.financeiro.api.domain.enums.Status;
 import com.financeiro.api.repository.CategoryRepository;
 import com.financeiro.api.repository.SubcategoryRepository;
 import com.financeiro.api.repository.TransactionRepository;
+import com.financeiro.api.repository.UserRepository;
 import com.financeiro.api.service.SubcategoryService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,13 +29,16 @@ public class SubcategoryServiceImpl implements SubcategoryService {
         private final SubcategoryRepository subcategoryRepository;
         private final CategoryRepository categoryRepository;
         private final TransactionRepository transactionRepository;
+        private final UserRepository userRepository;
 
         public SubcategoryServiceImpl(SubcategoryRepository subcategoryRepository,
                         CategoryRepository categoryRepository,
-                        TransactionRepository transactionRepository) {
+                        TransactionRepository transactionRepository,
+                        UserRepository userRepository) {
                 this.subcategoryRepository = subcategoryRepository;
                 this.categoryRepository = categoryRepository;
                 this.transactionRepository = transactionRepository;
+                this.userRepository = userRepository;
         }
 
         private User getCurrentUser() {
