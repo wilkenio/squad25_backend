@@ -1,6 +1,7 @@
 package com.financeiro.api.dto.accountDTO;
 
-import com.financeiro.api.domain.Category;
+import java.util.UUID;
+
 import com.financeiro.api.domain.enums.Status;
 
 public record AccountTransactionRequestDTO(
@@ -13,8 +14,10 @@ public record AccountTransactionRequestDTO(
         Double specialCheck,
         Double income,
         Double expense,
+        //receitas previstas
         Double expectedIncomeMonth,
+        //despesas previstas
         Double expectedExpenseMonth,
         Status status,
-        Category category) {
+        UUID categoryId) {
 }

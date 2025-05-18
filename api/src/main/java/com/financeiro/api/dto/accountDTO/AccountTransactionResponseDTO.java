@@ -1,13 +1,17 @@
 package com.financeiro.api.dto.accountDTO;
 
-import com.financeiro.api.domain.Category;
 import com.financeiro.api.domain.enums.Status;
-import java.time.LocalDateTime;
+
+import java.util.UUID;
 
 public record AccountTransactionResponseDTO(
+        UUID id,
+        UUID categoryId,
+        String categoryName,
+        String iconClass,
+        String color,
         String accountName,
         String accountDescription,
-        String additionalInformation,
         Double openingBalance,
         Double currentBalance,
         Double expectedBalance,
@@ -16,7 +20,5 @@ public record AccountTransactionResponseDTO(
         Double expense,
         Double expectedIncomeMonth,
         Double expectedExpenseMonth,
-        Status status,
-        Category category,
-        LocalDateTime updatedAt) {
+        Status status) {
 }

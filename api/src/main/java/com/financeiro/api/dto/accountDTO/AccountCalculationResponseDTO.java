@@ -1,12 +1,15 @@
 package com.financeiro.api.dto.accountDTO;
 
-import com.financeiro.api.domain.Category;
+import java.util.UUID;
 
 public record AccountCalculationResponseDTO(
-        Category category,
+        UUID id,
+        UUID categoryId,
         String categoryName,
+        String iconClass,
+        String color,
+        String accountName,
         String accountDescription,
-        String additionalInformation,
         //dados separados do calculo
         Double saldoInicial,
         Double chequeEspecial,

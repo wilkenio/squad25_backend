@@ -1,12 +1,10 @@
 package com.financeiro.api.service.initializer;
 
-import com.financeiro.api.domain.Account;
 import com.financeiro.api.domain.Category;
 import com.financeiro.api.domain.Subcategory;
 import com.financeiro.api.domain.User;
 import com.financeiro.api.domain.enums.CategoryType;
 import com.financeiro.api.domain.enums.Status;
-import com.financeiro.api.repository.AccountRepository;
 import com.financeiro.api.repository.CategoryRepository;
 import com.financeiro.api.repository.SubcategoryRepository;
 import org.springframework.stereotype.Service;
@@ -19,90 +17,62 @@ public class DefaultCategoryInitializer {
 
     private final CategoryRepository categoryRepository;
     private final SubcategoryRepository subcategoryRepository;
-    private final AccountRepository accountRepository;
 
     public DefaultCategoryInitializer(CategoryRepository categoryRepository,
-                                      SubcategoryRepository subcategoryRepository,
-                                      AccountRepository accountRepository) {
+                                      SubcategoryRepository subcategoryRepository) {
         this.categoryRepository = categoryRepository;
         this.subcategoryRepository = subcategoryRepository;
-        this.accountRepository = accountRepository;
     }
 
     public void createDefaultCategoriesForUser(User user) {
-        Account contaDespesa = createContaPadrao(user, "Conta Padrão - Despesas");
-        Account contaReceita = createContaPadrao(user, "Conta Padrão - Receitas");
-
-        createCategoryWithSubcategories("Casa", "bi-house", "#3498db", CategoryType.EXPENSE, user, contaDespesa, List.of(
+        createCategoryWithSubcategories("Casa", "bi-house", "#3498db", CategoryType.EXPENSE, user, List.of(
                 "Água", "Energia elétrica", "Gás", "Internet", "Condomínio",
                 "Aluguel", "Manutenção", "IPTU", "Seguro residencial"
         ));
 
-        createCategoryWithSubcategories("Alimentação", "bi-fork-knife", "#e74c3c", CategoryType.EXPENSE, user, contaDespesa, List.of(
+        createCategoryWithSubcategories("Alimentação", "bi-fork-knife", "#e74c3c", CategoryType.EXPENSE, user, List.of(
                 "Supermercado", "Restaurante", "Delivery"
         ));
 
-        createCategoryWithSubcategories("Transporte", "bi-car-front", "#2980b9", CategoryType.EXPENSE, user, contaDespesa, List.of(
+        createCategoryWithSubcategories("Transporte", "bi-car-front", "#2980b9", CategoryType.EXPENSE, user, List.of(
                 "Combustível", "Transporte público", "Aplicativos", "Estacionamento",
                 "Pedágio", "Manutenção do veículo", "Seguro do veículo", "IPVA", "Financiamento do carro"
         ));
 
-        createCategoryWithSubcategories("Contas e Assinaturas", "bi-receipt", "#9b59b6", CategoryType.EXPENSE, user, contaDespesa, List.of(
+        createCategoryWithSubcategories("Contas e Assinaturas", "bi-receipt", "#9b59b6", CategoryType.EXPENSE, user, List.of(
                 "Celular", "Streaming"
         ));
 
+        createCategoryWithSubcategories("Conta Corrente", "bi-wallet2", "#1f77b4", CategoryType.ACCOUNT, user, List.of());
+        createCategoryWithSubcategories("Conta Poupança", "bi-piggy-bank", "#2ca02c", CategoryType.ACCOUNT, user, List.of());
+        createCategoryWithSubcategories("Carteira", "bi-cash", "#ff851b", CategoryType.ACCOUNT, user, List.of());
+        createCategoryWithSubcategories("Cartão de Crédito", "bi-credit-card", "#d62728", CategoryType.ACCOUNT, user, List.of());
+        createCategoryWithSubcategories("Conta Salário", "bi-currency-dollar", "#008080", CategoryType.ACCOUNT, user, List.of());
+        createCategoryWithSubcategories("Conta Investimento", "bi-graph-up", "#9467bd", CategoryType.ACCOUNT, user, List.of());
+        createCategoryWithSubcategories("Conta Digital", "bi-phone", "#00b894", CategoryType.ACCOUNT, user, List.of());
+        createCategoryWithSubcategories("Conta Conjunta", "bi-people", "#ff69b4", CategoryType.ACCOUNT, user, List.of());
 
-createCategoryWithSubcategories("Conta Corrente", "bi-wallet2", "#1f77b4", CategoryType.ACCOUNT, user, contaReceita, List.of());
-createCategoryWithSubcategories("Conta Poupança", "bi-piggy-bank", "#2ca02c", CategoryType.ACCOUNT, user, contaReceita, List.of());
-createCategoryWithSubcategories("Carteira", "bi-cash", "#ff851b", CategoryType.ACCOUNT, user, contaReceita, List.of());
-createCategoryWithSubcategories("Cartão de Crédito", "bi-credit-card", "#d62728", CategoryType.ACCOUNT, user, contaReceita, List.of());
-createCategoryWithSubcategories("Conta Salário", "bi-currency-dollar", "#008080", CategoryType.ACCOUNT, user, contaReceita, List.of());
-createCategoryWithSubcategories("Conta Investimento", "bi-graph-up", "#9467bd", CategoryType.ACCOUNT, user, contaReceita, List.of());
-createCategoryWithSubcategories("Conta Digital", "bi-phone", "#00b894", CategoryType.ACCOUNT, user, contaReceita, List.of());
-createCategoryWithSubcategories("Conta Conjunta", "bi-people", "#ff69b4", CategoryType.ACCOUNT, user, contaReceita, List.of());
-
-
-
-        createCategoryWithSubcategories("Salário e Benefícios", "bi-wallet", "#2ecc71", CategoryType.REVENUE, user, contaReceita, List.of(
+        createCategoryWithSubcategories("Salário e Benefícios", "bi-wallet", "#2ecc71", CategoryType.REVENUE, user, List.of(
                 "Salário", "Bônus", "Comissões", "13º Salário", "Vale-refeição", "Reembolso de despesas"
         ));
 
-        createCategoryWithSubcategories("Investimentos", "bi-pie-chart", "#27ae60", CategoryType.REVENUE, user, contaReceita, List.of(
+        createCategoryWithSubcategories("Investimentos", "bi-pie-chart", "#27ae60", CategoryType.REVENUE, user, List.of(
                 "Dividendos", "Juros de Poupança", "Juros de CDB", "Ganho de Capital", "Aluguel de imóveis"
         ));
 
-        createCategoryWithSubcategories("Receitas Financeiras", "bi-currency-dollar", "#103030", CategoryType.REVENUE, user, contaReceita, List.of(
+        createCategoryWithSubcategories("Receitas Financeiras", "bi-currency-dollar", "#103030", CategoryType.REVENUE, user, List.of(
                 "Juros de Conta Corrente", "Previdência Privada", "Rendimentos de Criptomoedas"
         ));
 
-        createCategoryWithSubcategories("Outras Receitas", "bi-gift", "#9b59b6", CategoryType.REVENUE, user, contaReceita, List.of(
+        createCategoryWithSubcategories("Outras Receitas", "bi-gift", "#9b59b6", CategoryType.REVENUE, user, List.of(
                 "Cashback", "Royalties"
         ));
     }
 
-    private Account createContaPadrao(User user, String nomeConta) {
-        Account account = new Account();
-        account.setAccountName(nomeConta);
-        account.setAccountDescription("Conta criada automaticamente para categorias padrão");
-        account.setOpeningBalance(0.0);
-        account.setCurrentBalance(0.0);
-        account.setExpectedBalance(0.0);
-        account.setSpecialCheck(0.0);
-        account.setIncome(0.0);
-        account.setExpense(0.0);
-        account.setExpectedIncomeMonth(0.0);
-        account.setExpectedExpenseMonth(0.0);
-        account.setStatus(Status.SIM);
-        account.setUser(user);
-        account.setCreatedAt(LocalDateTime.now());
-        account.setUpdatedAt(LocalDateTime.now());
-        return accountRepository.save(account);
-    }
-
     private void createCategoryWithSubcategories(String categoryName, String icon, String color,
-                                                 CategoryType type, User user, Account account, List<String> subNames) {
+                                                 CategoryType type, User user, List<String> subNames) {
         Category category = new Category();
-        category.setName(categoryName);  
+        category.setName(categoryName);
         category.setIconClass(icon);
         category.setColor(color);
         category.setType(type);
@@ -111,7 +81,6 @@ createCategoryWithSubcategories("Conta Conjunta", "bi-people", "#ff69b4", Catego
         category.setCreatedAt(LocalDateTime.now());
         category.setUpdatedAt(LocalDateTime.now());
         category.setUser(user);
-        category.setAccount(account);
 
         Category savedCategory = categoryRepository.save(category);
 
