@@ -2,6 +2,7 @@ package com.financeiro.api.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import com.financeiro.api.domain.enums.*;
@@ -40,8 +41,16 @@ public class Transaction {
     @Enumerated(EnumType.STRING)
     private Frequency frequency;
 
-    //quantidade de parcelas
-    private Integer installments;
+    private Integer installments; 
+
+    @Enumerated(EnumType.STRING)
+    private Periodicity periodicity; 
+
+    private Boolean businessDayOnly; 
+
+    private Integer installmentNumber; 
+
+    private UUID recurringGroupId; 
 
     private LocalDateTime createdAt;
 

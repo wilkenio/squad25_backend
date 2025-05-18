@@ -1,9 +1,15 @@
 package com.financeiro.api.controller;
 
+import com.financeiro.api.dto.accountDTO.AccountTransactionSummaryDTO;
 import com.financeiro.api.dto.transactionDTO.*;
+import com.financeiro.api.service.CsvImportService;
 import com.financeiro.api.service.impl.TransactionServiceImpl;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import com.financeiro.api.domain.User;
+import com.financeiro.api.domain.enums.TransactionState;
 
 import java.util.List;
 import java.util.UUID;
@@ -13,14 +19,24 @@ import java.util.UUID;
 public class TransactionController {
 
     private final TransactionServiceImpl service;
+    private final CsvImportService csvImportService;
 
-    public TransactionController(TransactionServiceImpl service) {
+    public TransactionController(TransactionServiceImpl service, CsvImportService csvImportService) {
         this.service = service;
+        this.csvImportService = csvImportService;
     }
 
     @PostMapping
-    public ResponseEntity<TransactionResponseDTO> create(@RequestBody TransactionRequestDTO dto) {
+    public ResponseEntity<List<TransactionResponseDTO>> create(@RequestBody TransactionRequestDTO dto) {
         return ResponseEntity.ok(service.create(dto));
+    }
+
+    @PostMapping("/import/csv")
+    public ResponseEntity<String> importar(@RequestParam("file") MultipartFile file, 
+    @RequestParam(value = "accountId", required = false) UUID accountId) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        csvImportService.importFromCsv(file, user, accountId);
+        return ResponseEntity.ok("Importação concluída com sucesso.");
     }
 
     @GetMapping
@@ -28,9 +44,29 @@ public class TransactionController {
         return ResponseEntity.ok(service.findAll());
     }
 
+    @PatchMapping("/{id}/state")
+    public ResponseEntity<TransactionResponseDTO> updateState(
+            @PathVariable UUID id,
+            @RequestParam TransactionState state
+    ) {
+        return ResponseEntity.ok(service.updateState(id, state));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<TransactionSimplifiedResponseDTO> getById(@PathVariable UUID id) {
         return ResponseEntity.ok(service.findById(id));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<TransactionResponseDTO> update(
+            @PathVariable UUID id,
+            @RequestBody TransactionRequestDTO dto) {
+        return ResponseEntity.ok(service.update(id, dto));
+    }
+
+    @GetMapping("/summary")
+    public ResponseEntity<List<AccountTransactionSummaryDTO>> getSummary(@RequestBody TransactionFilterDTO dto) {
+        return ResponseEntity.ok(service.filtrarTransacoes(dto));
     }
 
     @DeleteMapping("/{id}")

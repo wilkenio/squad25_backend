@@ -2,6 +2,7 @@ package com.financeiro.api.dto.transactionDTO;
 
 import com.financeiro.api.domain.enums.*;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record TransactionRequestDTO(
@@ -11,11 +12,13 @@ public record TransactionRequestDTO(
         String name,
         TransactionType type,
         Status status,
-        // LocalDateTime releaseDate,
+        LocalDateTime releaseDate,
         Double value,
         String description,
         TransactionState state,
         String additionalInformation,
         Frequency frequency,
-        Integer installments
+        Integer installments,
+        Periodicity periodicity,         
+        Boolean businessDayOnly         
 ) {}

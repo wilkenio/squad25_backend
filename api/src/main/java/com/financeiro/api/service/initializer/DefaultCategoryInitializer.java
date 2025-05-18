@@ -18,7 +18,8 @@ public class DefaultCategoryInitializer {
     private final CategoryRepository categoryRepository;
     private final SubcategoryRepository subcategoryRepository;
 
-    public DefaultCategoryInitializer(CategoryRepository categoryRepository, SubcategoryRepository subcategoryRepository) {
+    public DefaultCategoryInitializer(CategoryRepository categoryRepository,
+                                      SubcategoryRepository subcategoryRepository) {
         this.categoryRepository = categoryRepository;
         this.subcategoryRepository = subcategoryRepository;
     }
@@ -29,8 +30,8 @@ public class DefaultCategoryInitializer {
                 "Aluguel", "Manutenção", "IPTU", "Seguro residencial"
         ));
 
-        createCategoryWithSubcategories("Alimentação", "bi-utensils", "#e74c3c", CategoryType.EXPENSE, user, List.of(
-                "Supermercado", "Feira", "Restaurantes", "Delivery", "Lanches"
+        createCategoryWithSubcategories("Alimentação", "bi-fork-knife", "#e74c3c", CategoryType.EXPENSE, user, List.of(
+                "Supermercado", "Restaurante", "Delivery"
         ));
 
         createCategoryWithSubcategories("Transporte", "bi-car-front", "#2980b9", CategoryType.EXPENSE, user, List.of(
@@ -42,32 +43,34 @@ public class DefaultCategoryInitializer {
                 "Celular", "Streaming"
         ));
 
-        // ==== REVENUE CATEGORIES ====
-
-        createCategoryWithSubcategoriesStatusNAO("Contas", "bi-bank", "#2ecc71", CategoryType.REVENUE, user, List.of(
-                "NuBank", "Caixa", "Banco do Brasil", "Bradesco", "Itaú", "Santander"
-        ));
+        createCategoryWithSubcategories("Conta Corrente", "bi-wallet2", "#1f77b4", CategoryType.ACCOUNT, user, List.of());
+        createCategoryWithSubcategories("Conta Poupança", "bi-piggy-bank", "#2ca02c", CategoryType.ACCOUNT, user, List.of());
+        createCategoryWithSubcategories("Carteira", "bi-cash", "#ff851b", CategoryType.ACCOUNT, user, List.of());
+        createCategoryWithSubcategories("Cartão de Crédito", "bi-credit-card", "#d62728", CategoryType.ACCOUNT, user, List.of());
+        createCategoryWithSubcategories("Conta Salário", "bi-currency-dollar", "#008080", CategoryType.ACCOUNT, user, List.of());
+        createCategoryWithSubcategories("Conta Investimento", "bi-graph-up", "#9467bd", CategoryType.ACCOUNT, user, List.of());
+        createCategoryWithSubcategories("Conta Digital", "bi-phone", "#00b894", CategoryType.ACCOUNT, user, List.of());
+        createCategoryWithSubcategories("Conta Conjunta", "bi-people", "#ff69b4", CategoryType.ACCOUNT, user, List.of());
 
         createCategoryWithSubcategories("Salário e Benefícios", "bi-wallet", "#2ecc71", CategoryType.REVENUE, user, List.of(
-                "Salário Base", "Bônus", "Comissões", "13º Salário", "Vale-refeição", "Reembolso de despesas"
+                "Salário", "Bônus", "Comissões", "13º Salário", "Vale-refeição", "Reembolso de despesas"
         ));
 
         createCategoryWithSubcategories("Investimentos", "bi-pie-chart", "#27ae60", CategoryType.REVENUE, user, List.of(
                 "Dividendos", "Juros de Poupança", "Juros de CDB", "Ganho de Capital", "Aluguel de imóveis"
         ));
 
-        createCategoryWithSubcategories("Receitas Financeiras", "bi-coins", "#2980b9", CategoryType.REVENUE, user, List.of(
+        createCategoryWithSubcategories("Receitas Financeiras", "bi-currency-dollar", "#103030", CategoryType.REVENUE, user, List.of(
                 "Juros de Conta Corrente", "Previdência Privada", "Rendimentos de Criptomoedas"
         ));
 
         createCategoryWithSubcategories("Outras Receitas", "bi-gift", "#9b59b6", CategoryType.REVENUE, user, List.of(
-                "Cashback", "Royalties", "Presentes"
+                "Cashback", "Royalties"
         ));
-
-        
     }
 
-    private void createCategoryWithSubcategories(String categoryName, String icon, String color, CategoryType type, User user, List<String> subNames) {
+    private void createCategoryWithSubcategories(String categoryName, String icon, String color,
+                                                 CategoryType type, User user, List<String> subNames) {
         Category category = new Category();
         category.setName(categoryName);
         category.setIconClass(icon);
@@ -94,32 +97,4 @@ public class DefaultCategoryInitializer {
             subcategoryRepository.save(subcategory);
         }
     }
-
-    private void createCategoryWithSubcategoriesStatusNAO(String categoryName, String icon, String color, CategoryType type, User user, List<String> subNames) {
-        Category category = new Category();
-        category.setName(categoryName);
-        category.setIconClass(icon);
-        category.setColor(color);
-        category.setType(type);
-        category.setStandardRecommendation(true);
-        category.setStatus(Status.NAO);
-        category.setCreatedAt(LocalDateTime.now());
-        category.setUpdatedAt(LocalDateTime.now());
-        category.setUser(user);
-
-        Category savedCategory = categoryRepository.save(category);
-
-        for (String sub : subNames) {
-            Subcategory subcategory = new Subcategory();
-            subcategory.setName(sub);
-            subcategory.setCategory(savedCategory);
-            subcategory.setIconClass("bi-circle");
-            subcategory.setColor("#bdc3c7");
-            subcategory.setStatus(Status.NAO);
-            subcategory.setStandardRecommendation(true);
-            subcategory.setCreatedAt(LocalDateTime.now());
-            subcategory.setUpdatedAt(LocalDateTime.now());
-            subcategoryRepository.save(subcategory);
-        }
-    }
-} 
+}
