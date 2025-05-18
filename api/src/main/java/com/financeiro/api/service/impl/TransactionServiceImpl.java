@@ -231,41 +231,4 @@ public class TransactionServiceImpl implements TransactionService {
                 saldoNegativo
         );
     }
-
-    @Override
-    public List<AccountTransactionSummaryDTO> filtrarTransacoes(TransactionFilterDTO filtro) {
-        List<Transaction> transacoes = transactionRepository.findAll().stream()
-                .filter(t -> filtro.contaIds() == null || filtro.contaIds().isEmpty() || filtro.contaIds().contains(t.getAccount().getId()))
-                .filter(t -> filtro.categoriaIds() == null || filtro.categoriaIds().isEmpty() || filtro.categoriaIds().contains(t.getCategory().getId()))
-                .filter(t -> (filtro.dataInicio() == null || !t.getReleaseDate().isBefore(filtro.dataInicio())) &&
-                             (filtro.dataFim() == null || !t.getReleaseDate().isAfter(filtro.dataFim())))
-                .collect(Collectors.toList());
-
-        Comparator<Transaction> comparator = Comparator.comparing(Transaction::getReleaseDate);
-        if (filtro.ordenacao() != null) {
-            switch (filtro.ordenacao()) {
-                case DATA -> comparator = Comparator.comparing(Transaction::getReleaseDate);
-                case CATEGORIA -> comparator = Comparator.comparing(t -> t.getCategory().getName(), String.CASE_INSENSITIVE_ORDER);
-                case VALOR_CRESCENTE -> comparator = Comparator.comparing(Transaction::getValue);
-                case VALOR_DECRESCENTE -> comparator = Comparator.comparing(Transaction::getValue).reversed();
-            }
-        }
-
-        List<Transaction> transacoesOrdenadas = transacoes.stream()
-                .sorted(comparator)
-                .limit(10)
-                .collect(Collectors.toList());
-
-        return transacoesOrdenadas.stream()
-                .map(t -> new AccountTransactionSummaryDTO(
-                        t.getAccount().getAccountName(),
-                        t.getType() == TransactionType.RECEITA ? t.getValue() : null,
-                        null,
-                        t.getType() == TransactionType.DESPESA ? t.getValue() : null,
-                        null,
-                        List.of(),
-                        List.of()
-                ))
-                .collect(Collectors.toList());
-    }
 }

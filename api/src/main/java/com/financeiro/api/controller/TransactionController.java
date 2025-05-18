@@ -78,8 +78,4 @@ public class TransactionController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/summary")
-    public ResponseEntity<List<AccountTransactionSummaryDTO>> getSummary(@RequestBody TransactionFilterDTO dto) {
-        return ResponseEntity.ok(service.filtrarTransacoes(dto));
-    }
 }

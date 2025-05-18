@@ -23,6 +23,4 @@ public interface TransactionService {
     TransactionResponseDTO update(UUID id, TransactionRequestDTO dto);
 
     void delete(UUID id);
-
-    List<AccountTransactionSummaryDTO> filtrarTransacoes(TransactionFilterDTO filtro);
 }
