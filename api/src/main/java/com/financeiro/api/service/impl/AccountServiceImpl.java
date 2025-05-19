@@ -30,7 +30,8 @@ public class AccountServiceImpl implements AccountService {
         private final CategoryRepository categoryRepository;
         private final TransactionRepository transactionRepository;
 
-        public AccountServiceImpl(AccountRepository accountRepository, CategoryRepository categoryRepository, TransactionRepository transactionRepository) {
+        public AccountServiceImpl(AccountRepository accountRepository, CategoryRepository categoryRepository,
+                        TransactionRepository transactionRepository) {
                 this.accountRepository = accountRepository;
                 this.categoryRepository = categoryRepository;
                 this.transactionRepository = transactionRepository;
@@ -470,7 +471,8 @@ public class AccountServiceImpl implements AccountService {
                                 }).collect(Collectors.toList());
         }
 
-        public List<SummaryDTO> findSummary(List<UUID> accountsId, List<UUID> categoriesId, TransactionOrder order) {
+        public List<SummaryDTO> findSummary(List<UUID> accountsId, List<UUID> categoriesId, TransactionOrder order,
+                        LocalDateTime startDate, LocalDateTime endDate) {
                 List<Account> accounts = accountRepository.findAllById(accountsId);
                 List<Category> categories = categoryRepository.findAllById(categoriesId);
 
@@ -496,6 +498,12 @@ public class AccountServiceImpl implements AccountService {
                 // Buscar transações relacionadas às contas e categorias
                 List<Transaction> transactions = transactionRepository.findByAccountInAndCategoryIn(accounts,
                                 categories);
+
+                // Filtrar transações pelo período especificado
+                transactions = transactions.stream()
+                                .filter(transaction -> !transaction.getReleaseDate().isBefore(startDate) &&
+                                                !transaction.getReleaseDate().isAfter(endDate))
+                                .collect(Collectors.toList());
 
                 // Ordenar transações de acordo com o TransactionOrder
                 List<Transaction> orderedTransactions = switch (order) {
@@ -524,8 +532,8 @@ public class AccountServiceImpl implements AccountService {
 
                 // Criar e retornar o SummaryDTO
                 return List.of(new SummaryDTO(
-                                LocalDateTime.now().minusDays(30), // Período de 30 dias
-                                LocalDateTime.now(),
+                                startDate,
+                                endDate,
                                 accountSummaries,
                                 categorySummaries,
                                 transactionSummaries,
