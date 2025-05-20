@@ -2,6 +2,7 @@ package com.financeiro.api.controller;
 
 import com.financeiro.api.domain.enums.Status;
 import com.financeiro.api.domain.enums.TransactionOrder;
+import com.financeiro.api.dto.SummaryDTO;
 import com.financeiro.api.dto.accountDTO.*;
 import com.financeiro.api.service.impl.AccountServiceImpl;
 import org.springframework.http.ResponseEntity;
@@ -86,15 +87,5 @@ public class AccountController {
     @GetMapping("/status/{status}")
     public ResponseEntity<List<AccountCalculationResponseDTO>> findByStatus(@PathVariable Status status) {
         return ResponseEntity.ok(accountServiceImpl.findByStatus(status));
-    }
-
-    @GetMapping("/summary")
-    public ResponseEntity<List<SummaryDTO>> findSummary(
-            @RequestParam(required = true) List<UUID> accountsId,
-            @RequestParam(required = true) List<UUID> categoriesId,
-            @RequestParam(required = true) LocalDateTime startDate,
-            @RequestParam(required = true) LocalDateTime endDate,
-            @RequestParam(required = true) TransactionOrder order) {
-        return ResponseEntity.ok(accountServiceImpl.findSummary(accountsId, categoriesId, order, startDate, endDate));
     }
 }

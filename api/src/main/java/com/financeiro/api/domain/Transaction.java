@@ -2,7 +2,6 @@ package com.financeiro.api.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import com.financeiro.api.domain.enums.*;
