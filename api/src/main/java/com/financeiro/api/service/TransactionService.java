@@ -6,6 +6,7 @@ import com.financeiro.api.dto.transactionDTO.TransactionFilterDTO;
 import com.financeiro.api.dto.transactionDTO.TransactionRequestDTO;
 import com.financeiro.api.dto.transactionDTO.TransactionResponseDTO;
 import com.financeiro.api.dto.transactionDTO.TransactionSimplifiedResponseDTO;
+import com.financeiro.api.dto.transactionDTO.RecurringUpdateRequestDTO;
 
 import java.util.List;
 import java.util.UUID;
@@ -23,4 +24,8 @@ public interface TransactionService {
     TransactionResponseDTO update(UUID id, TransactionRequestDTO dto);
 
     void delete(UUID id);
+
+    void cancelarRecorrencia(UUID recurringGroupId);
+
+    void atualizarRecorrenciaFutura(UUID recurringGroupId, RecurringUpdateRequestDTO dto);
 }

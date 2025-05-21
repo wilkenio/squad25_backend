@@ -18,4 +18,5 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
                LocalDateTime end);
 
      List<Transaction> findByAccountInAndCategoryIn(List<Account> accounts, List<Category> categories);
+     List<Transaction> findByRecurringGroupId(UUID recurringGroupId);
 }

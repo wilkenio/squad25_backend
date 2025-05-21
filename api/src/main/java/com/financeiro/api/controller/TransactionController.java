@@ -72,6 +72,20 @@ public class TransactionController {
         return ResponseEntity.ok(service.updateState(id, state));
     }
 
+        @DeleteMapping("/recurring/{groupId}")
+    public ResponseEntity<Void> cancelarTransacoesRecorrentes(@PathVariable UUID groupId) {
+        service.cancelarRecorrencia(groupId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/recurring/{groupId}")
+    public ResponseEntity<Void> atualizarTransacoesFuturasRecorrentes(
+            @PathVariable UUID groupId,
+            @RequestBody RecurringUpdateRequestDTO dto) {
+        service.atualizarRecorrenciaFutura(groupId, dto);
+        return ResponseEntity.noContent().build();
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         service.delete(id);
