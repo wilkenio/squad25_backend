@@ -23,71 +23,28 @@ import com.financeiro.api.repository.TransactionRepository;
 import com.financeiro.api.service.SummaryService;
 
 @Service
-public class SummaryServiceImpl implements SummaryService{
-    
-    private final AccountRepository accountRepository;
-    private final CategoryRepository categoryRepository;
-    private final TransactionRepository transactionRepository;
+public class SummaryServiceImpl implements SummaryService {
 
-    public SummaryServiceImpl(AccountRepository accountRepository, CategoryRepository categoryRepository,
-                    TransactionRepository transactionRepository) {
+        private final AccountRepository accountRepository;
+        private final CategoryRepository categoryRepository;
+        private final TransactionRepository transactionRepository;
+
+        public SummaryServiceImpl(AccountRepository accountRepository, CategoryRepository categoryRepository,
+                        TransactionRepository transactionRepository) {
                 this.accountRepository = accountRepository;
                 this.categoryRepository = categoryRepository;
                 this.transactionRepository = transactionRepository;
-    }
+        }
 
-    @Override
-    public List<SummaryDTO> findSummary(List<UUID> accountsId, List<UUID> categoriesId, TransactionOrder order,
+        @Override
+        public List<SummaryDTO> findSummary(List<UUID> accountsId, List<UUID> categoriesId, TransactionOrder order,
                         LocalDateTime startDate, LocalDateTime endDate) {
                 List<Account> accounts = accountRepository.findAllById(accountsId);
                 List<Category> categories = categoryRepository.findAllById(categoriesId);
 
-                // Mapear contas para AccountSummaryDTO
-                List<AccountSummaryDTO> accountSummaries = accounts.stream()
-                                .map(account -> new AccountSummaryDTO(
-                                                account.getId(),
-                                                account.getAccountName(),
-                                                account.getAccountDescription(),
-                                                account.getAdditionalInformation(),
-                                                account.getOpeningBalance(),
-                                                account.getCurrentBalance(),
-                                                account.getExpectedBalance(),
-                                                account.getSpecialCheck(),
-                                                account.getIncome(),
-                                                account.getExpense(),
-                                                account.getExpectedIncomeMonth(),
-                                                account.getExpectedExpenseMonth(),
-                                                account.getStatus()))
-                                .collect(Collectors.toList());
-
-                // Mapear categorias para CategorySummaryDTO
-                List<CategorySummaryDTO> categorySummaries = categories.stream()
-                                .map(category -> new CategorySummaryDTO(
-                                                category.getId(),
-                                                category.getName(),
-                                                category.getType(),
-                                                category.getIconClass(),
-                                                category.getColor(),
-                                                category.getAdditionalInfo(),
-                                                category.getStatus()))
-                                .collect(Collectors.toList());
-
                 // Buscar transações relacionadas às contas e categorias
                 List<Transaction> transactions = transactionRepository.findByAccountInAndCategoryIn(accounts,
                                 categories);
-
-                // Buscar e mapear subcategorias
-                List<SubcategorySummaryDTO> subcategorySummaries = transactions.stream()
-                                .map(subcategory -> new SubcategorySummaryDTO(
-                                                subcategory.getSubcategory().getId(),
-                                                subcategory.getSubcategory().getName(),
-                                                subcategory.getSubcategory().getStandardRecommendation(),
-                                                subcategory.getSubcategory().getIconClass(),
-                                                subcategory.getSubcategory().getStatus(),
-                                                subcategory.getSubcategory().getColor(),
-                                                subcategory.getSubcategory().getAdditionalInfo()))
-                                .collect(Collectors.toList());
-
 
                 // Filtrar transações pelo período especificado
                 transactions = transactions.stream()
@@ -130,7 +87,43 @@ public class SummaryServiceImpl implements SummaryService{
                                                 transaction.getPeriodicity(),
                                                 transaction.getBusinessDayOnly(),
                                                 transaction.getInstallmentNumber(),
-                                                transaction.getRecurringGroupId()))
+                                                transaction.getRecurringGroupId(),
+                                                List.of(new AccountSummaryDTO(
+                                                                transaction.getAccount().getId(),
+                                                                transaction.getAccount().getAccountName(),
+                                                                transaction.getAccount().getAccountDescription(),
+                                                                transaction.getAccount().getAdditionalInformation(),
+                                                                transaction.getAccount().getOpeningBalance(),
+                                                                transaction.getAccount().getCurrentBalance(),
+                                                                transaction.getAccount().getExpectedBalance(),
+                                                                transaction.getAccount().getSpecialCheck(),
+                                                                transaction.getAccount().getIncome(),
+                                                                transaction.getAccount().getExpense(),
+                                                                transaction.getAccount().getExpectedIncomeMonth(),
+                                                                transaction.getAccount().getExpectedExpenseMonth(),
+                                                                transaction.getAccount().getStatus())),
+                                                List.of(new CategorySummaryDTO(
+                                                                transaction.getCategory().getId(),
+                                                                transaction.getCategory().getName(),
+                                                                transaction.getCategory().getType(),
+                                                                transaction.getCategory().getIconClass(),
+                                                                transaction.getCategory().getColor(),
+                                                                transaction.getCategory().getAdditionalInfo(),
+                                                                transaction.getCategory().getStatus())),
+                                                transaction.getSubcategory() != null
+                                                                ? List.of(new SubcategorySummaryDTO(
+                                                                                transaction.getSubcategory().getId(),
+                                                                                transaction.getSubcategory().getName(),
+                                                                                transaction.getSubcategory()
+                                                                                                .getStandardRecommendation(),
+                                                                                transaction.getSubcategory()
+                                                                                                .getIconClass(),
+                                                                                transaction.getSubcategory()
+                                                                                                .getStatus(),
+                                                                                transaction.getSubcategory().getColor(),
+                                                                                transaction.getSubcategory()
+                                                                                                .getAdditionalInfo()))
+                                                                : List.of()))
                                 .collect(Collectors.toList());
 
                 // Criar e retornar o SummaryDTO
@@ -138,9 +131,6 @@ public class SummaryServiceImpl implements SummaryService{
                                 startDate,
                                 endDate,
                                 transactionSummaries,
-                                accountSummaries,
-                                categorySummaries,
-                                subcategorySummaries,
                                 order));
         }
 }
