@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.stereotype.Service;
+
 import com.financeiro.api.domain.Account;
 import com.financeiro.api.domain.Category;
 import com.financeiro.api.domain.Transaction;
@@ -20,6 +22,7 @@ import com.financeiro.api.repository.CategoryRepository;
 import com.financeiro.api.repository.TransactionRepository;
 import com.financeiro.api.service.SummaryService;
 
+@Service
 public class SummaryServiceImpl implements SummaryService{
     
     private final AccountRepository accountRepository;
