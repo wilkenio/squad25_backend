@@ -72,7 +72,7 @@ public class TransactionController {
         return ResponseEntity.ok(service.updateState(id, state));
     }
 
-        @DeleteMapping("/recurring/{groupId}")
+    @DeleteMapping("/recurring/{groupId}")
     public ResponseEntity<Void> cancelarTransacoesRecorrentes(@PathVariable UUID groupId) {
         service.cancelarRecorrencia(groupId);
         return ResponseEntity.noContent().build();

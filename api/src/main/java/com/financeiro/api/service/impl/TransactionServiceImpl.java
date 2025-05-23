@@ -177,6 +177,48 @@ public class TransactionServiceImpl implements TransactionService {
                     .orElseThrow(() -> new EntityNotFoundException("Subcategoria não encontrada"));
         }
 
+        // Detectar mudança de NON_RECURRING para REPEAT
+        if (transaction.getFrequency() == Frequency.NON_RECURRING && dto.frequency() == Frequency.REPEAT) {
+            UUID groupId = UUID.randomUUID();
+            int total = dto.installments();
+            List<Transaction> novas = new ArrayList<>();
+
+            for (int i = 0; i < total; i++) {
+                LocalDateTime releaseDate = dto.releaseDate();
+                if (dto.periodicity() != null) {
+                    releaseDate = calcularDataParcela(dto.releaseDate(), dto.periodicity(), i, dto.businessDayOnly());
+                }
+
+                Transaction nova = new Transaction();
+                nova.setAccount(account);
+                nova.setCategory(category);
+                nova.setSubcategory(subcategory);
+                nova.setName(dto.name());
+                nova.setType(dto.type());
+                nova.setStatus(dto.status());
+                nova.setReleaseDate(releaseDate);
+                nova.setValue(dto.value());
+                nova.setDescription(dto.description());
+                nova.setState(dto.state());
+                nova.setAdditionalInformation(dto.additionalInformation());
+                nova.setFrequency(Frequency.REPEAT);
+                nova.setInstallments(dto.installments());
+                nova.setPeriodicity(dto.periodicity());
+                nova.setBusinessDayOnly(dto.businessDayOnly());
+                nova.setInstallmentNumber(i + 1);
+                nova.setRecurringGroupId(groupId);
+                nova.setCreatedAt(LocalDateTime.now());
+                nova.setUpdatedAt(LocalDateTime.now());
+
+                novas.add(nova);
+            }
+
+            transactionRepository.delete(transaction);
+            transactionRepository.saveAll(novas);
+            return toDTO(novas.get(0), false); // Retorna a primeira parcela
+        }
+
+        // Caso normal (sem conversão para REPEAT)
         transaction.setAccount(account);
         transaction.setCategory(category);
         transaction.setSubcategory(subcategory);
@@ -198,10 +240,10 @@ public class TransactionServiceImpl implements TransactionService {
         return toDTO(updated, false);
     }
 
-    @Override
-    public void delete(UUID id) {
-        transactionRepository.deleteById(id);
-    }
+        @Override
+        public void delete(UUID id) {
+            transactionRepository.deleteById(id);
+        }
 
     private TransactionResponseDTO toDTO(Transaction transaction, boolean saldoNegativo) {
         return new TransactionResponseDTO(
