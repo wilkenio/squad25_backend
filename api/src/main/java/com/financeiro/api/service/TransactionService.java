@@ -21,11 +21,11 @@ public interface TransactionService {
 
     TransactionResponseDTO updateState(UUID id, TransactionState state);
 
-    TransactionResponseDTO update(UUID id, TransactionRequestDTO dto);
-
     void delete(UUID id);
 
     void cancelarRecorrencia(UUID recurringGroupId);
+
+    TransactionResponseDTO update(UUID id, RecurringUpdateRequestDTO dto);
 
     void atualizarRecorrenciaFutura(UUID recurringGroupId, RecurringUpdateRequestDTO dto);
 }

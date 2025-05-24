@@ -63,7 +63,7 @@ public class TransactionController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TransactionResponseDTO> update(@PathVariable UUID id, @RequestBody TransactionRequestDTO dto) {
+    public ResponseEntity<TransactionResponseDTO> update(@PathVariable UUID id, @RequestBody RecurringUpdateRequestDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
     }
 
@@ -75,14 +75,6 @@ public class TransactionController {
     @DeleteMapping("/recurring/{groupId}")
     public ResponseEntity<Void> cancelarTransacoesRecorrentes(@PathVariable UUID groupId) {
         service.cancelarRecorrencia(groupId);
-        return ResponseEntity.noContent().build();
-    }
-
-    @PutMapping("/recurring/{groupId}")
-    public ResponseEntity<Void> atualizarTransacoesFuturasRecorrentes(
-            @PathVariable UUID groupId,
-            @RequestBody RecurringUpdateRequestDTO dto) {
-        service.atualizarRecorrenciaFutura(groupId, dto);
         return ResponseEntity.noContent().build();
     }
 

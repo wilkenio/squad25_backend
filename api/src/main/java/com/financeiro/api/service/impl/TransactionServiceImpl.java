@@ -161,7 +161,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public TransactionResponseDTO update(UUID id, TransactionRequestDTO dto) {
+    public TransactionResponseDTO update(UUID id, RecurringUpdateRequestDTO dto) {
         Transaction transaction = transactionRepository.findById(id)
                 .orElseThrow(TransactionNotFoundException::new);
 
@@ -177,13 +177,53 @@ public class TransactionServiceImpl implements TransactionService {
                     .orElseThrow(() -> new EntityNotFoundException("Subcategoria não encontrada"));
         }
 
-        // Detectar mudança de NON_RECURRING para REPEAT
-        if (transaction.getFrequency() == Frequency.NON_RECURRING && dto.frequency() == Frequency.REPEAT) {
+        if (transaction.getRecurringGroupId() == null && dto.frequency() != Frequency.REPEAT) {
+            transaction.setAccount(account);
+            transaction.setCategory(category);
+            transaction.setSubcategory(subcategory);
+            transaction.setName(dto.name());
+            transaction.setType(dto.type());
+            transaction.setStatus(dto.status());
+            transaction.setReleaseDate(dto.releaseDate());
+            transaction.setValue(dto.value());
+            transaction.setDescription(dto.description());
+            transaction.setState(dto.state());
+            transaction.setAdditionalInformation(dto.additionalInformation());
+            transaction.setFrequency(dto.frequency());
+            transaction.setInstallments(dto.installments());
+            transaction.setPeriodicity(dto.periodicity());
+            transaction.setBusinessDayOnly(dto.businessDayOnly());
+            transaction.setUpdatedAt(LocalDateTime.now());
+
+            return toDTO(transactionRepository.save(transaction), false);
+        }
+
+        if (transaction.getRecurringGroupId() == null && dto.frequency() == Frequency.REPEAT) {
             UUID groupId = UUID.randomUUID();
             int total = dto.installments();
-            List<Transaction> novas = new ArrayList<>();
 
-            for (int i = 0; i < total; i++) {
+            transaction.setAccount(account);
+            transaction.setCategory(category);
+            transaction.setSubcategory(subcategory);
+            transaction.setName(dto.name());
+            transaction.setType(dto.type());
+            transaction.setStatus(dto.status());
+            transaction.setReleaseDate(dto.releaseDate());
+            transaction.setValue(dto.value());
+            transaction.setDescription(dto.description());
+            transaction.setState(dto.state());
+            transaction.setAdditionalInformation(dto.additionalInformation());
+            transaction.setFrequency(Frequency.REPEAT);
+            transaction.setInstallments(dto.installments());
+            transaction.setPeriodicity(dto.periodicity());
+            transaction.setBusinessDayOnly(dto.businessDayOnly());
+            transaction.setInstallmentNumber(1);
+            transaction.setRecurringGroupId(groupId);
+            transaction.setUpdatedAt(LocalDateTime.now());
+
+            transactionRepository.save(transaction);
+
+            for (int i = 1; i < total; i++) {
                 LocalDateTime releaseDate = dto.releaseDate();
                 if (dto.periodicity() != null) {
                     releaseDate = calcularDataParcela(dto.releaseDate(), dto.periodicity(), i, dto.businessDayOnly());
@@ -210,40 +250,26 @@ public class TransactionServiceImpl implements TransactionService {
                 nova.setCreatedAt(LocalDateTime.now());
                 nova.setUpdatedAt(LocalDateTime.now());
 
-                novas.add(nova);
+                transactionRepository.save(nova);
             }
 
-            transactionRepository.delete(transaction);
-            transactionRepository.saveAll(novas);
-            return toDTO(novas.get(0), false); // Retorna a primeira parcela
+            return toDTO(transaction, false);
         }
 
-        // Caso normal (sem conversão para REPEAT)
-        transaction.setAccount(account);
-        transaction.setCategory(category);
-        transaction.setSubcategory(subcategory);
-        transaction.setName(dto.name());
-        transaction.setType(dto.type());
-        transaction.setStatus(dto.status());
-        transaction.setReleaseDate(dto.releaseDate());
-        transaction.setValue(dto.value());
-        transaction.setDescription(dto.description());
-        transaction.setState(dto.state());
-        transaction.setAdditionalInformation(dto.additionalInformation());
-        transaction.setFrequency(dto.frequency());
-        transaction.setInstallments(dto.installments());
-        transaction.setPeriodicity(dto.periodicity());
-        transaction.setBusinessDayOnly(dto.businessDayOnly());
-        transaction.setUpdatedAt(LocalDateTime.now());
+        if (transaction.getRecurringGroupId() != null) {
+            atualizarRecorrenciaFutura(transaction.getRecurringGroupId(), dto);
+            Transaction base = transactionRepository.findById(id)
+                    .orElseThrow(TransactionNotFoundException::new);
+            return toDTO(base, false);
+        }
 
-        Transaction updated = transactionRepository.save(transaction);
-        return toDTO(updated, false);
+        throw new IllegalStateException("Não foi possível atualizar a transação.");
     }
 
-        @Override
-        public void delete(UUID id) {
-            transactionRepository.deleteById(id);
-        }
+    @Override
+    public void delete(UUID id) {
+        transactionRepository.deleteById(id);
+    }
 
     private TransactionResponseDTO toDTO(Transaction transaction, boolean saldoNegativo) {
         return new TransactionResponseDTO(
@@ -274,7 +300,7 @@ public class TransactionServiceImpl implements TransactionService {
         );
     }
 
-        @Override
+    @Override
     public void cancelarRecorrencia(UUID recurringGroupId) {
         List<Transaction> transacoes = transactionRepository.findByRecurringGroupId(recurringGroupId);
         transactionRepository.deleteAll(transacoes);
