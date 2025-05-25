@@ -15,7 +15,7 @@ public interface TransactionService {
 
     List<TransactionResponseDTO> create(TransactionRequestDTO dto);
 
-    List<TransactionSimplifiedResponseDTO> findAll();
+    List<TransactionSimplifiedResponseDTO> findAll(int page);
 
     TransactionSimplifiedResponseDTO findById(UUID id);
 

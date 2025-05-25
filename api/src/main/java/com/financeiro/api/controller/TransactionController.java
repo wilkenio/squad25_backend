@@ -27,8 +27,7 @@ public class TransactionController {
     public TransactionController(
             TransactionServiceImpl service,
             CsvImportService csvImportService,
-            TransferService transferService
-    ) {
+            TransferService transferService) {
         this.service = service;
         this.csvImportService = csvImportService;
         this.transferService = transferService;
@@ -46,15 +45,15 @@ public class TransactionController {
 
     @PostMapping("/import/csv")
     public ResponseEntity<String> importar(@RequestParam("file") MultipartFile file,
-                                           @RequestParam(value = "accountId", required = false) UUID accountId) {
+            @RequestParam(value = "accountId", required = false) UUID accountId) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         csvImportService.importFromCsv(file, user, accountId);
         return ResponseEntity.ok("Importação concluída com sucesso.");
     }
 
     @GetMapping
-    public ResponseEntity<List<TransactionSimplifiedResponseDTO>> getAll() {
-        return ResponseEntity.ok(service.findAll());
+    public ResponseEntity<List<TransactionSimplifiedResponseDTO>> getAll(@RequestParam(defaultValue = "0") int page) {
+        return ResponseEntity.ok(service.findAll(page));
     }
 
     @GetMapping("/{id}")
@@ -63,12 +62,14 @@ public class TransactionController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TransactionResponseDTO> update(@PathVariable UUID id, @RequestBody RecurringUpdateRequestDTO dto) {
+    public ResponseEntity<TransactionResponseDTO> update(@PathVariable UUID id,
+            @RequestBody RecurringUpdateRequestDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
     }
 
     @PatchMapping("/{id}/state")
-    public ResponseEntity<TransactionResponseDTO> updateState(@PathVariable UUID id, @RequestParam TransactionState state) {
+    public ResponseEntity<TransactionResponseDTO> updateState(@PathVariable UUID id,
+            @RequestParam TransactionState state) {
         return ResponseEntity.ok(service.updateState(id, state));
     }
 

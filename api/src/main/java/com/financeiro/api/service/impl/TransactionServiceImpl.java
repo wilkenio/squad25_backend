@@ -14,7 +14,6 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class TransactionServiceImpl implements TransactionService {
@@ -25,9 +24,9 @@ public class TransactionServiceImpl implements TransactionService {
     private final SubcategoryRepository subcategoryRepository;
 
     public TransactionServiceImpl(TransactionRepository repository,
-                                  AccountRepository accountRepository,
-                                  CategoryRepository categoryRepository,
-                                  SubcategoryRepository subcategoryRepository) {
+            AccountRepository accountRepository,
+            CategoryRepository categoryRepository,
+            SubcategoryRepository subcategoryRepository) {
         this.transactionRepository = repository;
         this.accountRepository = accountRepository;
         this.categoryRepository = categoryRepository;
@@ -100,7 +99,8 @@ public class TransactionServiceImpl implements TransactionService {
         return responses;
     }
 
-    private LocalDateTime calcularDataParcela(LocalDateTime dataInicial, Periodicity periodicidade, int parcelaIndex, Boolean diasUteis) {
+    private LocalDateTime calcularDataParcela(LocalDateTime dataInicial, Periodicity periodicidade, int parcelaIndex,
+            Boolean diasUteis) {
         LocalDate data = dataInicial.toLocalDate();
 
         data = switch (periodicidade) {
@@ -119,12 +119,15 @@ public class TransactionServiceImpl implements TransactionService {
             }
         }
 
-        return dataInicial.withYear(data.getYear()).withMonth(data.getMonthValue()).withDayOfMonth(data.getDayOfMonth());
+        return dataInicial.withYear(data.getYear()).withMonth(data.getMonthValue())
+                .withDayOfMonth(data.getDayOfMonth());
     }
 
     @Override
-    public List<TransactionSimplifiedResponseDTO> findAll() {
+    public List<TransactionSimplifiedResponseDTO> findAll(int page) {
         return transactionRepository.findAll().stream()
+                .skip(page * 10L)
+                .limit(10)
                 .map(transaction -> new TransactionSimplifiedResponseDTO(
                         transaction.getName(),
                         transaction.getType(),
@@ -296,8 +299,7 @@ public class TransactionServiceImpl implements TransactionService {
                 transaction.getRecurringGroupId(),
                 transaction.getCreatedAt(),
                 transaction.getUpdatedAt(),
-                saldoNegativo
-        );
+                saldoNegativo);
     }
 
     @Override
@@ -309,7 +311,8 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public void atualizarRecorrenciaFutura(UUID recurringGroupId, RecurringUpdateRequestDTO dto) {
         List<Transaction> transacoes = transactionRepository.findByRecurringGroupId(recurringGroupId);
-        if (transacoes.isEmpty()) return;
+        if (transacoes.isEmpty())
+            return;
 
         transacoes.sort(Comparator.comparing(Transaction::getReleaseDate));
 
@@ -327,7 +330,9 @@ public class TransactionServiceImpl implements TransactionService {
 
             base.setAccount(accountRepository.findById(dto.accountId()).orElseThrow());
             base.setCategory(categoryRepository.findById(dto.categoryId()).orElseThrow());
-            base.setSubcategory(dto.subcategoryId() != null ? subcategoryRepository.findById(dto.subcategoryId()).orElse(null) : null);
+            base.setSubcategory(
+                    dto.subcategoryId() != null ? subcategoryRepository.findById(dto.subcategoryId()).orElse(null)
+                            : null);
             base.setName(dto.name());
             base.setType(dto.type());
             base.setStatus(dto.status());
@@ -363,7 +368,9 @@ public class TransactionServiceImpl implements TransactionService {
         for (Transaction t : futuras) {
             t.setAccount(accountRepository.findById(dto.accountId()).orElseThrow());
             t.setCategory(categoryRepository.findById(dto.categoryId()).orElseThrow());
-            t.setSubcategory(dto.subcategoryId() != null ? subcategoryRepository.findById(dto.subcategoryId()).orElse(null) : null);
+            t.setSubcategory(
+                    dto.subcategoryId() != null ? subcategoryRepository.findById(dto.subcategoryId()).orElse(null)
+                            : null);
             t.setName(dto.name());
             t.setType(dto.type());
             t.setStatus(dto.status());
@@ -379,7 +386,8 @@ public class TransactionServiceImpl implements TransactionService {
 
             if (dto.novaDataBase() != null && t.getInstallmentNumber() != null) {
                 int parcela = t.getInstallmentNumber() - 1;
-                LocalDateTime novaData = calcularDataParcela(dto.novaDataBase(), dto.periodicity(), parcela, dto.businessDayOnly());
+                LocalDateTime novaData = calcularDataParcela(dto.novaDataBase(), dto.periodicity(), parcela,
+                        dto.businessDayOnly());
                 t.setReleaseDate(novaData);
             }
 
@@ -399,11 +407,14 @@ public class TransactionServiceImpl implements TransactionService {
                 Transaction nova = new Transaction();
                 nova.setAccount(accountRepository.findById(dto.accountId()).orElseThrow());
                 nova.setCategory(categoryRepository.findById(dto.categoryId()).orElseThrow());
-                nova.setSubcategory(dto.subcategoryId() != null ? subcategoryRepository.findById(dto.subcategoryId()).orElse(null) : null);
+                nova.setSubcategory(
+                        dto.subcategoryId() != null ? subcategoryRepository.findById(dto.subcategoryId()).orElse(null)
+                                : null);
                 nova.setName(dto.name());
                 nova.setType(dto.type());
                 nova.setStatus(dto.status());
-                nova.setReleaseDate(calcularDataParcela(dto.novaDataBase(), dto.periodicity(), i, dto.businessDayOnly()));
+                nova.setReleaseDate(
+                        calcularDataParcela(dto.novaDataBase(), dto.periodicity(), i, dto.businessDayOnly()));
                 nova.setValue(dto.value());
                 nova.setDescription(dto.description());
                 nova.setState(dto.state());
