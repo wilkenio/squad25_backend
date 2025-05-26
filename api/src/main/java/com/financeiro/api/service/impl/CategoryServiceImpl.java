@@ -1,12 +1,17 @@
 package com.financeiro.api.service.impl;
 
 import com.financeiro.api.domain.Category;
+import com.financeiro.api.domain.Subcategory;
 import com.financeiro.api.domain.Transaction;
 import com.financeiro.api.domain.User;
 import com.financeiro.api.dto.categoryDTO.CategoryRequestDTO;
 import com.financeiro.api.dto.categoryDTO.CategoryListDTO;
 import com.financeiro.api.dto.categoryDTO.CategoryResponseDTO;
+import com.financeiro.api.dto.categoryDTO.CategoryResponseByIdDTO;
+import com.financeiro.api.dto.subcategoryDTO.SubcategoryResponseDTO;
 import com.financeiro.api.repository.CategoryRepository;
+import com.financeiro.api.repository.CategoryRepository;
+import com.financeiro.api.repository.SubcategoryRepository;
 import com.financeiro.api.repository.TransactionRepository;
 import com.financeiro.api.repository.UserRepository;
 import com.financeiro.api.service.CategoryService;
@@ -29,14 +34,18 @@ public class CategoryServiceImpl implements CategoryService {
     private CategoryRepository categoryRepository;
 
     @Autowired
+    private SubcategoryRepository subcategoryRepository;
+
+    @Autowired
     private UserRepository userRepository;
+
     @Autowired
     private TransactionRepository transactionRepository;
 
     @Override
     public CategoryResponseDTO create(CategoryRequestDTO dto, UUID userId) {
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new EntityNotFoundException("User not found"));
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         Category category = new Category();
         category.setUser(user);
@@ -57,10 +66,10 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryResponseDTO update(UUID id, CategoryRequestDTO dto, UUID userId) {
         Category category = categoryRepository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("Category not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Category not found"));
 
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new EntityNotFoundException("User not found"));
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         category.setUser(user);
         category.setName(dto.name());
@@ -79,11 +88,11 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void delete(UUID id, UUID userId) {
         Category category = categoryRepository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("Category not found"));
-        
-        category.setStatus(Status.EXC); 
+                .orElseThrow(() -> new EntityNotFoundException("Category not found"));
+
+        category.setStatus(Status.EXC);
         category.setUpdatedAt(LocalDateTime.now());
-        categoryRepository.save(category);    
+        categoryRepository.save(category);
     }
 
     private User getCurrentUser() {
@@ -102,10 +111,42 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryResponseDTO findById(UUID id) {
-        return categoryRepository.findById(id)
-            .map(this::toDTO)
-            .orElseThrow(() -> new EntityNotFoundException("Category not found"));
+    public CategoryResponseByIdDTO findById(UUID id) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Category not found"));
+
+        List<Subcategory> subcategories = subcategoryRepository.findByCategoryIdAndCategoryUserIdAndStatusIn(
+                category.getId(),
+                category.getUser().getId(),
+                List.of(Status.SIM, Status.NAO));
+
+        List<SubcategoryResponseDTO> subcategoryDTOs = subcategories.stream()
+                .map(sub -> new SubcategoryResponseDTO(
+                        sub.getId(),
+                        sub.getName(),
+                        sub.getStandardRecommendation(),
+                        sub.getCategory().getId(),
+                        sub.getIconClass(),
+                        sub.getStatus(),
+                        sub.getColor(),
+                        sub.getAdditionalInfo(),
+                        sub.getCreatedAt(),
+                        sub.getUpdatedAt()))
+                .collect(Collectors.toList());
+
+        return new CategoryResponseByIdDTO(
+                category.getId(),
+                category.getUser().getId(),
+                category.getName(),
+                category.getType(),
+                category.getIconClass(),
+                category.getColor(),
+                category.getAdditionalInfo(),
+                category.isStandardRecommendation(),
+                category.getStatus(),
+                category.getCreatedAt(),
+                category.getUpdatedAt(),
+                subcategoryDTOs);
     }
 
     @Override
@@ -161,8 +202,7 @@ public class CategoryServiceImpl implements CategoryService {
                             category.getType(),
                             category.getIconClass(),
                             category.getColor(),
-                            totalValue
-                    );
+                            totalValue);
                 })
                 .collect(Collectors.toList());
     }
@@ -179,8 +219,7 @@ public class CategoryServiceImpl implements CategoryService {
                 category.isStandardRecommendation(),
                 category.getStatus(),
                 category.getCreatedAt(),
-                category.getUpdatedAt()
-        );
+                category.getUpdatedAt());
     }
 
 }

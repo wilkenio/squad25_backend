@@ -2,12 +2,13 @@ package com.financeiro.api.service.impl;
 
 import com.financeiro.api.domain.*;
 import com.financeiro.api.domain.enums.*;
-import com.financeiro.api.dto.accountDTO.AccountTransactionSummaryDTO;
 import com.financeiro.api.dto.transactionDTO.*;
 import com.financeiro.api.infra.exceptions.TransactionNotFoundException;
 import com.financeiro.api.repository.*;
 import com.financeiro.api.service.TransactionService;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
@@ -94,6 +95,33 @@ public class TransactionServiceImpl implements TransactionService {
             transaction.setUpdatedAt(now);
 
             Transaction saved = transactionRepository.save(transaction);
+
+            // Atualizar o saldo da conta com base no tipo de transação
+            if (dto.state() == TransactionState.EFFECTIVE) {
+                // Inicializar valores se forem nulos
+                if (account.getCurrentBalance() == null) {
+                    account.setCurrentBalance(account.getOpeningBalance() != null ? account.getOpeningBalance() : 0.0);
+                }
+                if (account.getIncome() == null) {
+                    account.setIncome(0.0);
+                }
+                if (account.getExpense() == null) {
+                    account.setExpense(0.0);
+                }
+
+                // Atualizar saldo e totais com base no tipo de transação
+                if (dto.type() == TransactionType.RECEITA) {
+                    account.setCurrentBalance(account.getCurrentBalance() + dto.value());
+                    account.setIncome(account.getIncome() + dto.value());
+                } else if (dto.type() == TransactionType.DESPESA) {
+                    account.setCurrentBalance(account.getCurrentBalance() - dto.value());
+                    account.setExpense(account.getExpense() + dto.value());
+                }
+
+                // Salvar a conta atualizada
+                accountRepository.save(account);
+            }
+
             responses.add(toDTO(saved, false));
         }
 
@@ -126,7 +154,11 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public List<TransactionSimplifiedResponseDTO> findAll(int page) {
+        User currentUser = getCurrentUser();
+        List<Account> userAccounts = accountRepository.findByUser(currentUser);
+
         return transactionRepository.findAll().stream()
+                .filter(transaction -> userAccounts.contains(transaction.getAccount()))
                 .skip(page * 10L)
                 .limit(10)
                 .map(transaction -> new TransactionSimplifiedResponseDTO(
@@ -137,6 +169,11 @@ public class TransactionServiceImpl implements TransactionService {
                         transaction.getFrequency(),
                         transaction.getValue()))
                 .toList();
+    }
+
+    private User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return (User) authentication.getPrincipal();
     }
 
     @Override
@@ -438,19 +475,22 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public List<TransactionResponseDTO> filtrarAvancado(TransactionAdvancedFilterDTO filtro) {
         return transactionRepository.findAll().stream()
-                .filter(t -> filtro.contaIds() == null || filtro.contaIds().isEmpty() || filtro.contaIds().contains(t.getAccount().getId()))
-                .filter(t -> filtro.categoriaIds() == null || filtro.categoriaIds().isEmpty() || filtro.categoriaIds().contains(t.getCategory().getId()))
+                .filter(t -> filtro.contaIds() == null || filtro.contaIds().isEmpty()
+                        || filtro.contaIds().contains(t.getAccount().getId()))
+                .filter(t -> filtro.categoriaIds() == null || filtro.categoriaIds().isEmpty()
+                        || filtro.categoriaIds().contains(t.getCategory().getId()))
                 .filter(t -> {
-                    if (filtro.tipo() == null) return true;
+                    if (filtro.tipo() == null)
+                        return true;
                     if (filtro.tipo() == TransactionType.RECEITA || filtro.tipo() == TransactionType.DESPESA) {
                         return t.getType() == filtro.tipo();
                     }
-                    
+
                     return t.getTransferGroupId() != null;
                 })
                 .filter(t -> filtro.estado() == null || t.getState() == filtro.estado())
                 .filter(t -> (filtro.dataInicio() == null || !t.getReleaseDate().isBefore(filtro.dataInicio())) &&
-                            (filtro.dataFim() == null || !t.getReleaseDate().isAfter(filtro.dataFim())))
+                        (filtro.dataFim() == null || !t.getReleaseDate().isAfter(filtro.dataFim())))
                 .map(t -> toDTO(t, false))
                 .collect(Collectors.toList());
     }

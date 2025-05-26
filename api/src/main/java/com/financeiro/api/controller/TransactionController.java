@@ -2,7 +2,6 @@ package com.financeiro.api.controller;
 
 import com.financeiro.api.domain.User;
 import com.financeiro.api.domain.enums.TransactionState;
-import com.financeiro.api.dto.accountDTO.AccountTransactionSummaryDTO;
 import com.financeiro.api.dto.transactionDTO.*;
 import com.financeiro.api.dto.transferDTO.TransferRequestDTO;
 import com.financeiro.api.service.CsvImportService;
