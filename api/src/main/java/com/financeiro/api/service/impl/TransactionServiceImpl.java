@@ -445,7 +445,7 @@ public class TransactionServiceImpl implements TransactionService {
                     if (filtro.tipo() == TransactionType.RECEITA || filtro.tipo() == TransactionType.DESPESA) {
                         return t.getType() == filtro.tipo();
                     }
-                    // Filtrar transferências (RECEITA e DESPESA com transferGroupId != null)
+                    
                     return t.getTransferGroupId() != null;
                 })
                 .filter(t -> filtro.estado() == null || t.getState() == filtro.estado())
