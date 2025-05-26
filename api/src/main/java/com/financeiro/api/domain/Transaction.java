@@ -49,7 +49,9 @@ public class Transaction {
 
     private Integer installmentNumber; 
 
-    private UUID recurringGroupId; 
+    private UUID recurringGroupId;
+    
+    private UUID transferGroupId;
 
     private LocalDateTime createdAt;
 

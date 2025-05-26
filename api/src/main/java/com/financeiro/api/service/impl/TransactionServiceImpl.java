@@ -14,6 +14,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class TransactionServiceImpl implements TransactionService {
@@ -297,6 +298,7 @@ public class TransactionServiceImpl implements TransactionService {
                 transaction.getBusinessDayOnly(),
                 transaction.getInstallmentNumber(),
                 transaction.getRecurringGroupId(),
+                transaction.getTransferGroupId(),
                 transaction.getCreatedAt(),
                 transaction.getUpdatedAt(),
                 saldoNegativo);
@@ -432,4 +434,25 @@ public class TransactionServiceImpl implements TransactionService {
             }
         }
     }
+
+    @Override
+    public List<TransactionResponseDTO> filtrarAvancado(TransactionAdvancedFilterDTO filtro) {
+        return transactionRepository.findAll().stream()
+                .filter(t -> filtro.contaIds() == null || filtro.contaIds().isEmpty() || filtro.contaIds().contains(t.getAccount().getId()))
+                .filter(t -> filtro.categoriaIds() == null || filtro.categoriaIds().isEmpty() || filtro.categoriaIds().contains(t.getCategory().getId()))
+                .filter(t -> {
+                    if (filtro.tipo() == null) return true;
+                    if (filtro.tipo() == TransactionType.RECEITA || filtro.tipo() == TransactionType.DESPESA) {
+                        return t.getType() == filtro.tipo();
+                    }
+                    // Filtrar transferências (RECEITA e DESPESA com transferGroupId != null)
+                    return t.getTransferGroupId() != null;
+                })
+                .filter(t -> filtro.estado() == null || t.getState() == filtro.estado())
+                .filter(t -> (filtro.dataInicio() == null || !t.getReleaseDate().isBefore(filtro.dataInicio())) &&
+                            (filtro.dataFim() == null || !t.getReleaseDate().isAfter(filtro.dataFim())))
+                .map(t -> toDTO(t, false))
+                .collect(Collectors.toList());
+    }
+
 }

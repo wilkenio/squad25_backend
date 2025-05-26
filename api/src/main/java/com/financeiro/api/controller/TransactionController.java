@@ -51,6 +51,11 @@ public class TransactionController {
         return ResponseEntity.ok("Importação concluída com sucesso.");
     }
 
+    @PostMapping("/filter")
+    public ResponseEntity<List<TransactionResponseDTO>> filtrarAvancado(@RequestBody TransactionAdvancedFilterDTO dto) {
+        return ResponseEntity.ok(service.filtrarAvancado(dto));
+    }
+
     @GetMapping
     public ResponseEntity<List<TransactionSimplifiedResponseDTO>> getAll(@RequestParam(defaultValue = "0") int page) {
         return ResponseEntity.ok(service.findAll(page));

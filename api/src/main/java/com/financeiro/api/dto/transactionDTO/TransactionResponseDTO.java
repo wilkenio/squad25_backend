@@ -27,6 +27,7 @@ public record TransactionResponseDTO(
         Boolean businessDayOnly,
         Integer installmentNumber,
         UUID recurringGroupId,
+        UUID transferGroupId,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
         Boolean saldoNegativo
