@@ -449,10 +449,23 @@ public class TransactionServiceImpl implements TransactionService {
                     return t.getTransferGroupId() != null;
                 })
                 .filter(t -> filtro.estado() == null || t.getState() == filtro.estado())
+                .filter(t -> filtro.frequencia() == null || t.getFrequency() == filtro.frequencia())
                 .filter(t -> (filtro.dataInicio() == null || !t.getReleaseDate().isBefore(filtro.dataInicio())) &&
                             (filtro.dataFim() == null || !t.getReleaseDate().isAfter(filtro.dataFim())))
+                .sorted(obterComparador(filtro.ordenacao()))
                 .map(t -> toDTO(t, false))
                 .collect(Collectors.toList());
+    }
+
+    private Comparator<Transaction> obterComparador(TransactionOrder order) {
+        if (order == null) return Comparator.comparing(Transaction::getReleaseDate);
+
+        return switch (order) {
+            case DATA -> Comparator.comparing(Transaction::getReleaseDate);
+            case CATEGORIA -> Comparator.comparing(t -> t.getCategory().getName(), String.CASE_INSENSITIVE_ORDER);
+            case VALOR_CRESCENTE -> Comparator.comparing(Transaction::getValue);
+            case VALOR_DECRESCENTE -> Comparator.comparing(Transaction::getValue).reversed();
+        };
     }
 
 }

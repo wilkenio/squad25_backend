@@ -1,6 +1,8 @@
 package com.financeiro.api.controller;
 
 import com.financeiro.api.domain.User;
+import com.financeiro.api.domain.enums.Frequency;
+import com.financeiro.api.domain.enums.TransactionOrder;
 import com.financeiro.api.domain.enums.TransactionState;
 import com.financeiro.api.domain.enums.TransactionType;
 import com.financeiro.api.dto.accountDTO.AccountTransactionSummaryDTO;
@@ -74,11 +76,13 @@ public class TransactionController {
             @RequestParam(required = false) List<UUID> categoriaIds,
             @RequestParam(required = false) TransactionType tipo,
             @RequestParam(required = false) TransactionState estado,
+            @RequestParam(required = false) Frequency frequencia,
             @RequestParam(required = false) LocalDateTime dataInicio,
-            @RequestParam(required = false) LocalDateTime dataFim
+            @RequestParam(required = false) LocalDateTime dataFim,
+            @RequestParam(required = false) TransactionOrder ordenacao
     ) {
         TransactionAdvancedFilterDTO dto = new TransactionAdvancedFilterDTO(
-                contaIds, categoriaIds, tipo, estado, dataInicio, dataFim
+                contaIds, categoriaIds, tipo, estado, frequencia, dataInicio, dataFim, ordenacao
         );
         return ResponseEntity.ok(service.filtrarAvancado(dto));
     }

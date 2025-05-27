@@ -1,7 +1,6 @@
 package com.financeiro.api.dto.transactionDTO;
 
-import com.financeiro.api.domain.enums.TransactionState;
-import com.financeiro.api.domain.enums.TransactionType;
+import com.financeiro.api.domain.enums.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -11,7 +10,9 @@ public record TransactionAdvancedFilterDTO(
     List<UUID> contaIds,
     List<UUID> categoriaIds,
     TransactionType tipo, 
-    TransactionState estado, 
+    TransactionState estado,
+    Frequency frequencia, 
     LocalDateTime dataInicio,
-    LocalDateTime dataFim
+    LocalDateTime dataFim,
+    TransactionOrder ordenacao
 ) {}
