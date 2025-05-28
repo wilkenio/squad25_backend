@@ -19,4 +19,5 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
 
      List<Transaction> findByAccountInAndCategoryIn(List<Account> accounts, List<Category> categories);
      List<Transaction> findByRecurringGroupId(UUID recurringGroupId);
+     List<Transaction> findByTransferGroupId(UUID transferGroupId);
 }

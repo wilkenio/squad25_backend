@@ -4,6 +4,7 @@ import com.financeiro.api.domain.User;
 import com.financeiro.api.domain.enums.Status;
 import com.financeiro.api.dto.categoryDTO.CategoryListDTO;
 import com.financeiro.api.dto.categoryDTO.CategoryRequestDTO;
+import com.financeiro.api.dto.categoryDTO.CategoryResponseByIdDTO;
 import com.financeiro.api.dto.categoryDTO.CategoryResponseDTO;
 import com.financeiro.api.service.CategoryService;
 import org.springframework.http.ResponseEntity;
@@ -51,7 +52,7 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CategoryResponseDTO> getById(@PathVariable UUID id) {
+    public ResponseEntity<CategoryResponseByIdDTO> getById(@PathVariable UUID id) {
         return ResponseEntity.ok(categoryService.findById(id));
     }
 

@@ -1,26 +1,22 @@
 package com.financeiro.api.service.impl;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 import com.financeiro.api.domain.Account;
 import com.financeiro.api.domain.Category;
-import com.financeiro.api.domain.Transaction;
+import com.financeiro.api.domain.User;
 import com.financeiro.api.domain.enums.Status;
-import com.financeiro.api.domain.enums.TransactionOrder;
 import com.financeiro.api.domain.enums.TransactionType;
-import com.financeiro.api.dto.SummaryDTO;
 import com.financeiro.api.dto.accountDTO.*;
-import com.financeiro.api.dto.categoryDTO.CategorySummaryDTO;
-import com.financeiro.api.dto.subcategoryDTO.SubcategorySummaryDTO;
-import com.financeiro.api.dto.transactionDTO.TransactionSummaryDTO;
 import com.financeiro.api.infra.exceptions.UserNotFoundException;
 import com.financeiro.api.repository.AccountRepository;
 import com.financeiro.api.repository.CategoryRepository;
-import com.financeiro.api.repository.TransactionRepository;
 import com.financeiro.api.service.AccountService;
 import org.springframework.stereotype.Service;
 import jakarta.persistence.EntityNotFoundException;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -30,13 +26,10 @@ public class AccountServiceImpl implements AccountService {
 
         private final AccountRepository accountRepository;
         private final CategoryRepository categoryRepository;
-        private final TransactionRepository transactionRepository;
 
-        public AccountServiceImpl(AccountRepository accountRepository, CategoryRepository categoryRepository,
-                        TransactionRepository transactionRepository) {
+        public AccountServiceImpl(AccountRepository accountRepository, CategoryRepository categoryRepository) {
                 this.accountRepository = accountRepository;
                 this.categoryRepository = categoryRepository;
-                this.transactionRepository = transactionRepository;
         }
 
         // transformar no metodo GET
@@ -192,9 +185,15 @@ public class AccountServiceImpl implements AccountService {
                 accountRepository.save(account);
         }
 
+        private User getCurrentUser() {
+                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                return (User) authentication.getPrincipal();
+        }
+
         public List<AccountCalculationResponseDTO> findAll() {
                 List<Status> statuses = List.of(Status.SIM, Status.NAO);
-                return accountRepository.findAllByStatusIn(statuses).stream()
+                User currentUser = getCurrentUser();
+                return accountRepository.findByUser(currentUser).stream()
                                 .map(acc -> {
                                         Double saldoInicial = acc.getOpeningBalance();
                                         Double chequeEspecial = acc.getSpecialCheck();

@@ -7,6 +7,8 @@ import com.financeiro.api.infra.exceptions.TransactionNotFoundException;
 import com.financeiro.api.repository.*;
 import com.financeiro.api.service.TransactionService;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
@@ -23,9 +25,9 @@ public class TransactionServiceImpl implements TransactionService {
     private final SubcategoryRepository subcategoryRepository;
 
     public TransactionServiceImpl(TransactionRepository repository,
-                                  AccountRepository accountRepository,
-                                  CategoryRepository categoryRepository,
-                                  SubcategoryRepository subcategoryRepository) {
+            AccountRepository accountRepository,
+            CategoryRepository categoryRepository,
+            SubcategoryRepository subcategoryRepository) {
         this.transactionRepository = repository;
         this.accountRepository = accountRepository;
         this.categoryRepository = categoryRepository;
@@ -92,13 +94,41 @@ public class TransactionServiceImpl implements TransactionService {
             transaction.setUpdatedAt(now);
 
             Transaction saved = transactionRepository.save(transaction);
+
+            // Atualizar o saldo da conta com base no tipo de transação
+            if (dto.state() == TransactionState.EFFECTIVE) {
+                // Inicializar valores se forem nulos
+                if (account.getCurrentBalance() == null) {
+                    account.setCurrentBalance(account.getOpeningBalance() != null ? account.getOpeningBalance() : 0.0);
+                }
+                if (account.getIncome() == null) {
+                    account.setIncome(0.0);
+                }
+                if (account.getExpense() == null) {
+                    account.setExpense(0.0);
+                }
+
+                // Atualizar saldo e totais com base no tipo de transação
+                if (dto.type() == TransactionType.RECEITA) {
+                    account.setCurrentBalance(account.getCurrentBalance() + dto.value());
+                    account.setIncome(account.getIncome() + dto.value());
+                } else if (dto.type() == TransactionType.DESPESA) {
+                    account.setCurrentBalance(account.getCurrentBalance() - dto.value());
+                    account.setExpense(account.getExpense() + dto.value());
+                }
+
+                // Salvar a conta atualizada
+                accountRepository.save(account);
+            }
+
             responses.add(toDTO(saved, false));
         }
 
         return responses;
     }
 
-    private LocalDateTime calcularDataParcela(LocalDateTime dataInicial, Periodicity periodicidade, int parcelaIndex, Boolean diasUteis) {
+    private LocalDateTime calcularDataParcela(LocalDateTime dataInicial, Periodicity periodicidade, int parcelaIndex,
+            Boolean diasUteis) {
         LocalDate data = dataInicial.toLocalDate();
 
         data = switch (periodicidade) {
@@ -117,12 +147,19 @@ public class TransactionServiceImpl implements TransactionService {
             }
         }
 
-        return dataInicial.withYear(data.getYear()).withMonth(data.getMonthValue()).withDayOfMonth(data.getDayOfMonth());
+        return dataInicial.withYear(data.getYear()).withMonth(data.getMonthValue())
+                .withDayOfMonth(data.getDayOfMonth());
     }
 
     @Override
-    public List<TransactionSimplifiedResponseDTO> findAll() {
+    public List<TransactionSimplifiedResponseDTO> findAll(int page) {
+        User currentUser = getCurrentUser();
+        List<Account> userAccounts = accountRepository.findByUser(currentUser);
+
         return transactionRepository.findAll().stream()
+                .filter(transaction -> userAccounts.contains(transaction.getAccount()))
+                .skip(page * 10L)
+                .limit(10)
                 .map(transaction -> new TransactionSimplifiedResponseDTO(
                         transaction.getName(),
                         transaction.getType(),
@@ -131,6 +168,11 @@ public class TransactionServiceImpl implements TransactionService {
                         transaction.getFrequency(),
                         transaction.getValue()))
                 .toList();
+    }
+
+    private User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return (User) authentication.getPrincipal();
     }
 
     @Override
@@ -159,7 +201,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public TransactionResponseDTO update(UUID id, TransactionRequestDTO dto) {
+    public TransactionResponseDTO update(UUID id, RecurringUpdateRequestDTO dto) {
         Transaction transaction = transactionRepository.findById(id)
                 .orElseThrow(TransactionNotFoundException::new);
 
@@ -175,25 +217,93 @@ public class TransactionServiceImpl implements TransactionService {
                     .orElseThrow(() -> new EntityNotFoundException("Subcategoria não encontrada"));
         }
 
-        transaction.setAccount(account);
-        transaction.setCategory(category);
-        transaction.setSubcategory(subcategory);
-        transaction.setName(dto.name());
-        transaction.setType(dto.type());
-        transaction.setStatus(dto.status());
-        transaction.setReleaseDate(dto.releaseDate());
-        transaction.setValue(dto.value());
-        transaction.setDescription(dto.description());
-        transaction.setState(dto.state());
-        transaction.setAdditionalInformation(dto.additionalInformation());
-        transaction.setFrequency(dto.frequency());
-        transaction.setInstallments(dto.installments());
-        transaction.setPeriodicity(dto.periodicity());
-        transaction.setBusinessDayOnly(dto.businessDayOnly());
-        transaction.setUpdatedAt(LocalDateTime.now());
+        if (transaction.getRecurringGroupId() == null && dto.frequency() != Frequency.REPEAT) {
+            transaction.setAccount(account);
+            transaction.setCategory(category);
+            transaction.setSubcategory(subcategory);
+            transaction.setName(dto.name());
+            transaction.setType(dto.type());
+            transaction.setStatus(dto.status());
+            transaction.setReleaseDate(dto.releaseDate());
+            transaction.setValue(dto.value());
+            transaction.setDescription(dto.description());
+            transaction.setState(dto.state());
+            transaction.setAdditionalInformation(dto.additionalInformation());
+            transaction.setFrequency(dto.frequency());
+            transaction.setInstallments(dto.installments());
+            transaction.setPeriodicity(dto.periodicity());
+            transaction.setBusinessDayOnly(dto.businessDayOnly());
+            transaction.setUpdatedAt(LocalDateTime.now());
 
-        Transaction updated = transactionRepository.save(transaction);
-        return toDTO(updated, false);
+            return toDTO(transactionRepository.save(transaction), false);
+        }
+
+        if (transaction.getRecurringGroupId() == null && dto.frequency() == Frequency.REPEAT) {
+            UUID groupId = UUID.randomUUID();
+            int total = dto.installments();
+
+            transaction.setAccount(account);
+            transaction.setCategory(category);
+            transaction.setSubcategory(subcategory);
+            transaction.setName(dto.name());
+            transaction.setType(dto.type());
+            transaction.setStatus(dto.status());
+            transaction.setReleaseDate(dto.releaseDate());
+            transaction.setValue(dto.value());
+            transaction.setDescription(dto.description());
+            transaction.setState(dto.state());
+            transaction.setAdditionalInformation(dto.additionalInformation());
+            transaction.setFrequency(Frequency.REPEAT);
+            transaction.setInstallments(dto.installments());
+            transaction.setPeriodicity(dto.periodicity());
+            transaction.setBusinessDayOnly(dto.businessDayOnly());
+            transaction.setInstallmentNumber(1);
+            transaction.setRecurringGroupId(groupId);
+            transaction.setUpdatedAt(LocalDateTime.now());
+
+            transactionRepository.save(transaction);
+
+            for (int i = 1; i < total; i++) {
+                LocalDateTime releaseDate = dto.releaseDate();
+                if (dto.periodicity() != null) {
+                    releaseDate = calcularDataParcela(dto.releaseDate(), dto.periodicity(), i, dto.businessDayOnly());
+                }
+
+                Transaction nova = new Transaction();
+                nova.setAccount(account);
+                nova.setCategory(category);
+                nova.setSubcategory(subcategory);
+                nova.setName(dto.name());
+                nova.setType(dto.type());
+                nova.setStatus(dto.status());
+                nova.setReleaseDate(releaseDate);
+                nova.setValue(dto.value());
+                nova.setDescription(dto.description());
+                nova.setState(dto.state());
+                nova.setAdditionalInformation(dto.additionalInformation());
+                nova.setFrequency(Frequency.REPEAT);
+                nova.setInstallments(dto.installments());
+                nova.setPeriodicity(dto.periodicity());
+                nova.setBusinessDayOnly(dto.businessDayOnly());
+                nova.setInstallmentNumber(i + 1);
+                nova.setRecurringGroupId(groupId);
+                nova.setCreatedAt(LocalDateTime.now());
+                nova.setUpdatedAt(LocalDateTime.now());
+
+                transactionRepository.save(nova);
+            }
+
+            return toDTO(transaction, false);
+        }
+
+        if (transaction.getRecurringGroupId() != null) {
+            atualizarRecorrenciaFutura(transaction.getRecurringGroupId(), dto);
+            Transaction base = transactionRepository.findById(id)
+                    .orElseThrow(TransactionNotFoundException::new);
+            return toDTO(base, false);
+        }
+
+        throw new IllegalStateException("Não foi possível atualizar a transação.");
     }
 
     @Override
@@ -224,13 +334,13 @@ public class TransactionServiceImpl implements TransactionService {
                 transaction.getBusinessDayOnly(),
                 transaction.getInstallmentNumber(),
                 transaction.getRecurringGroupId(),
+                transaction.getTransferGroupId(),
                 transaction.getCreatedAt(),
                 transaction.getUpdatedAt(),
-                saldoNegativo
-        );
+                saldoNegativo);
     }
 
-        @Override
+    @Override
     public void cancelarRecorrencia(UUID recurringGroupId) {
         List<Transaction> transacoes = transactionRepository.findByRecurringGroupId(recurringGroupId);
         transactionRepository.deleteAll(transacoes);
@@ -239,7 +349,8 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public void atualizarRecorrenciaFutura(UUID recurringGroupId, RecurringUpdateRequestDTO dto) {
         List<Transaction> transacoes = transactionRepository.findByRecurringGroupId(recurringGroupId);
-        if (transacoes.isEmpty()) return;
+        if (transacoes.isEmpty())
+            return;
 
         transacoes.sort(Comparator.comparing(Transaction::getReleaseDate));
 
@@ -257,7 +368,9 @@ public class TransactionServiceImpl implements TransactionService {
 
             base.setAccount(accountRepository.findById(dto.accountId()).orElseThrow());
             base.setCategory(categoryRepository.findById(dto.categoryId()).orElseThrow());
-            base.setSubcategory(dto.subcategoryId() != null ? subcategoryRepository.findById(dto.subcategoryId()).orElse(null) : null);
+            base.setSubcategory(
+                    dto.subcategoryId() != null ? subcategoryRepository.findById(dto.subcategoryId()).orElse(null)
+                            : null);
             base.setName(dto.name());
             base.setType(dto.type());
             base.setStatus(dto.status());
@@ -293,7 +406,9 @@ public class TransactionServiceImpl implements TransactionService {
         for (Transaction t : futuras) {
             t.setAccount(accountRepository.findById(dto.accountId()).orElseThrow());
             t.setCategory(categoryRepository.findById(dto.categoryId()).orElseThrow());
-            t.setSubcategory(dto.subcategoryId() != null ? subcategoryRepository.findById(dto.subcategoryId()).orElse(null) : null);
+            t.setSubcategory(
+                    dto.subcategoryId() != null ? subcategoryRepository.findById(dto.subcategoryId()).orElse(null)
+                            : null);
             t.setName(dto.name());
             t.setType(dto.type());
             t.setStatus(dto.status());
@@ -309,7 +424,8 @@ public class TransactionServiceImpl implements TransactionService {
 
             if (dto.novaDataBase() != null && t.getInstallmentNumber() != null) {
                 int parcela = t.getInstallmentNumber() - 1;
-                LocalDateTime novaData = calcularDataParcela(dto.novaDataBase(), dto.periodicity(), parcela, dto.businessDayOnly());
+                LocalDateTime novaData = calcularDataParcela(dto.novaDataBase(), dto.periodicity(), parcela,
+                        dto.businessDayOnly());
                 t.setReleaseDate(novaData);
             }
 
@@ -329,11 +445,14 @@ public class TransactionServiceImpl implements TransactionService {
                 Transaction nova = new Transaction();
                 nova.setAccount(accountRepository.findById(dto.accountId()).orElseThrow());
                 nova.setCategory(categoryRepository.findById(dto.categoryId()).orElseThrow());
-                nova.setSubcategory(dto.subcategoryId() != null ? subcategoryRepository.findById(dto.subcategoryId()).orElse(null) : null);
+                nova.setSubcategory(
+                        dto.subcategoryId() != null ? subcategoryRepository.findById(dto.subcategoryId()).orElse(null)
+                                : null);
                 nova.setName(dto.name());
                 nova.setType(dto.type());
                 nova.setStatus(dto.status());
-                nova.setReleaseDate(calcularDataParcela(dto.novaDataBase(), dto.periodicity(), i, dto.businessDayOnly()));
+                nova.setReleaseDate(
+                        calcularDataParcela(dto.novaDataBase(), dto.periodicity(), i, dto.businessDayOnly()));
                 nova.setValue(dto.value());
                 nova.setDescription(dto.description());
                 nova.setState(dto.state());
@@ -351,4 +470,39 @@ public class TransactionServiceImpl implements TransactionService {
             }
         }
     }
+
+    @Override
+    public List<TransactionResponseDTO> filtrarAvancado(TransactionAdvancedFilterDTO filtro) {
+        return transactionRepository.findAll().stream()
+                .filter(t -> filtro.contaIds() == null || filtro.contaIds().isEmpty() || filtro.contaIds().contains(t.getAccount().getId()))
+                .filter(t -> filtro.categoriaIds() == null || filtro.categoriaIds().isEmpty() || filtro.categoriaIds().contains(t.getCategory().getId()))
+                .filter(t -> filtro.categoriaTipo() == null || (t.getCategory() != null && t.getCategory().getType() == filtro.categoriaTipo()))
+                .filter(t -> {
+                    if (filtro.transacaoTipo() == null) return true;
+                    if (filtro.transacaoTipo() == TransactionType.RECEITA || filtro.transacaoTipo() == TransactionType.DESPESA) {
+                        return t.getType() == filtro.transacaoTipo();
+                    }
+
+                    return t.getTransferGroupId() != null;
+                })
+                .filter(t -> filtro.estado() == null || t.getState() == filtro.estado())
+                .filter(t -> filtro.frequencia() == null || t.getFrequency() == filtro.frequencia())
+                .filter(t -> (filtro.dataInicio() == null || !t.getReleaseDate().isBefore(filtro.dataInicio())) &&
+                            (filtro.dataFim() == null || !t.getReleaseDate().isAfter(filtro.dataFim())))
+                .sorted(obterComparador(filtro.ordenacao()))
+                .map(t -> toDTO(t, false))
+                .collect(Collectors.toList());
+    }
+
+    private Comparator<Transaction> obterComparador(TransactionOrder order) {
+        if (order == null) return Comparator.comparing(Transaction::getReleaseDate);
+
+        return switch (order) {
+            case DATA -> Comparator.comparing(Transaction::getReleaseDate);
+            case CATEGORIA -> Comparator.comparing(t -> t.getCategory().getName(), String.CASE_INSENSITIVE_ORDER);
+            case VALOR_CRESCENTE -> Comparator.comparing(Transaction::getValue);
+            case VALOR_DECRESCENTE -> Comparator.comparing(Transaction::getValue).reversed();
+        };
+    }
+
 }

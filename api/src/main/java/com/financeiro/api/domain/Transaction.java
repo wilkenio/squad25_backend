@@ -43,13 +43,15 @@ public class Transaction {
     private Integer installments; 
 
     @Enumerated(EnumType.STRING)
-    private Periodicity periodicity; 
+    private Periodicity periodicity;
 
     private Boolean businessDayOnly; 
 
     private Integer installmentNumber; 
 
-    private UUID recurringGroupId; 
+    private UUID recurringGroupId;
+    
+    private UUID transferGroupId;
 
     private LocalDateTime createdAt;
 
@@ -66,4 +68,8 @@ public class Transaction {
     @ManyToOne
     @JoinColumn(name = "account_id")
     private Account account;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 }

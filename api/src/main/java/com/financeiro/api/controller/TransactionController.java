@@ -1,7 +1,11 @@
 package com.financeiro.api.controller;
 
 import com.financeiro.api.domain.User;
+import com.financeiro.api.domain.enums.Frequency;
+import com.financeiro.api.domain.enums.TransactionOrder;
 import com.financeiro.api.domain.enums.TransactionState;
+import com.financeiro.api.domain.enums.TransactionType;
+import com.financeiro.api.domain.enums.CategoryType;
 import com.financeiro.api.dto.accountDTO.AccountTransactionSummaryDTO;
 import com.financeiro.api.dto.transactionDTO.*;
 import com.financeiro.api.dto.transferDTO.TransferRequestDTO;
@@ -13,6 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,8 +32,7 @@ public class TransactionController {
     public TransactionController(
             TransactionServiceImpl service,
             CsvImportService csvImportService,
-            TransferService transferService
-    ) {
+            TransferService transferService) {
         this.service = service;
         this.csvImportService = csvImportService;
         this.transferService = transferService;
@@ -46,15 +50,20 @@ public class TransactionController {
 
     @PostMapping("/import/csv")
     public ResponseEntity<String> importar(@RequestParam("file") MultipartFile file,
-                                           @RequestParam(value = "accountId", required = false) UUID accountId) {
+            @RequestParam(value = "accountId", required = false) UUID accountId) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         csvImportService.importFromCsv(file, user, accountId);
         return ResponseEntity.ok("Importação concluída com sucesso.");
     }
 
+    @PostMapping("/filter")
+    public ResponseEntity<List<TransactionResponseDTO>> filtrarAvancado(@RequestBody TransactionAdvancedFilterDTO dto) {
+        return ResponseEntity.ok(service.filtrarAvancado(dto));
+    }
+
     @GetMapping
-    public ResponseEntity<List<TransactionSimplifiedResponseDTO>> getAll() {
-        return ResponseEntity.ok(service.findAll());
+    public ResponseEntity<List<TransactionSimplifiedResponseDTO>> getAll(@RequestParam(defaultValue = "0") int page) {
+        return ResponseEntity.ok(service.findAll(page));
     }
 
     @GetMapping("/{id}")
@@ -62,27 +71,39 @@ public class TransactionController {
         return ResponseEntity.ok(service.findById(id));
     }
 
+    @GetMapping("/filter")
+    public ResponseEntity<List<TransactionResponseDTO>> filtrarAvancado(
+            @RequestParam(required = false) List<UUID> contaIds,
+            @RequestParam(required = false) List<UUID> categoriaIds,
+            @RequestParam(required = false) CategoryType categoriaTipo,
+            @RequestParam(required = false) TransactionType transacaoTipo,
+            @RequestParam(required = false) TransactionState estado,
+            @RequestParam(required = false) Frequency frequencia,
+            @RequestParam(required = false) LocalDateTime dataInicio,
+            @RequestParam(required = false) LocalDateTime dataFim,
+            @RequestParam(required = false) TransactionOrder ordenacao
+    ) {
+        TransactionAdvancedFilterDTO dto = new TransactionAdvancedFilterDTO(
+                contaIds, categoriaIds, categoriaTipo, transacaoTipo, estado, frequencia, dataInicio, dataFim, ordenacao
+        );
+        return ResponseEntity.ok(service.filtrarAvancado(dto));
+    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<TransactionResponseDTO> update(@PathVariable UUID id, @RequestBody TransactionRequestDTO dto) {
+    public ResponseEntity<TransactionResponseDTO> update(@PathVariable UUID id,
+            @RequestBody RecurringUpdateRequestDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
     }
 
     @PatchMapping("/{id}/state")
-    public ResponseEntity<TransactionResponseDTO> updateState(@PathVariable UUID id, @RequestParam TransactionState state) {
+    public ResponseEntity<TransactionResponseDTO> updateState(@PathVariable UUID id,
+            @RequestParam TransactionState state) {
         return ResponseEntity.ok(service.updateState(id, state));
     }
 
-        @DeleteMapping("/recurring/{groupId}")
+    @DeleteMapping("/recurring/{groupId}")
     public ResponseEntity<Void> cancelarTransacoesRecorrentes(@PathVariable UUID groupId) {
         service.cancelarRecorrencia(groupId);
-        return ResponseEntity.noContent().build();
-    }
-
-    @PutMapping("/recurring/{groupId}")
-    public ResponseEntity<Void> atualizarTransacoesFuturasRecorrentes(
-            @PathVariable UUID groupId,
-            @RequestBody RecurringUpdateRequestDTO dto) {
-        service.atualizarRecorrenciaFutura(groupId, dto);
         return ResponseEntity.noContent().build();
     }
 
