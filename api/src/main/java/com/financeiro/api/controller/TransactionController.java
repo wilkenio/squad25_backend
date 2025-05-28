@@ -1,7 +1,12 @@
 package com.financeiro.api.controller;
 
 import com.financeiro.api.domain.User;
+import com.financeiro.api.domain.enums.Frequency;
+import com.financeiro.api.domain.enums.TransactionOrder;
 import com.financeiro.api.domain.enums.TransactionState;
+import com.financeiro.api.domain.enums.TransactionType;
+import com.financeiro.api.domain.enums.CategoryType;
+import com.financeiro.api.dto.accountDTO.AccountTransactionSummaryDTO;
 import com.financeiro.api.dto.transactionDTO.*;
 import com.financeiro.api.dto.transferDTO.TransferRequestDTO;
 import com.financeiro.api.service.CsvImportService;
@@ -12,6 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -63,6 +69,24 @@ public class TransactionController {
     @GetMapping("/{id}")
     public ResponseEntity<TransactionSimplifiedResponseDTO> getById(@PathVariable UUID id) {
         return ResponseEntity.ok(service.findById(id));
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<TransactionResponseDTO>> filtrarAvancado(
+            @RequestParam(required = false) List<UUID> contaIds,
+            @RequestParam(required = false) List<UUID> categoriaIds,
+            @RequestParam(required = false) CategoryType categoriaTipo,
+            @RequestParam(required = false) TransactionType transacaoTipo,
+            @RequestParam(required = false) TransactionState estado,
+            @RequestParam(required = false) Frequency frequencia,
+            @RequestParam(required = false) LocalDateTime dataInicio,
+            @RequestParam(required = false) LocalDateTime dataFim,
+            @RequestParam(required = false) TransactionOrder ordenacao
+    ) {
+        TransactionAdvancedFilterDTO dto = new TransactionAdvancedFilterDTO(
+                contaIds, categoriaIds, categoriaTipo, transacaoTipo, estado, frequencia, dataInicio, dataFim, ordenacao
+        );
+        return ResponseEntity.ok(service.filtrarAvancado(dto));
     }
 
     @PutMapping("/{id}")

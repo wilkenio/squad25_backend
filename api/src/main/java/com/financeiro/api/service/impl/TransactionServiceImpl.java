@@ -475,24 +475,35 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public List<TransactionResponseDTO> filtrarAvancado(TransactionAdvancedFilterDTO filtro) {
         return transactionRepository.findAll().stream()
-                .filter(t -> filtro.contaIds() == null || filtro.contaIds().isEmpty()
-                        || filtro.contaIds().contains(t.getAccount().getId()))
-                .filter(t -> filtro.categoriaIds() == null || filtro.categoriaIds().isEmpty()
-                        || filtro.categoriaIds().contains(t.getCategory().getId()))
+                .filter(t -> filtro.contaIds() == null || filtro.contaIds().isEmpty() || filtro.contaIds().contains(t.getAccount().getId()))
+                .filter(t -> filtro.categoriaIds() == null || filtro.categoriaIds().isEmpty() || filtro.categoriaIds().contains(t.getCategory().getId()))
+                .filter(t -> filtro.categoriaTipo() == null || (t.getCategory() != null && t.getCategory().getType() == filtro.categoriaTipo()))
                 .filter(t -> {
-                    if (filtro.tipo() == null)
-                        return true;
-                    if (filtro.tipo() == TransactionType.RECEITA || filtro.tipo() == TransactionType.DESPESA) {
-                        return t.getType() == filtro.tipo();
+                    if (filtro.transacaoTipo() == null) return true;
+                    if (filtro.transacaoTipo() == TransactionType.RECEITA || filtro.transacaoTipo() == TransactionType.DESPESA) {
+                        return t.getType() == filtro.transacaoTipo();
                     }
 
                     return t.getTransferGroupId() != null;
                 })
                 .filter(t -> filtro.estado() == null || t.getState() == filtro.estado())
+                .filter(t -> filtro.frequencia() == null || t.getFrequency() == filtro.frequencia())
                 .filter(t -> (filtro.dataInicio() == null || !t.getReleaseDate().isBefore(filtro.dataInicio())) &&
-                        (filtro.dataFim() == null || !t.getReleaseDate().isAfter(filtro.dataFim())))
+                            (filtro.dataFim() == null || !t.getReleaseDate().isAfter(filtro.dataFim())))
+                .sorted(obterComparador(filtro.ordenacao()))
                 .map(t -> toDTO(t, false))
                 .collect(Collectors.toList());
+    }
+
+    private Comparator<Transaction> obterComparador(TransactionOrder order) {
+        if (order == null) return Comparator.comparing(Transaction::getReleaseDate);
+
+        return switch (order) {
+            case DATA -> Comparator.comparing(Transaction::getReleaseDate);
+            case CATEGORIA -> Comparator.comparing(t -> t.getCategory().getName(), String.CASE_INSENSITIVE_ORDER);
+            case VALOR_CRESCENTE -> Comparator.comparing(Transaction::getValue);
+            case VALOR_DECRESCENTE -> Comparator.comparing(Transaction::getValue).reversed();
+        };
     }
 
 }
