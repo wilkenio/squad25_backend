@@ -93,6 +93,29 @@ public class TransactionServiceImpl implements TransactionService {
             transaction.setUpdatedAt(now);
 
             Transaction saved = transactionRepository.save(transaction);
+
+            // Atualiza o saldo da conta com base no tipo de transação
+            if (dto.state() == TransactionState.EFFECTIVE) {
+                accountRepository.findById(dto.accountId())
+                        .ifPresent(acc -> {
+                            if (dto.type() == TransactionType.RECEITA) {
+                                Double currentIncome = acc.getIncome() != null ? acc.getIncome() : 0.0;
+                                acc.setIncome(currentIncome + dto.value());
+                            } else if (dto.type() == TransactionType.DESPESA) {
+                                Double currentExpense = acc.getExpense() != null ? acc.getExpense() : 0.0;
+                                acc.setExpense(currentExpense + dto.value());
+                            }
+
+                            // Recalcula o saldo atual
+                            Double currentBalance = acc.getOpeningBalance() +
+                                    (acc.getIncome() != null ? acc.getIncome() : 0.0) -
+                                    (acc.getExpense() != null ? acc.getExpense() : 0.0);
+                            acc.setCurrentBalance(currentBalance);
+                            acc.setUpdatedAt(LocalDateTime.now());
+                            accountRepository.save(acc);
+                        });
+            }
+
             responses.add(toDTO(saved, false));
         }
 
