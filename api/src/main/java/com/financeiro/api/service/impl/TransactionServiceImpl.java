@@ -440,10 +440,11 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionRepository.findAll().stream()
                 .filter(t -> filtro.contaIds() == null || filtro.contaIds().isEmpty() || filtro.contaIds().contains(t.getAccount().getId()))
                 .filter(t -> filtro.categoriaIds() == null || filtro.categoriaIds().isEmpty() || filtro.categoriaIds().contains(t.getCategory().getId()))
+                .filter(t -> filtro.categoriaTipo() == null || (t.getCategory() != null && t.getCategory().getType() == filtro.categoriaTipo()))
                 .filter(t -> {
-                    if (filtro.tipo() == null) return true;
-                    if (filtro.tipo() == TransactionType.RECEITA || filtro.tipo() == TransactionType.DESPESA) {
-                        return t.getType() == filtro.tipo();
+                    if (filtro.transacaoTipo() == null) return true;
+                    if (filtro.transacaoTipo() == TransactionType.RECEITA || filtro.transacaoTipo() == TransactionType.DESPESA) {
+                        return t.getType() == filtro.transacaoTipo();
                     }
                     
                     return t.getTransferGroupId() != null;

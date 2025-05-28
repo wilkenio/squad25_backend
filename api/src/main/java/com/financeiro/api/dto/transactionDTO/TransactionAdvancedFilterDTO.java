@@ -9,7 +9,8 @@ import java.util.UUID;
 public record TransactionAdvancedFilterDTO(
     List<UUID> contaIds,
     List<UUID> categoriaIds,
-    TransactionType tipo, 
+    CategoryType categoriaTipo,
+    TransactionType transacaoTipo, 
     TransactionState estado,
     Frequency frequencia, 
     LocalDateTime dataInicio,
