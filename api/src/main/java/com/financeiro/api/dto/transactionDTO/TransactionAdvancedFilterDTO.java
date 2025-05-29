@@ -12,8 +12,14 @@ public record TransactionAdvancedFilterDTO(
     CategoryType categoriaTipo,
     TransactionType transacaoTipo, 
     TransactionState estado,
-    Frequency frequencia, 
+    Frequency frequencia,
+    DataReferencia dataReferencia, 
     LocalDateTime dataInicio,
     LocalDateTime dataFim,
-    TransactionOrder ordenacao
+    TransactionOrder ordenacao,
+    TipoApresentacaoDados apresentacao, 
+    Integer limite,
+    TipoDado tipoDado,
+    Boolean incluirSaldoPrevisto,
+    Boolean mostrarApenasSaldo
 ) {}
