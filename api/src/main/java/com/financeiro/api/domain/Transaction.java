@@ -43,7 +43,7 @@ public class Transaction {
     private Integer installments; 
 
     @Enumerated(EnumType.STRING)
-    private Periodicity periodicity; 
+    private Periodicity periodicity;
 
     private Boolean businessDayOnly; 
 
@@ -68,4 +68,8 @@ public class Transaction {
     @ManyToOne
     @JoinColumn(name = "account_id")
     private Account account;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 }

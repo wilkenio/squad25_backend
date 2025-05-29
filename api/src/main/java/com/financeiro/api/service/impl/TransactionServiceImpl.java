@@ -7,6 +7,8 @@ import com.financeiro.api.infra.exceptions.TransactionNotFoundException;
 import com.financeiro.api.repository.*;
 import com.financeiro.api.service.TransactionService;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
@@ -92,6 +94,33 @@ public class TransactionServiceImpl implements TransactionService {
             transaction.setUpdatedAt(now);
 
             Transaction saved = transactionRepository.save(transaction);
+
+            // Atualizar o saldo da conta com base no tipo de transação
+            if (dto.state() == TransactionState.EFFECTIVE) {
+                // Inicializar valores se forem nulos
+                if (account.getCurrentBalance() == null) {
+                    account.setCurrentBalance(account.getOpeningBalance() != null ? account.getOpeningBalance() : 0.0);
+                }
+                if (account.getIncome() == null) {
+                    account.setIncome(0.0);
+                }
+                if (account.getExpense() == null) {
+                    account.setExpense(0.0);
+                }
+
+                // Atualizar saldo e totais com base no tipo de transação
+                if (dto.type() == TransactionType.RECEITA) {
+                    account.setCurrentBalance(account.getCurrentBalance() + dto.value());
+                    account.setIncome(account.getIncome() + dto.value());
+                } else if (dto.type() == TransactionType.DESPESA) {
+                    account.setCurrentBalance(account.getCurrentBalance() - dto.value());
+                    account.setExpense(account.getExpense() + dto.value());
+                }
+
+                // Salvar a conta atualizada
+                accountRepository.save(account);
+            }
+
             responses.add(toDTO(saved, false));
         }
 
@@ -124,7 +153,11 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public List<TransactionSimplifiedResponseDTO> findAll(int page) {
+        User currentUser = getCurrentUser();
+        List<Account> userAccounts = accountRepository.findByUser(currentUser);
+
         return transactionRepository.findAll().stream()
+                .filter(transaction -> userAccounts.contains(transaction.getAccount()))
                 .skip(page * 10L)
                 .limit(10)
                 .map(transaction -> new TransactionSimplifiedResponseDTO(
@@ -135,6 +168,11 @@ public class TransactionServiceImpl implements TransactionService {
                         transaction.getFrequency(),
                         transaction.getValue()))
                 .toList();
+    }
+
+    private User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return (User) authentication.getPrincipal();
     }
 
     @Override
