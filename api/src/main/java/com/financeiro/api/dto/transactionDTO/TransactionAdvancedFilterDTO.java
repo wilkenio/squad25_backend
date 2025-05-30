@@ -7,19 +7,48 @@ import java.util.List;
 import java.util.UUID;
 
 public record TransactionAdvancedFilterDTO(
-    List<UUID> contaIds,
-    List<UUID> categoriaIds,
-    CategoryType categoriaTipo,
-    TransactionType transacaoTipo, 
-    TransactionState estado,
-    Frequency frequencia,
-    DataReferencia dataReferencia, 
+    // Filtro Geral
     LocalDateTime dataInicio,
     LocalDateTime dataFim,
-    TransactionOrder ordenacao,
-    TipoApresentacaoDados apresentacao, 
-    Integer limite,
-    TipoDado tipoDado,
+    DataReferencia dataReferencia,
+    List<UUID> contaIds,
+    Boolean mostrarApenasSaldo,
     Boolean incluirSaldoPrevisto,
-    Boolean mostrarApenasSaldo
+    Boolean incluirReceitas,
+    Boolean incluirReceitasEfetivadas,
+    Boolean incluirReceitasPrevistas,
+    Boolean incluirDespesas,
+    Boolean incluirDespesasEfetivadas,
+    Boolean incluirDespesasPrevistas,
+    Boolean incluirTransferencias,
+    Boolean incluirTransferenciasEfetivadas,
+    Boolean incluirTransferenciasPrevistas,
+
+    // Filtros adicionais
+    Boolean incluirTodasCategoriasReceita,
+    List<UUID> idsCategoriasReceita,
+    Boolean incluirTodasCategoriasDespesa,
+    List<UUID> idsCategoriasDespesa,
+    Boolean incluirFreqNaoRecorrente,      
+    Boolean incluirFreqFixaMensal,
+    Boolean incluirFreqRepetida,
+    
+    // Apresentação de dados
+    TransactionOrder ordenacao,
+    TipoDado tipoDado,
+    TipoApresentacaoDados apresentacao, 
+    Integer limite
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+
+
 ) {}
