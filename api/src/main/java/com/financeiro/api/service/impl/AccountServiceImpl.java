@@ -2,16 +2,19 @@ package com.financeiro.api.service.impl;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.financeiro.api.domain.Account;
 import com.financeiro.api.domain.Category;
 import com.financeiro.api.domain.User;
+import com.financeiro.api.domain.Transaction;
 import com.financeiro.api.domain.enums.Status;
 import com.financeiro.api.domain.enums.TransactionType;
 import com.financeiro.api.dto.accountDTO.*;
 import com.financeiro.api.infra.exceptions.UserNotFoundException;
 import com.financeiro.api.repository.AccountRepository;
 import com.financeiro.api.repository.CategoryRepository;
+import com.financeiro.api.repository.TransactionRepository;
 import com.financeiro.api.service.AccountService;
 import org.springframework.stereotype.Service;
 import jakarta.persistence.EntityNotFoundException;
@@ -26,10 +29,12 @@ public class AccountServiceImpl implements AccountService {
 
         private final AccountRepository accountRepository;
         private final CategoryRepository categoryRepository;
+        private final TransactionRepository transactionRepository;
 
-        public AccountServiceImpl(AccountRepository accountRepository, CategoryRepository categoryRepository) {
+        public AccountServiceImpl(AccountRepository accountRepository, CategoryRepository categoryRepository, TransactionRepository transactionRepository) {
                 this.accountRepository = accountRepository;
                 this.categoryRepository = categoryRepository;
+                this.transactionRepository = transactionRepository;
         }
 
         // transformar no metodo GET
@@ -155,12 +160,10 @@ public AccountCalculationResponseDTO create(AccountCalculationRequestDTO dto) {
                         saved.getStatus());
         }
 
-        // Método para atualizar a conta com base na transação
         public void updateAccountByTransaction(UUID accountId, TransactionType type, Double value) {
                 Account account = accountRepository.findById(accountId)
                                 .orElseThrow(() -> new EntityNotFoundException("Conta não encontrada"));
 
-                // Atualiza receita ou despesa com base no tipo de transação
                 if (type == TransactionType.RECEITA) {
                         Double currentIncome = account.getIncome() != null ? account.getIncome() : 0.0;
                         account.setIncome(currentIncome + value);
@@ -169,7 +172,6 @@ public AccountCalculationResponseDTO create(AccountCalculationRequestDTO dto) {
                         account.setExpense(currentExpense + value);
                 }
 
-                // Recalcula o saldo atual
                 Double currentBalance = account.getOpeningBalance() +
                                 (account.getIncome() != null ? account.getIncome() : 0.0) -
                                 (account.getExpense() != null ? account.getExpense() : 0.0);
@@ -177,19 +179,32 @@ public AccountCalculationResponseDTO create(AccountCalculationRequestDTO dto) {
 
                 account.setUpdatedAt(LocalDateTime.now());
 
-                // Salva as alterações
                 accountRepository.save(account);
         }
 
         @Override
+        @Transactional 
         public void delete(UUID id) {
-                Account account = accountRepository.findById(id).orElseThrow(
-                                () -> new EntityNotFoundException());
+                Account account = accountRepository.findById(id)
+                        .orElseThrow(() -> new EntityNotFoundException("Conta não encontrada ao tentar deletar com ID: " + id));
+
+                List<Status> statusesAtivos = List.of(Status.SIM, Status.NAO); 
+
+                List<Transaction> transacoesParaExcluir = transactionRepository.findByAccountAndStatusIn(account, statusesAtivos);
+
+                if (transacoesParaExcluir != null && !transacoesParaExcluir.isEmpty()) {
+                for (Transaction transaction : transacoesParaExcluir) {
+                        transaction.setStatus(Status.EXC); 
+                        transaction.setUpdatedAt(LocalDateTime.now()); 
+                }
+                transactionRepository.saveAll(transacoesParaExcluir); 
+                }
 
                 account.setStatus(Status.EXC);
                 account.setUpdatedAt(LocalDateTime.now());
                 accountRepository.save(account);
         }
+
 
         private User getCurrentUser() {
                 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

@@ -3,7 +3,7 @@ package com.financeiro.api.repository;
 import com.financeiro.api.domain.Account;
 import com.financeiro.api.domain.Category;
 import com.financeiro.api.domain.Transaction;
-import com.financeiro.api.domain.enums.Frequency;
+import com.financeiro.api.domain.enums.*;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -20,4 +20,5 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
      List<Transaction> findByAccountInAndCategoryIn(List<Account> accounts, List<Category> categories);
      List<Transaction> findByRecurringGroupId(UUID recurringGroupId);
      List<Transaction> findByTransferGroupId(UUID transferGroupId);
+     List<Transaction> findByAccountAndStatusIn(Account account, List<Status> statuses);
 }
