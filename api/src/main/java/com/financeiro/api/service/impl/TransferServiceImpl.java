@@ -56,7 +56,7 @@ public class TransferServiceImpl implements TransferService {
 
         int totalInstallments = dto.frequency() == Frequency.REPEAT && dto.installments() != null && dto.installments() > 0 ? dto.installments() : 1;
 
-        double valorParcela = dto.value() / totalInstallments; 
+        double valorParcela = dto.value();
         UUID recurringGroupId = (dto.frequency() == Frequency.REPEAT && totalInstallments > 1) ? UUID.randomUUID() : null;
         UUID transferGroupId = UUID.randomUUID(); 
         
