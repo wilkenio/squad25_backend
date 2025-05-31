@@ -21,4 +21,7 @@ public interface AccountRepository extends JpaRepository<Account, UUID> {
     List<Account> findAllByStatusIn(List<Status> statuses);
 
     List<Account> findByUser(User user);
+    
+    List<Account> findByUserAndStatusIn(User user, List<Status> statuses);
+
 }
