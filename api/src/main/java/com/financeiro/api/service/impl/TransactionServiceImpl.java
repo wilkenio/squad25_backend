@@ -214,15 +214,70 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public TransactionResponseDTO updateState(UUID id, TransactionState state) {
+    @Transactional 
+    public TransactionResponseDTO updateState(UUID id, TransactionState newState) {
         Transaction transaction = transactionRepository.findById(id)
-                .orElseThrow(TransactionNotFoundException::new);
+                .orElseThrow(() -> new TransactionNotFoundException("Transação não encontrada para atualização de estado. ID: " + id));
 
-        transaction.setState(state);
+        Account account = transaction.getAccount();
+        TransactionState oldState = transaction.getState();
+        Double value = transaction.getValue();
+        TransactionType type = transaction.getType();
+
+        if (oldState == newState) {
+            return toDTO(transaction, false);
+        }
+
+        transaction.setState(newState);
         transaction.setUpdatedAt(LocalDateTime.now());
 
-        Transaction updated = transactionRepository.save(transaction);
-        return toDTO(updated, false);
+        if (account.getOpeningBalance() == null) account.setOpeningBalance(0.0);
+        if (account.getCurrentBalance() == null) account.setCurrentBalance(account.getOpeningBalance());
+        if (account.getIncome() == null) account.setIncome(0.0);
+        if (account.getExpense() == null) account.setExpense(0.0);
+        if (account.getExpectedIncomeMonth() == null) account.setExpectedIncomeMonth(0.0);
+        if (account.getExpectedExpenseMonth() == null) account.setExpectedExpenseMonth(0.0);
+        if (account.getSpecialCheck() == null) account.setSpecialCheck(0.0);
+
+        if (oldState == TransactionState.PENDING && newState == TransactionState.EFFECTIVE) {
+            if (type == TransactionType.RECEITA) {
+                account.setExpectedIncomeMonth(account.getExpectedIncomeMonth() - value); 
+                account.setIncome(account.getIncome() + value);
+            } else if (type == TransactionType.DESPESA) {
+                account.setExpectedExpenseMonth(account.getExpectedExpenseMonth() - value); 
+                account.setExpense(account.getExpense() + value); 
+            }
+        } 
+
+        else if (oldState == TransactionState.EFFECTIVE && newState == TransactionState.PENDING) {
+            if (type == TransactionType.RECEITA) {
+                account.setIncome(account.getIncome() - value); 
+                account.setExpectedIncomeMonth(account.getExpectedIncomeMonth() + value); 
+            } else if (type == TransactionType.DESPESA) {
+                account.setExpense(account.getExpense() - value); 
+                account.setExpectedExpenseMonth(account.getExpectedExpenseMonth() + value); 
+            }
+        }
+
+        account.setCurrentBalance(
+            (account.getOpeningBalance() != null ? account.getOpeningBalance() : 0.0) +
+            (account.getIncome() != null ? account.getIncome() : 0.0) -
+            (account.getExpense() != null ? account.getExpense() : 0.0)
+        );
+
+        account.setExpectedBalance(
+            (account.getCurrentBalance() != null ? account.getCurrentBalance() : 0.0) +
+            (account.getSpecialCheck() != null ? account.getSpecialCheck() : 0.0) +
+            (account.getExpectedIncomeMonth() != null ? account.getExpectedIncomeMonth() : 0.0) -
+            (account.getExpectedExpenseMonth() != null ? account.getExpectedExpenseMonth() : 0.0)
+        );
+        
+        account.setUpdatedAt(LocalDateTime.now());
+        accountRepository.save(account); 
+        
+        Transaction savedTransaction = transactionRepository.save(transaction); 
+
+        return toDTO(savedTransaction, false);
     }
 
     @Override

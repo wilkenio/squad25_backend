@@ -21,4 +21,9 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
      List<Transaction> findByRecurringGroupId(UUID recurringGroupId);
      List<Transaction> findByTransferGroupId(UUID transferGroupId);
      List<Transaction> findByAccountAndStatusIn(Account account, List<Status> statuses);
+     List<Transaction> findAllByStateAndStatusAndReleaseDateLessThanEqual(
+        TransactionState state,
+        Status status,
+        LocalDateTime releaseDate
+     );
 }
