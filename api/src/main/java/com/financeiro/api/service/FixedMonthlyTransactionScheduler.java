@@ -78,7 +78,7 @@ public class FixedMonthlyTransactionScheduler {
         while (data.getDayOfWeek() == DayOfWeek.SATURDAY || data.getDayOfWeek() == DayOfWeek.SUNDAY) {
             data = data.plusDays(1);
         }
-        return data.atTime(8, 0);
+        return data.atStartOfDay();
     }
 
     @Scheduled(cron = "0 * * * * *") 
