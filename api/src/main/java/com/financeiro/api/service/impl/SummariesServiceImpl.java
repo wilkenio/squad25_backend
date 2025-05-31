@@ -14,6 +14,10 @@ import com.financeiro.api.repository.CategoryRepository;
 import com.financeiro.api.repository.TransactionRepository;
 import com.financeiro.api.service.SummariesService;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -38,7 +42,7 @@ public class SummariesServiceImpl implements SummariesService {
     }
 
     @Override
-    public List<DashboardItemDTO> generateSummary(TransactionAdvancedFilterDTO filtro) {
+    public Page<DashboardItemDTO> generateSummary(TransactionAdvancedFilterDTO filtro) {
         List<DashboardItemDTO> dtosDeSaldoCalculados = new ArrayList<>();
 
         if (Boolean.TRUE.equals(filtro.mostrarApenasSaldo())) {
@@ -261,11 +265,25 @@ public class SummariesServiceImpl implements SummariesService {
             }
         }
 
-        List<DashboardItemDTO> respostaFinalCombinada = new ArrayList<>();
-        respostaFinalCombinada.addAll(dtosDeSaldoCalculados); 
-        respostaFinalCombinada.addAll(resultadosPrincipais);
+        List<DashboardItemDTO> respostaSemPaginacao = new ArrayList<>();
+        respostaSemPaginacao.addAll(dtosDeSaldoCalculados); 
+        respostaSemPaginacao.addAll(resultadosPrincipais);
 
-        return respostaFinalCombinada;
+        int pageNumber = (filtro.pageNumber() == null || filtro.pageNumber() < 0) ? 0 : filtro.pageNumber();
+        int pageSize = (filtro.pageSize() == null || filtro.pageSize() <= 0) ? 20 : filtro.pageSize(); 
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        int totalItems = respostaSemPaginacao.size();
+        int startIndex = (int) pageable.getOffset();
+        int endIndex = Math.min(startIndex + pageable.getPageSize(), totalItems);
+
+        List<DashboardItemDTO> paginatedList;
+        if (startIndex >= totalItems) {
+            paginatedList = Collections.emptyList();
+        } else {
+            paginatedList = respostaSemPaginacao.subList(startIndex, endIndex);
+        }
+
+    return new PageImpl<>(paginatedList, pageable, totalItems);
     }
 
     private record CategoryTotal(Category category, double totalValue) {}

@@ -37,7 +37,11 @@ public record TransactionAdvancedFilterDTO(
     TransactionOrder ordenacao,
     TipoDado tipoDado,
     TipoApresentacaoDados apresentacao, 
-    Integer limite
+    Integer limite,
+
+    // Campos para Paginação
+    Integer pageNumber, // Número da página 
+    Integer pageSize    // Tamanho da página
     
     
     

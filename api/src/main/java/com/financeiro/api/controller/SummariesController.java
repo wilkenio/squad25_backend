@@ -4,6 +4,7 @@ import com.financeiro.api.domain.enums.*;
 import com.financeiro.api.dto.dashboardDTO.DashboardItemDTO; 
 import com.financeiro.api.dto.transactionDTO.TransactionAdvancedFilterDTO;
 import com.financeiro.api.service.SummariesService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,13 +23,13 @@ public class SummariesController {
     }
 
     @PostMapping("/summaries")
-    public ResponseEntity<List<DashboardItemDTO>> getSummaryViaPost(@RequestBody TransactionAdvancedFilterDTO dto) { 
-        List<DashboardItemDTO> summaryResults = summaryService.generateSummary(dto);
+    public ResponseEntity<Page<DashboardItemDTO>> getSummaryViaPost(@RequestBody TransactionAdvancedFilterDTO dto) { 
+        Page<DashboardItemDTO> summaryResults = summaryService.generateSummary(dto);
         return ResponseEntity.ok(summaryResults);
     }
 
     @GetMapping("/summaries")
-    public ResponseEntity<List<DashboardItemDTO>> getSummaryViaGet(
+    public ResponseEntity<Page<DashboardItemDTO>> getSummaryViaGet(
             //Filtro Geral
             @RequestParam(required = false) LocalDateTime dataInicio,
             @RequestParam(required = false) LocalDateTime dataFim,
@@ -59,7 +60,11 @@ public class SummariesController {
             @RequestParam(required = false) TransactionOrder ordenacao,
             @RequestParam(required = false) TipoDado tipoDado,
             @RequestParam(required = false) TipoApresentacaoDados apresentacao,
-            @RequestParam(required = false) Integer limite   
+            @RequestParam(required = false) Integer limite,
+            
+            // Parâmetros de Paginação
+            @RequestParam(required = false, defaultValue = "0") Integer pageNumber,
+            @RequestParam(required = false, defaultValue = "20") Integer pageSize
             ) {
 
         TransactionAdvancedFilterDTO dto = new TransactionAdvancedFilterDTO(
@@ -90,9 +95,12 @@ public class SummariesController {
                 ordenacao, 
                 tipoDado,
                 apresentacao, 
-                limite
+                limite,
+                
+                pageNumber, 
+                pageSize
         );
-        List<DashboardItemDTO> summaryResults = summaryService.generateSummary(dto);
+        Page<DashboardItemDTO> summaryResults = summaryService.generateSummary(dto);
         return ResponseEntity.ok(summaryResults);
     }
 }
