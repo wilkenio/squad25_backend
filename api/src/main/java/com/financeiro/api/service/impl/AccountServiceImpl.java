@@ -34,68 +34,68 @@ public class AccountServiceImpl implements AccountService {
 
         // transformar no metodo GET
         @Override
-        public AccountCalculationResponseDTO create(AccountCalculationRequestDTO dto) {
-                Double openingBalance = dto.openingBalance();
-                Double specialCheck = dto.specialCheck();
+public AccountCalculationResponseDTO create(AccountCalculationRequestDTO dto) {
+        // ✅ Obtemos o usuário logado
+        User currentUser = getCurrentUser();
 
-                // Declaração das variáveis para serem implementadas depois
-                Double receitas = 0.0;
-                Double despesas = 0.0;
-                Double receitasPrevistas = 0.0;
-                Double despesasPrevistas = 0.0;
+        Double openingBalance = dto.openingBalance();
+        Double specialCheck = dto.specialCheck();
 
-                Category category = categoryRepository.findById(dto.categoryId())
-                                .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada"));
+        Double receitas = 0.0;
+        Double despesas = 0.0;
+        Double receitasPrevistas = 0.0;
+        Double despesasPrevistas = 0.0;
 
-                // Cálculo do saldo atual
-                Double saldo = 0.0;
+        Category category = categoryRepository.findById(dto.categoryId())
+                        .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada"));
 
-                // Cálculo do saldo previsto considerando as previsões mensais
-                Double saldoPrevisto = 0.0;
+        Double saldo = 0.0;
+        Double saldoPrevisto = 0.0;
+        Double receitaTotal = 0.0;
+        Double despesaTotal = 0.0;
+        Double saldoTotal = 0.0;
 
-                // Cálculos totais incluindo o cheque especial
-                Double receitaTotal = 0.0;
-                Double despesaTotal = 0.0;
-                Double saldoTotal = 0.0;
+        Account account = new Account();
+        account.setAccountName(dto.accountName());
+        account.setAccountDescription(dto.accountDescription());
+        account.setAdditionalInformation(dto.additionalInformation());
+        account.setOpeningBalance(openingBalance);
+        account.setSpecialCheck(specialCheck);
+        account.setIncome(receitas);
+        account.setExpense(despesas);
+        account.setExpectedIncomeMonth(receitasPrevistas);
+        account.setExpectedExpenseMonth(despesasPrevistas);
+        account.setCategory(category);
+        account.setStatus(Status.SIM);
+        account.setCreatedAt(java.time.LocalDateTime.now());
+        account.setUpdatedAt(java.time.LocalDateTime.now());
 
-                // Salvando a conta no banco de dados antes de retornar
-                Account account = new Account();
-                account.setAccountName(dto.accountName());
-                account.setAccountDescription(dto.accountDescription());
-                account.setAdditionalInformation(dto.additionalInformation());
-                account.setOpeningBalance(dto.openingBalance());
-                account.setSpecialCheck(dto.specialCheck());
-                account.setIncome(receitas);
-                account.setExpense(despesas);
-                account.setExpectedIncomeMonth(receitasPrevistas);
-                account.setExpectedExpenseMonth(despesasPrevistas);
-                account.setCategory(category);
-                account.setStatus(Status.SIM);
-                account.setCreatedAt(java.time.LocalDateTime.now());
-                account.setUpdatedAt(java.time.LocalDateTime.now());
+        // ✅ Aqui associamos o usuário à conta
+        account.setUser(currentUser);
 
-                accountRepository.save(account);
+        accountRepository.save(account);
 
-                return new AccountCalculationResponseDTO(
-                                account.getId(),
-                                category.getId(),
-                                category.getName(),
-                                category.getIconClass(),
-                                category.getColor(),
-                                dto.accountName(),
-                                dto.accountDescription(),
-                                openingBalance,
-                                specialCheck,
-                                receitas,
-                                despesas,
-                                receitasPrevistas,
-                                despesasPrevistas,
-                                saldo,
-                                saldoPrevisto,
-                                receitaTotal,
-                                despesaTotal,
-                                saldoTotal);
-        }
+        return new AccountCalculationResponseDTO(
+                        account.getId(),
+                        category.getId(),
+                        category.getName(),
+                        category.getIconClass(),
+                        category.getColor(),
+                        dto.accountName(),
+                        dto.accountDescription(),
+                        openingBalance,
+                        specialCheck,
+                        receitas,
+                        despesas,
+                        receitasPrevistas,
+                        despesasPrevistas,
+                        saldo,
+                        saldoPrevisto,
+                        receitaTotal,
+                        despesaTotal,
+                        saldoTotal);
+}
+
 
         @Override
         public AccountTransactionResponseDTO update(UUID id, AccountTransactionRequestDTO dto) {
