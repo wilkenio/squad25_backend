@@ -64,7 +64,7 @@ public class AccountServiceImpl implements AccountService {
                 .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada com ID: " + dto.categoryId()));
 
         Double currentBalance = openingBalance + receitas - despesas; 
-        Double expectedBalance = currentBalance + specialCheck + receitasPrevistas - despesasPrevistas;
+        Double expectedBalance = receitasPrevistas - despesasPrevistas;
 
         Account account = new Account();
         account.setAccountName(dto.accountName());
@@ -262,12 +262,12 @@ public class AccountServiceImpl implements AccountService {
         Double expectedExpenseMonth = acc.getExpectedExpenseMonth() != null ? acc.getExpectedExpenseMonth() : 0.0;
 
         Double currentBalanceInEntity = acc.getCurrentBalance() != null ? acc.getCurrentBalance() : (openingBalance + income - expense);
-        Double expectedBalanceInEntity = acc.getExpectedBalance() != null ? acc.getExpectedBalance() : (currentBalanceInEntity + specialCheck + expectedIncomeMonth - expectedExpenseMonth);
+        Double expectedBalanceInEntity = (expectedIncomeMonth - expectedExpenseMonth);
 
         Double totalIncome = income + expectedIncomeMonth;
         Double totalExpense = expense + expectedExpenseMonth;
 
-        Double totalBalance = expectedBalanceInEntity; 
+        Double totalBalance = currentBalanceInEntity; 
 
         Category category = acc.getCategory(); 
 
