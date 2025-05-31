@@ -7,10 +7,15 @@ import com.financeiro.api.infra.exceptions.TransactionNotFoundException;
 import com.financeiro.api.repository.*;
 import com.financeiro.api.service.TransactionService;
 import jakarta.persistence.EntityNotFoundException;
+
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -36,7 +41,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    @Transactional // É uma boa prática tornar métodos que alteram múltiplas entidades transacionais
+    @Transactional 
     public List<TransactionResponseDTO> create(TransactionRequestDTO dto) {
         if (dto.frequency() == Frequency.REPEAT) {
             if (dto.installments() == null || dto.installments() < 2) {
@@ -63,7 +68,7 @@ public class TransactionServiceImpl implements TransactionService {
         int total = dto.frequency() == Frequency.REPEAT ? dto.installments() : 1;
 
         List<TransactionResponseDTO> responses = new ArrayList<>();
-        User currentUser = getCurrentUser(); // Obter o usuário atual para associar à transação
+        User currentUser = getCurrentUser(); 
 
         for (int i = 0; i < total; i++) {
             LocalDateTime releaseDateTime = dto.releaseDate();
@@ -78,11 +83,11 @@ public class TransactionServiceImpl implements TransactionService {
             transaction.setSubcategory(subcategory);
             transaction.setName(dto.name());
             transaction.setType(dto.type());
-            transaction.setStatus(dto.status()); // Status da transação (SIM, NAO, EXC)
+            transaction.setStatus(dto.status());
             transaction.setReleaseDate(releaseDateTime);
             transaction.setValue(dto.value());
             transaction.setDescription(dto.description());
-            transaction.setState(dto.state()); // Estado da transação (PENDING, EFFECTIVE, CANCELED)
+            transaction.setState(dto.state()); 
             transaction.setAdditionalInformation(dto.additionalInformation());
             transaction.setFrequency(dto.frequency());
             transaction.setInstallments(dto.installments());
@@ -90,16 +95,13 @@ public class TransactionServiceImpl implements TransactionService {
             transaction.setBusinessDayOnly(dto.businessDayOnly());
             transaction.setInstallmentNumber(dto.frequency() == Frequency.REPEAT ? i + 1 : null);
             transaction.setRecurringGroupId(dto.frequency() == Frequency.REPEAT ? groupId : null);
-            transaction.setUser(currentUser); // Associar usuário à transação
-
+            transaction.setUser(currentUser); 
             LocalDateTime now = LocalDateTime.now();
             transaction.setCreatedAt(now);
             transaction.setUpdatedAt(now);
 
             Transaction saved = transactionRepository.save(transaction);
 
-            // --- INÍCIO DA LÓGICA DE ATUALIZAÇÃO DA CONTA ---
-            // Inicializar campos da conta se forem nulos (boa prática)
             if (account.getOpeningBalance() == null) account.setOpeningBalance(0.0);
             if (account.getCurrentBalance() == null) account.setCurrentBalance(account.getOpeningBalance());
             if (account.getIncome() == null) account.setIncome(0.0);
@@ -107,16 +109,15 @@ public class TransactionServiceImpl implements TransactionService {
             if (account.getExpectedIncomeMonth() == null) account.setExpectedIncomeMonth(0.0);
             if (account.getExpectedExpenseMonth() == null) account.setExpectedExpenseMonth(0.0);
             if (account.getSpecialCheck() == null) account.setSpecialCheck(0.0);
-            // ExpectedBalance será recalculado abaixo
 
             if (dto.state() == TransactionState.EFFECTIVE) {
-                // Atualizar saldo atual e receitas/despesas efetivas
+
                 if (dto.type() == TransactionType.RECEITA) {
                     account.setIncome(account.getIncome() + dto.value());
                 } else if (dto.type() == TransactionType.DESPESA) {
                     account.setExpense(account.getExpense() + dto.value());
                 }
-                // Recalcular saldo atual
+
                 account.setCurrentBalance(
                     (account.getOpeningBalance() != null ? account.getOpeningBalance() : 0.0) +
                     account.getIncome() -
@@ -124,7 +125,7 @@ public class TransactionServiceImpl implements TransactionService {
                 );
 
             } else if (dto.state() == TransactionState.PENDING) {
-                // Atualizar receitas/despesas PREVISTAS
+
                 if (dto.type() == TransactionType.RECEITA) {
                     account.setExpectedIncomeMonth(account.getExpectedIncomeMonth() + dto.value());
                 } else if (dto.type() == TransactionType.DESPESA) {
@@ -132,21 +133,17 @@ public class TransactionServiceImpl implements TransactionService {
                 }
             }
 
-            // Recalcular saldo previsto da conta INDEPENDENTEMENTE do estado da transação atual,
-            // pois tanto transações efetivas (que mudam o currentBalance) quanto pendentes (que mudam expectedIncome/Expense)
-            // afetam o expectedBalance.
             account.setExpectedBalance(
                 (account.getCurrentBalance() != null ? account.getCurrentBalance() : 0.0) +
                 (account.getSpecialCheck() != null ? account.getSpecialCheck() : 0.0) +
                 account.getExpectedIncomeMonth() -
                 account.getExpectedExpenseMonth()
             );
-            // --- FIM DA LÓGICA DE ATUALIZAÇÃO DA CONTA ---
 
-            account.setUpdatedAt(LocalDateTime.now()); // Atualizar data de modificação da conta
-            accountRepository.save(account); // Salvar a conta atualizada
+            account.setUpdatedAt(LocalDateTime.now()); 
+            accountRepository.save(account); 
 
-            responses.add(toDTO(saved, false)); // O segundo parâmetro 'saldoNegativo' parece não estar sendo usado aqui.
+            responses.add(toDTO(saved, false)); 
         }
 
         return responses;
@@ -179,16 +176,17 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public List<TransactionSimplifiedResponseDTO> findAll(int page) {
         User currentUser = getCurrentUser();
-        List<Account> userAccounts = accountRepository.findByUser(currentUser);
+        Status statusVisivel = Status.SIM; 
+        
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("updatedAt").descending());
 
-        return transactionRepository.findAll().stream()
-                .filter(transaction -> userAccounts.contains(transaction.getAccount()))
-                .skip(page * 10L)
-                .limit(10)
+        Page<Transaction> pageResult = transactionRepository.findByUserAndStatus(currentUser, statusVisivel, pageable);
+
+        return pageResult.getContent().stream()
                 .map(transaction -> new TransactionSimplifiedResponseDTO(
                         transaction.getName(),
                         transaction.getType(),
-                        transaction.getAccount().getAccountName(),
+                        transaction.getAccount() != null ? transaction.getAccount().getAccountName() : null, 
                         transaction.getReleaseDate(),
                         transaction.getFrequency(),
                         transaction.getValue()))
@@ -202,15 +200,27 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public TransactionSimplifiedResponseDTO findById(UUID id) {
-        return transactionRepository.findById(id)
-                .map(transaction -> new TransactionSimplifiedResponseDTO(
-                        transaction.getName(),
-                        transaction.getType(),
-                        transaction.getAccount().getAccountName(),
-                        transaction.getReleaseDate(),
-                        transaction.getFrequency(),
-                        transaction.getValue()))
-                .orElseThrow(TransactionNotFoundException::new);
+        User currentUser = getCurrentUser();
+        Status statusVisivel = Status.SIM;
+
+        Transaction transaction = transactionRepository.findById(id)
+                .orElseThrow(() -> new TransactionNotFoundException("Transação não encontrada com ID: " + id)); 
+
+        if (transaction.getUser() != null && 
+            transaction.getUser().getId().equals(currentUser.getId()) &&
+            transaction.getStatus() == statusVisivel) {
+            
+            return new TransactionSimplifiedResponseDTO(
+                    transaction.getName(),
+                    transaction.getType(),
+                    transaction.getAccount() != null ? transaction.getAccount().getAccountName() : null,
+                    transaction.getReleaseDate(),
+                    transaction.getFrequency(),
+                    transaction.getValue());
+        } else {
+            
+            throw new TransactionNotFoundException("Transação não encontrada, excluída ou acesso negado. ID: " + id);
+        }
     }
 
     @Override
