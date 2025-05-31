@@ -5,7 +5,7 @@ import com.financeiro.api.domain.enums.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public record TransactionRequestDTO(
+public record RecurringUpdateRequestDTO(
         UUID accountId,
         UUID categoryId,
         UUID subcategoryId,
@@ -19,6 +19,7 @@ public record TransactionRequestDTO(
         String additionalInformation,
         Frequency frequency,
         Integer installments,
-        Periodicity periodicity,         
-        Boolean businessDayOnly         
+        Periodicity periodicity,
+        Boolean businessDayOnly,
+        LocalDateTime novaDataBase
 ) {}

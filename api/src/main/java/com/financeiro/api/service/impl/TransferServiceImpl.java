@@ -44,7 +44,8 @@ public class TransferServiceImpl implements TransferService {
 
         int total = dto.frequency() == Frequency.REPEAT ? dto.installments() : 1;
         double valorParcela = dto.value() / total;
-        UUID groupId = UUID.randomUUID();
+        UUID recurringGroupId = UUID.randomUUID();
+        UUID transferGroupId = UUID.randomUUID();
         List<TransactionResponseDTO> responses = new ArrayList<>();
 
         for (int i = 0; i < total; i++) {
@@ -79,7 +80,8 @@ public class TransferServiceImpl implements TransferService {
             out.setPeriodicity(dto.periodicity());
             out.setBusinessDayOnly(dto.businessDayOnly());
             out.setInstallmentNumber(parcelaAtual);
-            out.setRecurringGroupId(groupId);
+            out.setRecurringGroupId(dto.frequency() == Frequency.REPEAT ? recurringGroupId : null);
+            out.setTransferGroupId(transferGroupId);
             out.setCreatedAt(LocalDateTime.now());
             out.setUpdatedAt(LocalDateTime.now());
 
@@ -100,7 +102,8 @@ public class TransferServiceImpl implements TransferService {
             in.setPeriodicity(dto.periodicity());
             in.setBusinessDayOnly(dto.businessDayOnly());
             in.setInstallmentNumber(parcelaAtual);
-            in.setRecurringGroupId(groupId);
+            in.setRecurringGroupId(dto.frequency() == Frequency.REPEAT ? recurringGroupId : null);
+            in.setTransferGroupId(transferGroupId);
             in.setCreatedAt(LocalDateTime.now());
             in.setUpdatedAt(LocalDateTime.now());
 
@@ -161,6 +164,7 @@ public class TransferServiceImpl implements TransferService {
                 t.getBusinessDayOnly(),
                 t.getInstallmentNumber(),
                 t.getRecurringGroupId(),
+                t.getTransferGroupId(),
                 t.getCreatedAt(),
                 t.getUpdatedAt(),
                 saldoNegativo

@@ -1,8 +1,7 @@
 package com.financeiro.api.controller;
 
 import com.financeiro.api.domain.User;
-import com.financeiro.api.domain.enums.TransactionState;
-import com.financeiro.api.dto.accountDTO.AccountTransactionSummaryDTO;
+import com.financeiro.api.domain.enums.*;
 import com.financeiro.api.dto.transactionDTO.*;
 import com.financeiro.api.dto.transferDTO.TransferRequestDTO;
 import com.financeiro.api.service.CsvImportService;
@@ -27,8 +26,7 @@ public class TransactionController {
     public TransactionController(
             TransactionServiceImpl service,
             CsvImportService csvImportService,
-            TransferService transferService
-    ) {
+            TransferService transferService) {
         this.service = service;
         this.csvImportService = csvImportService;
         this.transferService = transferService;
@@ -46,15 +44,15 @@ public class TransactionController {
 
     @PostMapping("/import/csv")
     public ResponseEntity<String> importar(@RequestParam("file") MultipartFile file,
-                                           @RequestParam(value = "accountId", required = false) UUID accountId) {
+            @RequestParam(value = "accountId", required = false) UUID accountId) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         csvImportService.importFromCsv(file, user, accountId);
         return ResponseEntity.ok("Importação concluída com sucesso.");
     }
 
     @GetMapping
-    public ResponseEntity<List<TransactionSimplifiedResponseDTO>> getAll() {
-        return ResponseEntity.ok(service.findAll());
+    public ResponseEntity<List<TransactionSimplifiedResponseDTO>> getAll(@RequestParam(defaultValue = "0") int page) {
+        return ResponseEntity.ok(service.findAll(page));
     }
 
     @GetMapping("/{id}")
@@ -63,13 +61,21 @@ public class TransactionController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TransactionResponseDTO> update(@PathVariable UUID id, @RequestBody TransactionRequestDTO dto) {
+    public ResponseEntity<TransactionResponseDTO> update(@PathVariable UUID id,
+            @RequestBody RecurringUpdateRequestDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
     }
 
     @PatchMapping("/{id}/state")
-    public ResponseEntity<TransactionResponseDTO> updateState(@PathVariable UUID id, @RequestParam TransactionState state) {
+    public ResponseEntity<TransactionResponseDTO> updateState(@PathVariable UUID id,
+            @RequestParam TransactionState state) {
         return ResponseEntity.ok(service.updateState(id, state));
+    }
+
+    @DeleteMapping("/recurring/{groupId}")
+    public ResponseEntity<Void> cancelarTransacoesRecorrentes(@PathVariable UUID groupId) {
+        service.cancelarRecorrencia(groupId);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")
@@ -78,8 +84,4 @@ public class TransactionController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/summary")
-    public ResponseEntity<List<AccountTransactionSummaryDTO>> getSummary(@RequestBody TransactionFilterDTO dto) {
-        return ResponseEntity.ok(service.filtrarTransacoes(dto));
-    }
 }

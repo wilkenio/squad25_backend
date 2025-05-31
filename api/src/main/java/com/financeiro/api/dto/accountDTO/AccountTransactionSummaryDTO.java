@@ -2,7 +2,7 @@ package com.financeiro.api.dto.accountDTO;
 
 import java.util.List;
 
-import com.financeiro.api.dto.categoryDTO.CategoriaResumoDTO;
+import com.financeiro.api.dto.categoryDTO.CategorySummaryDTO;
 import com.financeiro.api.dto.transactionDTO.TransferenciaDTO;
 
 public record AccountTransactionSummaryDTO(
@@ -12,5 +12,5 @@ public record AccountTransactionSummaryDTO(
     Double expense,
     Double expectedExpenseMonth,
     List<TransferenciaDTO> transferencias,
-    List<CategoriaResumoDTO> categorias
+    List<CategorySummaryDTO> categorias
 ) {}

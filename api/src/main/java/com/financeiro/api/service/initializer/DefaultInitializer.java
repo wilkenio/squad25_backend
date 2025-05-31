@@ -1,10 +1,12 @@
 package com.financeiro.api.service.initializer;
 
+import com.financeiro.api.domain.Account;
 import com.financeiro.api.domain.Category;
 import com.financeiro.api.domain.Subcategory;
 import com.financeiro.api.domain.User;
 import com.financeiro.api.domain.enums.CategoryType;
 import com.financeiro.api.domain.enums.Status;
+import com.financeiro.api.repository.AccountRepository;
 import com.financeiro.api.repository.CategoryRepository;
 import com.financeiro.api.repository.SubcategoryRepository;
 import org.springframework.stereotype.Service;
@@ -13,18 +15,21 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-public class DefaultCategoryInitializer {
+public class DefaultInitializer {
 
     private final CategoryRepository categoryRepository;
     private final SubcategoryRepository subcategoryRepository;
+    private final AccountRepository accountRepository;
 
-    public DefaultCategoryInitializer(CategoryRepository categoryRepository,
-                                      SubcategoryRepository subcategoryRepository) {
+    public DefaultInitializer(CategoryRepository categoryRepository,
+                                      SubcategoryRepository subcategoryRepository,
+                                      AccountRepository accountRepository) {
         this.categoryRepository = categoryRepository;
         this.subcategoryRepository = subcategoryRepository;
+        this.accountRepository = accountRepository;
     }
 
-    public void createDefaultCategoriesForUser(User user) {
+    public void createDefaultAccountAndCategoriesForUser(User user) {
         createCategoryWithSubcategories("Casa", "bi-house", "#3498db", CategoryType.EXPENSE, user, List.of(
                 "Água", "Energia elétrica", "Gás", "Internet", "Condomínio",
                 "Aluguel", "Manutenção", "IPTU", "Seguro residencial"
@@ -43,7 +48,8 @@ public class DefaultCategoryInitializer {
                 "Celular", "Streaming"
         ));
 
-        createCategoryWithSubcategories("Conta Corrente", "bi-wallet2", "#1f77b4", CategoryType.ACCOUNT, user, List.of());
+        // Categorias de contas
+        Category accountCategory = createCategoryWithSubcategories("Conta Corrente", "bi-wallet2", "#1f77b4", CategoryType.ACCOUNT, user, List.of());
         createCategoryWithSubcategories("Conta Poupança", "bi-piggy-bank", "#2ca02c", CategoryType.ACCOUNT, user, List.of());
         createCategoryWithSubcategories("Carteira", "bi-cash", "#ff851b", CategoryType.ACCOUNT, user, List.of());
         createCategoryWithSubcategories("Cartão de Crédito", "bi-credit-card", "#d62728", CategoryType.ACCOUNT, user, List.of());
@@ -67,10 +73,14 @@ public class DefaultCategoryInitializer {
         createCategoryWithSubcategories("Outras Receitas", "bi-gift", "#9b59b6", CategoryType.REVENUE, user, List.of(
                 "Cashback", "Royalties"
         ));
+
+        // Criar contas padrão (receita e despesa)
+        createDefaultAccount("Conta Receita Padrão", "Conta usada para lançamento de receitas padrão", 0.0, 0.0, user, accountCategory);
+        createDefaultAccount("Conta Despesa Padrão", "Conta usada para lançamento de despesas padrão", 0.0, 0.0, user, accountCategory);
     }
 
-    private void createCategoryWithSubcategories(String categoryName, String icon, String color,
-                                                 CategoryType type, User user, List<String> subNames) {
+    private Category createCategoryWithSubcategories(String categoryName, String icon, String color,
+                                                     CategoryType type, User user, List<String> subNames) {
         Category category = new Category();
         category.setName(categoryName);
         category.setIconClass(icon);
@@ -96,5 +106,31 @@ public class DefaultCategoryInitializer {
             subcategory.setUpdatedAt(LocalDateTime.now());
             subcategoryRepository.save(subcategory);
         }
+
+        return savedCategory;
     }
+
+    private void createDefaultAccount(String name, String description, Double openingBalance,
+                                      Double specialCheck, User user, Category category) {
+        Account account = new Account();
+        account.setAccountName(name);
+        account.setAccountDescription(description);
+        account.setOpeningBalance(openingBalance != null ? openingBalance : 0.0); 
+        account.setSpecialCheck(specialCheck != null ? specialCheck : 0.0);     
+        
+        account.setIncome(0.0);
+        account.setExpense(0.0);
+        account.setCurrentBalance(openingBalance != null ? openingBalance : 0.0); 
+        account.setExpectedIncomeMonth(0.0);
+        account.setExpectedExpenseMonth(0.0);
+        account.setExpectedBalance((openingBalance != null ? openingBalance : 0.0) + (specialCheck != null ? specialCheck : 0.0));
+        account.setUser(user);
+        account.setCategory(category);
+        account.setStatus(Status.SIM); //
+        account.setCreatedAt(LocalDateTime.now()); //
+        account.setUpdatedAt(LocalDateTime.now()); //
+
+        accountRepository.save(account);
+    }
+
 }
