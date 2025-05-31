@@ -225,9 +225,9 @@ public AccountCalculationResponseDTO create(AccountCalculationRequestDTO dto) {
                         Double receitasPrevistas = acc.getExpectedIncomeMonth() != null ? acc.getExpectedIncomeMonth() : 0.0;
                         Double despesasPrevistas = acc.getExpectedExpenseMonth() != null ? acc.getExpectedExpenseMonth() : 0.0;
                         Double saldo = saldoInicial + receitas - despesas;
-                        Double saldoPrevisto = saldo + chequeEspecial + receitasPrevistas - despesasPrevistas;
+                        Double saldoPrevisto = receitasPrevistas - despesasPrevistas;
                         Double receitaTotal = receitas + receitasPrevistas;
-                        Double despesaTotal = despesas + despesasPrevistas;
+                        Double despesaTotal = despesas + despesasPrevistas + chequeEspecial;
                         Double saldoTotal = saldoPrevisto; 
         
                         Category category = acc.getCategory(); 
@@ -277,7 +277,7 @@ public AccountCalculationResponseDTO create(AccountCalculationRequestDTO dto) {
                 Double despesasPrevistas = account.getExpectedExpenseMonth() != null ? account.getExpectedExpenseMonth()
                                 : 0.0;
                 Double saldo = saldoInicial + receitas - despesas;
-                Double saldoPrevisto = saldo + account.getSpecialCheck() + receitasPrevistas - despesasPrevistas;
+                Double saldoPrevisto = receitasPrevistas - despesasPrevistas;
                 Double receitaTotal = receitas + receitasPrevistas;
                 Double despesaTotal = despesas + despesasPrevistas;
                 Double saldoTotal = saldoPrevisto + saldoInicial;
@@ -322,8 +322,7 @@ public AccountCalculationResponseDTO create(AccountCalculationRequestDTO dto) {
                                                         ? acc.getExpectedExpenseMonth()
                                                         : 0.0;
                                         Double saldo = saldoInicial + receitas - despesas;
-                                        Double saldoPrevisto = saldo + acc.getSpecialCheck() + receitasPrevistas
-                                                        - despesasPrevistas;
+                                        Double saldoPrevisto = receitasPrevistas - despesasPrevistas;
                                         Double receitaTotal = receitas + receitasPrevistas;
                                         Double despesaTotal = despesas + despesasPrevistas;
                                         Double saldoTotal = saldoPrevisto + saldoInicial;
@@ -370,7 +369,7 @@ public AccountCalculationResponseDTO create(AccountCalculationRequestDTO dto) {
                                                         ? acc.getExpectedExpenseMonth()
                                                         : 0.0;
                                         Double saldo = saldoInicial + receitas - despesas;
-                                        Double saldoPrevisto = saldo + receitasPrevistas - despesasPrevistas;
+                                        Double saldoPrevisto = receitasPrevistas - despesasPrevistas;
                                         Double receitaTotal = receitas + receitasPrevistas;
                                         Double despesaTotal = despesas + despesasPrevistas;
                                         Double saldoTotal = saldoPrevisto + acc.getSpecialCheck();
@@ -417,7 +416,7 @@ public AccountCalculationResponseDTO create(AccountCalculationRequestDTO dto) {
                                                         ? acc.getExpectedExpenseMonth()
                                                         : 0.0;
                                         Double saldo = saldoInicial + receitas - despesas;
-                                        Double saldoPrevisto = saldo + receitasPrevistas - despesasPrevistas;
+                                        Double saldoPrevisto = receitasPrevistas - despesasPrevistas;
                                         Double receitaTotal = receitas + receitasPrevistas;
                                         Double despesaTotal = despesas + despesasPrevistas;
                                         Double saldoTotal = saldoPrevisto + acc.getSpecialCheck();
@@ -464,7 +463,7 @@ public AccountCalculationResponseDTO create(AccountCalculationRequestDTO dto) {
                                                         ? acc.getExpectedExpenseMonth()
                                                         : 0.0;
                                         Double saldo = saldoInicial + receitas - despesas;
-                                        Double saldoPrevisto = saldo + receitasPrevistas - despesasPrevistas;
+                                        Double saldoPrevisto = receitasPrevistas - despesasPrevistas;
                                         Double receitaTotal = receitas + receitasPrevistas;
                                         Double despesaTotal = despesas + despesasPrevistas;
                                         Double saldoTotal = saldoPrevisto + acc.getSpecialCheck();
