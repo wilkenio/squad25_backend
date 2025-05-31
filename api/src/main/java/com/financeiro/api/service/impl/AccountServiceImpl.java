@@ -228,7 +228,7 @@ public AccountCalculationResponseDTO create(AccountCalculationRequestDTO dto) {
                         Double saldoPrevisto = receitasPrevistas - despesasPrevistas;
                         Double receitaTotal = receitas + receitasPrevistas;
                         Double despesaTotal = despesas + despesasPrevistas + chequeEspecial;
-                        Double saldoTotal = saldoPrevisto; 
+                        Double saldoTotal = saldo + receitasPrevistas - despesasPrevistas; 
         
                         Category category = acc.getCategory(); 
 
