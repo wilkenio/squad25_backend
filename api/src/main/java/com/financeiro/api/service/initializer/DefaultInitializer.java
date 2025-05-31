@@ -115,13 +115,20 @@ public class DefaultInitializer {
         Account account = new Account();
         account.setAccountName(name);
         account.setAccountDescription(description);
-        account.setOpeningBalance(openingBalance);
-        account.setSpecialCheck(specialCheck);
+        account.setOpeningBalance(openingBalance != null ? openingBalance : 0.0); 
+        account.setSpecialCheck(specialCheck != null ? specialCheck : 0.0);     
+        
+        account.setIncome(0.0);
+        account.setExpense(0.0);
+        account.setCurrentBalance(openingBalance != null ? openingBalance : 0.0); 
+        account.setExpectedIncomeMonth(0.0);
+        account.setExpectedExpenseMonth(0.0);
+        account.setExpectedBalance((openingBalance != null ? openingBalance : 0.0) + (specialCheck != null ? specialCheck : 0.0));
         account.setUser(user);
         account.setCategory(category);
-        account.setStatus(Status.SIM);
-        account.setCreatedAt(LocalDateTime.now());
-        account.setUpdatedAt(LocalDateTime.now());
+        account.setStatus(Status.SIM); //
+        account.setCreatedAt(LocalDateTime.now()); //
+        account.setUpdatedAt(LocalDateTime.now()); //
 
         accountRepository.save(account);
     }

@@ -99,54 +99,60 @@ public AccountCalculationResponseDTO create(AccountCalculationRequestDTO dto) {
 
         @Override
         public AccountTransactionResponseDTO update(UUID id, AccountTransactionRequestDTO dto) {
-                Account account = accountRepository.findById(id).orElseThrow(
-                                () -> new UserNotFoundException());
+        Account account = accountRepository.findById(id).orElseThrow(
+                        () -> new UserNotFoundException()); 
 
-                Category category = categoryRepository.findById(dto.categoryId()).orElseThrow(
-                                () -> new EntityNotFoundException("Categoria não encontrada"));
+        Category category = categoryRepository.findById(dto.categoryId()).orElseThrow(
+                        () -> new EntityNotFoundException("Categoria não encontrada"));
 
-                // Cálculo do saldo atual
-                Double currentBalance = account.getOpeningBalance() + account.getIncome() - account.getExpense();
+        Double dtoOpeningBalance = dto.openingBalance() != null ? dto.openingBalance() : 0.0;
+        Double dtoIncome = dto.income() != null ? dto.income() : 0.0;
+        Double dtoExpense = dto.expense() != null ? dto.expense() : 0.0;
+        Double dtoSpecialCheck = dto.specialCheck() != null ? dto.specialCheck() : 0.0;
+        Double dtoExpectedIncomeMonth = dto.expectedIncomeMonth() != null ? dto.expectedIncomeMonth() : 0.0;
+        Double dtoExpectedExpenseMonth = dto.expectedExpenseMonth() != null ? dto.expectedExpenseMonth() : 0.0;
 
-                // Cálculo do saldo previsto considerando as previsões mensais
-                Double expectedBalance = currentBalance + account.getSpecialCheck() +
-                                account.getExpectedIncomeMonth() - account.getExpectedExpenseMonth();
+        Double currentBalance = dtoOpeningBalance + dtoIncome - dtoExpense;
 
-                // Atualizando os dados básicos da conta
-                account.setAccountName(dto.accountName());
-                account.setAccountDescription(dto.accountDescription());
-                account.setAdditionalInformation(dto.additionalInformation());
-                account.setOpeningBalance(dto.openingBalance());
-                account.setExpectedBalance(expectedBalance);
-                account.setSpecialCheck(dto.specialCheck());
-                account.setIncome(dto.income());
-                account.setCurrentBalance(currentBalance);
-                account.setExpense(dto.expense());
-                account.setExpectedIncomeMonth(dto.expectedIncomeMonth());
-                account.setExpectedExpenseMonth(dto.expectedExpenseMonth());
-                account.setStatus(dto.status());
-                account.setCategory(category);
-                account.setUpdatedAt(LocalDateTime.now());
+        Double expectedBalance = currentBalance + dtoSpecialCheck + dtoExpectedIncomeMonth - dtoExpectedExpenseMonth;
 
-                Account saved = accountRepository.save(account);
+        account.setAccountName(dto.accountName());
+        account.setAccountDescription(dto.accountDescription());
+        account.setAdditionalInformation(dto.additionalInformation());
+        
+        account.setOpeningBalance(dtoOpeningBalance);
+        account.setIncome(dtoIncome);
+        account.setExpense(dtoExpense);
+        account.setSpecialCheck(dtoSpecialCheck);
+        account.setExpectedIncomeMonth(dtoExpectedIncomeMonth);
+        account.setExpectedExpenseMonth(dtoExpectedExpenseMonth);
+        
+        account.setCurrentBalance(currentBalance); 
+        account.setExpectedBalance(expectedBalance); 
 
-                return new AccountTransactionResponseDTO(
-                                saved.getId(),
-                                saved.getCategory().getId(),
-                                saved.getCategory().getName(),
-                                saved.getCategory().getIconClass(),
-                                saved.getCategory().getColor(),
-                                saved.getAccountName(),
-                                saved.getAccountDescription(),
-                                saved.getOpeningBalance(),
-                                currentBalance,
-                                expectedBalance,
-                                saved.getSpecialCheck(),
-                                saved.getIncome(),
-                                saved.getExpense(),
-                                saved.getExpectedIncomeMonth(),
-                                saved.getExpectedExpenseMonth(),
-                                saved.getStatus());
+        account.setStatus(dto.status());
+        account.setCategory(category);
+        account.setUpdatedAt(LocalDateTime.now());
+
+        Account saved = accountRepository.save(account);
+
+        return new AccountTransactionResponseDTO(
+                        saved.getId(),
+                        saved.getCategory().getId(),
+                        saved.getCategory().getName(),
+                        saved.getCategory().getIconClass(),
+                        saved.getCategory().getColor(),
+                        saved.getAccountName(),
+                        saved.getAccountDescription(),
+                        saved.getOpeningBalance(),
+                        saved.getCurrentBalance(), 
+                        saved.getExpectedBalance(), 
+                        saved.getSpecialCheck(),
+                        saved.getIncome(),
+                        saved.getExpense(),
+                        saved.getExpectedIncomeMonth(),
+                        saved.getExpectedExpenseMonth(),
+                        saved.getStatus());
         }
 
         // Método para atualizar a conta com base na transação
