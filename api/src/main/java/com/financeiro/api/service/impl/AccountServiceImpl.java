@@ -196,14 +196,15 @@ public AccountCalculationResponseDTO create(AccountCalculationRequestDTO dto) {
                 return (User) authentication.getPrincipal();
         }
 
+        @Override
         public List<AccountCalculationResponseDTO> findAll() {
                 List<Status> statuses = List.of(Status.SIM, Status.NAO);
                 User currentUser = getCurrentUser();
-            
-                return accountRepository.findByUserAndStatusIn(currentUser, statuses).stream()
-                    .map(acc -> {
-                        Double saldoInicial = acc.getOpeningBalance();
-                        Double chequeEspecial = acc.getSpecialCheck();
+        
+                return accountRepository.findByUserAndStatusInOrderByCreatedAtDesc(currentUser, statuses).stream() 
+                .map(acc -> {
+                        Double saldoInicial = acc.getOpeningBalance() != null ? acc.getOpeningBalance() : 0.0;
+                        Double chequeEspecial = acc.getSpecialCheck() != null ? acc.getSpecialCheck() : 0.0;
                         Double receitas = acc.getIncome() != null ? acc.getIncome() : 0.0;
                         Double despesas = acc.getExpense() != null ? acc.getExpense() : 0.0;
                         Double receitasPrevistas = acc.getExpectedIncomeMonth() != null ? acc.getExpectedIncomeMonth() : 0.0;
@@ -212,34 +213,40 @@ public AccountCalculationResponseDTO create(AccountCalculationRequestDTO dto) {
                         Double saldoPrevisto = saldo + chequeEspecial + receitasPrevistas - despesasPrevistas;
                         Double receitaTotal = receitas + receitasPrevistas;
                         Double despesaTotal = despesas + despesasPrevistas;
-                        Double saldoTotal = saldoPrevisto + saldoInicial;
-            
-                        Category category = categoryRepository.findById(acc.getCategory().getId())
-                            .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada"));
-            
+                        Double saldoTotal = saldoPrevisto; 
+        
+                        Category category = acc.getCategory(); 
+
+                        if (category == null && acc.getCategory() != null) { 
+                        category = categoryRepository.findById(acc.getCategory().getId())
+                                .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada para conta ID: " + acc.getId()));
+                        } else if (category == null) {
+                        throw new EntityNotFoundException("Categoria não associada ou nula para conta ID: " + acc.getId());
+                        }
+        
                         return new AccountCalculationResponseDTO(
-                            acc.getId(),
-                            category.getId(),
-                            category.getName(),
-                            category.getIconClass(),
-                            category.getColor(),
-                            acc.getAccountName(),
-                            acc.getAccountDescription(),
-                            saldoInicial,
-                            chequeEspecial,
-                            receitas,
-                            despesas,
-                            receitasPrevistas,
-                            despesasPrevistas,
-                            saldo,
-                            saldoPrevisto,
-                            receitaTotal,
-                            despesaTotal,
-                            saldoTotal
+                        acc.getId(),
+                        category.getId(),
+                        category.getName(),
+                        category.getIconClass(),
+                        category.getColor(),
+                        acc.getAccountName(),
+                        acc.getAccountDescription(),
+                        saldoInicial,
+                        chequeEspecial,
+                        receitas,
+                        despesas,
+                        receitasPrevistas,
+                        despesasPrevistas,
+                        saldo,
+                        saldoPrevisto,
+                        receitaTotal,
+                        despesaTotal,
+                        saldoTotal
                         );
-                    }).collect(Collectors.toList());
-            }
-            
+                }).collect(Collectors.toList());
+        }
+                
 
         @Override
         public AccountCalculationResponseDTO findById(UUID id) {
