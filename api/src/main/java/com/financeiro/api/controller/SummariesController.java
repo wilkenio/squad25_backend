@@ -33,7 +33,6 @@ public class SummariesController {
             //Filtro Geral
             @RequestParam(required = false) LocalDateTime dataInicio,
             @RequestParam(required = false) LocalDateTime dataFim,
-            @RequestParam(required = false) DataReferencia dataReferencia,
             @RequestParam(required = false) List<UUID> contaIds,
             @RequestParam(required = false) Boolean mostrarApenasSaldo,
             @RequestParam(required = false) Boolean incluirSaldoPrevisto,
@@ -70,7 +69,6 @@ public class SummariesController {
         TransactionAdvancedFilterDTO dto = new TransactionAdvancedFilterDTO(
                 dataInicio, 
                 dataFim,
-                dataReferencia,
                 contaIds, 
                 mostrarApenasSaldo,
                 incluirSaldoPrevisto,

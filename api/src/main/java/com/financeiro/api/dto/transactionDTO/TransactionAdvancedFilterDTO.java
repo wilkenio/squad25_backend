@@ -10,7 +10,6 @@ public record TransactionAdvancedFilterDTO(
     // Filtro Geral
     LocalDateTime dataInicio,
     LocalDateTime dataFim,
-    DataReferencia dataReferencia,
     List<UUID> contaIds,
     Boolean mostrarApenasSaldo,
     Boolean incluirSaldoPrevisto,
