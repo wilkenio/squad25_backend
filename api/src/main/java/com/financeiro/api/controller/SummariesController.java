@@ -48,9 +48,9 @@ public class SummariesController {
 
             //Filtros Adicionais
             @RequestParam(required = false) Boolean incluirTodasCategoriasReceita,
-            @RequestParam(required = false) List<UUID> idsCategoriasReceitaEspecificas, 
+            @RequestParam(required = false) List<UUID> idsCategoriasReceita, 
             @RequestParam(required = false) Boolean incluirTodasCategoriasDespesa,
-            @RequestParam(required = false) List<UUID> idsCategoriasDespesaEspecificas,
+            @RequestParam(required = false) List<UUID> idsCategoriasDespesa,
             @RequestParam(required = false) Boolean incluirFreqNaoRecorrente,
             @RequestParam(required = false) Boolean incluirFreqFixaMensal,
             @RequestParam(required = false) Boolean incluirFreqRepetida,
@@ -83,9 +83,9 @@ public class SummariesController {
                 incluirTransferenciasPrevistas,
 
                 incluirTodasCategoriasReceita, 
-                idsCategoriasReceitaEspecificas, 
+                idsCategoriasReceita, 
                 incluirTodasCategoriasDespesa,
-                idsCategoriasDespesaEspecificas,
+                idsCategoriasDespesa,
                 incluirFreqNaoRecorrente,
                 incluirFreqFixaMensal,
                 incluirFreqRepetida, 
