@@ -18,10 +18,6 @@ public record AccountCalculationResponseDTO(
         Double receitasPrevistas,
         Double despesasPrevistas,
         Double saldo,
-        Double saldoPrevisto,
-        //calculo total da conta
-        Double receitaTotal,
-        Double despesaTotal,
-        Double saldoTotal
+        Double saldoPrevisto
 ) {
 }

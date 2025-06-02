@@ -10,20 +10,32 @@ import java.util.UUID;
 
 public interface AccountRepository extends JpaRepository<Account, UUID> {
 
-    List<Account> findByAccountNameContainingIgnoreCase(String accountName);
-
-    List<Account> findByOpeningBalanceBetween(Double minValue, Double maxValue);
-
-    List<Account> findBySpecialCheckBetween(Double minValue, Double maxValue);
-
-    List<Account> findByStatus(Status status);
-
-    List<Account> findAllByStatusIn(List<Status> statuses);
-
     List<Account> findByUser(User user);
-
     List<Account> findByUserAndStatusInOrderByCreatedAtDesc(User user, List<Status> statuses);
-    
     List<Account> findByUserAndStatusIn(User user, List<Status> statuses);
+    List<Account> findByAccountNameContainingIgnoreCase(String accountName);
+    List<Account> findByOpeningBalanceBetween(Double minValue, Double maxValue);
+    List<Account> findBySpecialCheckBetween(Double minValue, Double maxValue);
+    List<Account> findByStatus(Status status); 
+    List<Account> findAllByStatusIn(List<Status> statuses); 
 
+    List<Account> findByUserAndAccountNameContainingIgnoreCaseAndStatusIn(
+            User user, 
+            String accountName, 
+            List<Status> statuses
+    );
+
+    List<Account> findByUserAndOpeningBalanceBetweenAndStatusIn(
+            User user, 
+            Double minValue, 
+            Double maxValue, 
+            List<Status> statuses
+    );
+
+    List<Account> findByUserAndSpecialCheckBetweenAndStatusIn(
+            User user, 
+            Double minValue, 
+            Double maxValue, 
+            List<Status> statuses
+    );
 }
