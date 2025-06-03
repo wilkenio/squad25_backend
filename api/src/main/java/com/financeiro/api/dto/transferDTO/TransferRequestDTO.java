@@ -9,7 +9,6 @@ import java.util.UUID;
 public record TransferRequestDTO(
         UUID originAccountId,
         UUID destinationAccountId,
-        UUID categoryId,
         String name,
         Double value,
         LocalDateTime releaseDate,

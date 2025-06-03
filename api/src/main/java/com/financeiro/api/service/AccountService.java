@@ -11,14 +11,22 @@ import java.util.UUID;
 
 public interface AccountService {
 
-    public AccountCalculationResponseDTO create(AccountCalculationRequestDTO dto);
-    public List<AccountCalculationResponseDTO> findAll();
-    public AccountCalculationResponseDTO findById(UUID id);
-    public AccountTransactionResponseDTO update(UUID id, AccountTransactionRequestDTO dto);
-    public void delete(UUID id);
+    AccountCalculationResponseDTO create(AccountCalculationRequestDTO dto);
+
+    List<AccountCalculationResponseDTO> findAll(Integer year, Integer month);
+
+    AccountCalculationResponseDTO findById(UUID id, Integer year, Integer month);
+
+    AccountTransactionResponseDTO update(UUID id, AccountTransactionRequestDTO dto); 
+
+    void delete(UUID id);
     
-    public List<AccountCalculationResponseDTO> findByAccountName(String accountName);
-    public List<AccountCalculationResponseDTO> findByOpeningBalanceBetween(Double minValue, Double maxValue);
-    public List<AccountCalculationResponseDTO> findBySpecialCheckBetween(Double minValue, Double maxValue);
-    public List<AccountCalculationResponseDTO> findByStatus(Status status);
+    List<AccountCalculationResponseDTO> findByAccountName(String accountName, Integer year, Integer month);
+
+    List<AccountCalculationResponseDTO> findByOpeningBalanceBetween(Double minValue, Double maxValue, Integer year, Integer month);
+
+    List<AccountCalculationResponseDTO> findBySpecialCheckBetween(Double minValue, Double maxValue, Integer year, Integer month);
+
+    List<AccountCalculationResponseDTO> findByStatus(Status status, Integer year, Integer month);
+
 }

@@ -7,15 +7,20 @@ import com.financeiro.api.infra.exceptions.TransactionNotFoundException;
 import com.financeiro.api.repository.*;
 import com.financeiro.api.service.TransactionService;
 import jakarta.persistence.EntityNotFoundException;
+
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class TransactionServiceImpl implements TransactionService {
@@ -36,33 +41,34 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
+    @Transactional 
     public List<TransactionResponseDTO> create(TransactionRequestDTO dto) {
         if (dto.frequency() == Frequency.REPEAT) {
             if (dto.installments() == null || dto.installments() < 2) {
                 throw new IllegalArgumentException("Número de parcelas deve ser no mínimo 2 para transações REPEATs.");
             }
-
             if (dto.periodicity() == null) {
                 throw new IllegalArgumentException("Periodicidade é obrigatória para transações REPEATs.");
             }
         }
 
         Account account = accountRepository.findById(dto.accountId())
-                .orElseThrow(() -> new EntityNotFoundException("Conta não encontrada"));
+                .orElseThrow(() -> new EntityNotFoundException("Conta não encontrada com ID: " + dto.accountId()));
 
         Category category = categoryRepository.findById(dto.categoryId())
-                .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada"));
+                .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada com ID: " + dto.categoryId()));
 
         Subcategory subcategory = null;
         if (dto.subcategoryId() != null) {
             subcategory = subcategoryRepository.findById(dto.subcategoryId())
-                    .orElseThrow(() -> new EntityNotFoundException("Subcategoria não encontrada"));
+                    .orElseThrow(() -> new EntityNotFoundException("Subcategoria não encontrada com ID: " + dto.subcategoryId()));
         }
 
         UUID groupId = UUID.randomUUID();
         int total = dto.frequency() == Frequency.REPEAT ? dto.installments() : 1;
 
         List<TransactionResponseDTO> responses = new ArrayList<>();
+        User currentUser = getCurrentUser(); 
 
         for (int i = 0; i < total; i++) {
             LocalDateTime releaseDateTime = dto.releaseDate();
@@ -81,7 +87,7 @@ public class TransactionServiceImpl implements TransactionService {
             transaction.setReleaseDate(releaseDateTime);
             transaction.setValue(dto.value());
             transaction.setDescription(dto.description());
-            transaction.setState(dto.state());
+            transaction.setState(dto.state()); 
             transaction.setAdditionalInformation(dto.additionalInformation());
             transaction.setFrequency(dto.frequency());
             transaction.setInstallments(dto.installments());
@@ -89,40 +95,55 @@ public class TransactionServiceImpl implements TransactionService {
             transaction.setBusinessDayOnly(dto.businessDayOnly());
             transaction.setInstallmentNumber(dto.frequency() == Frequency.REPEAT ? i + 1 : null);
             transaction.setRecurringGroupId(dto.frequency() == Frequency.REPEAT ? groupId : null);
-
+            transaction.setUser(currentUser); 
             LocalDateTime now = LocalDateTime.now();
             transaction.setCreatedAt(now);
             transaction.setUpdatedAt(now);
 
             Transaction saved = transactionRepository.save(transaction);
 
-            // Atualizar o saldo da conta com base no tipo de transação
-            if (dto.state() == TransactionState.EFFECTIVE) {
-                // Inicializar valores se forem nulos
-                if (account.getCurrentBalance() == null) {
-                    account.setCurrentBalance(account.getOpeningBalance() != null ? account.getOpeningBalance() : 0.0);
-                }
-                if (account.getIncome() == null) {
-                    account.setIncome(0.0);
-                }
-                if (account.getExpense() == null) {
-                    account.setExpense(0.0);
-                }
+            if (account.getOpeningBalance() == null) account.setOpeningBalance(0.0);
+            if (account.getCurrentBalance() == null) account.setCurrentBalance(account.getOpeningBalance());
+            if (account.getIncome() == null) account.setIncome(0.0);
+            if (account.getExpense() == null) account.setExpense(0.0);
+            if (account.getExpectedIncomeMonth() == null) account.setExpectedIncomeMonth(0.0);
+            if (account.getExpectedExpenseMonth() == null) account.setExpectedExpenseMonth(0.0);
+            if (account.getSpecialCheck() == null) account.setSpecialCheck(0.0);
 
-                // Atualizar saldo e totais com base no tipo de transação
+            if (dto.state() == TransactionState.EFFECTIVE) {
+
                 if (dto.type() == TransactionType.RECEITA) {
-                    account.setCurrentBalance(account.getCurrentBalance() + dto.value());
                     account.setIncome(account.getIncome() + dto.value());
                 } else if (dto.type() == TransactionType.DESPESA) {
-                    account.setCurrentBalance(account.getCurrentBalance() - dto.value());
                     account.setExpense(account.getExpense() + dto.value());
                 }
 
-                // Salvar a conta atualizada
-                accountRepository.save(account);
+                account.setCurrentBalance(
+                    (account.getOpeningBalance() != null ? account.getOpeningBalance() : 0.0) +
+                    account.getIncome() -
+                    account.getExpense()
+                );
+
+            } else if (dto.state() == TransactionState.PENDING) {
+
+                if (dto.type() == TransactionType.RECEITA) {
+                    account.setExpectedIncomeMonth(account.getExpectedIncomeMonth() + dto.value());
+                } else if (dto.type() == TransactionType.DESPESA) {
+                    account.setExpectedExpenseMonth(account.getExpectedExpenseMonth() + dto.value());
+                }
             }
 
-            responses.add(toDTO(saved, false));
+            account.setExpectedBalance(
+                (account.getCurrentBalance() != null ? account.getCurrentBalance() : 0.0) +
+                (account.getSpecialCheck() != null ? account.getSpecialCheck() : 0.0) +
+                account.getExpectedIncomeMonth() -
+                account.getExpectedExpenseMonth()
+            );
+
+            account.setUpdatedAt(LocalDateTime.now()); 
+            accountRepository.save(account); 
+
+            responses.add(toDTO(saved, false)); 
         }
 
         return responses;
@@ -155,16 +176,17 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public List<TransactionSimplifiedResponseDTO> findAll(int page) {
         User currentUser = getCurrentUser();
-        List<Account> userAccounts = accountRepository.findByUser(currentUser);
+        Status statusVisivel = Status.SIM; 
+        
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("updatedAt").descending());
 
-        return transactionRepository.findAll().stream()
-                .filter(transaction -> userAccounts.contains(transaction.getAccount()))
-                .skip(page * 10L)
-                .limit(10)
+        Page<Transaction> pageResult = transactionRepository.findByUserAndStatus(currentUser, statusVisivel, pageable);
+
+        return pageResult.getContent().stream()
                 .map(transaction -> new TransactionSimplifiedResponseDTO(
                         transaction.getName(),
                         transaction.getType(),
-                        transaction.getAccount().getAccountName(),
+                        transaction.getAccount() != null ? transaction.getAccount().getAccountName() : null, 
                         transaction.getReleaseDate(),
                         transaction.getFrequency(),
                         transaction.getValue()))
@@ -178,27 +200,94 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public TransactionSimplifiedResponseDTO findById(UUID id) {
-        return transactionRepository.findById(id)
-                .map(transaction -> new TransactionSimplifiedResponseDTO(
-                        transaction.getName(),
-                        transaction.getType(),
-                        transaction.getAccount().getAccountName(),
-                        transaction.getReleaseDate(),
-                        transaction.getFrequency(),
-                        transaction.getValue()))
-                .orElseThrow(TransactionNotFoundException::new);
+        User currentUser = getCurrentUser();
+        Status statusVisivel = Status.SIM;
+
+        Transaction transaction = transactionRepository.findById(id)
+                .orElseThrow(() -> new TransactionNotFoundException("Transação não encontrada com ID: " + id)); 
+
+        if (transaction.getUser() != null && 
+            transaction.getUser().getId().equals(currentUser.getId()) &&
+            transaction.getStatus() == statusVisivel) {
+            
+            return new TransactionSimplifiedResponseDTO(
+                    transaction.getName(),
+                    transaction.getType(),
+                    transaction.getAccount() != null ? transaction.getAccount().getAccountName() : null,
+                    transaction.getReleaseDate(),
+                    transaction.getFrequency(),
+                    transaction.getValue());
+        } else {
+            
+            throw new TransactionNotFoundException("Transação não encontrada, excluída ou acesso negado. ID: " + id);
+        }
     }
 
     @Override
-    public TransactionResponseDTO updateState(UUID id, TransactionState state) {
+    @Transactional 
+    public TransactionResponseDTO updateState(UUID id, TransactionState newState) {
         Transaction transaction = transactionRepository.findById(id)
-                .orElseThrow(TransactionNotFoundException::new);
+                .orElseThrow(() -> new TransactionNotFoundException("Transação não encontrada para atualização de estado. ID: " + id));
 
-        transaction.setState(state);
+        Account account = transaction.getAccount();
+        TransactionState oldState = transaction.getState();
+        Double value = transaction.getValue();
+        TransactionType type = transaction.getType();
+
+        if (oldState == newState) {
+            return toDTO(transaction, false);
+        }
+
+        transaction.setState(newState);
         transaction.setUpdatedAt(LocalDateTime.now());
 
-        Transaction updated = transactionRepository.save(transaction);
-        return toDTO(updated, false);
+        if (account.getOpeningBalance() == null) account.setOpeningBalance(0.0);
+        if (account.getCurrentBalance() == null) account.setCurrentBalance(account.getOpeningBalance());
+        if (account.getIncome() == null) account.setIncome(0.0);
+        if (account.getExpense() == null) account.setExpense(0.0);
+        if (account.getExpectedIncomeMonth() == null) account.setExpectedIncomeMonth(0.0);
+        if (account.getExpectedExpenseMonth() == null) account.setExpectedExpenseMonth(0.0);
+        if (account.getSpecialCheck() == null) account.setSpecialCheck(0.0);
+
+        if (oldState == TransactionState.PENDING && newState == TransactionState.EFFECTIVE) {
+            if (type == TransactionType.RECEITA) {
+                account.setExpectedIncomeMonth(account.getExpectedIncomeMonth() - value); 
+                account.setIncome(account.getIncome() + value);
+            } else if (type == TransactionType.DESPESA) {
+                account.setExpectedExpenseMonth(account.getExpectedExpenseMonth() - value); 
+                account.setExpense(account.getExpense() + value); 
+            }
+        } 
+
+        else if (oldState == TransactionState.EFFECTIVE && newState == TransactionState.PENDING) {
+            if (type == TransactionType.RECEITA) {
+                account.setIncome(account.getIncome() - value); 
+                account.setExpectedIncomeMonth(account.getExpectedIncomeMonth() + value); 
+            } else if (type == TransactionType.DESPESA) {
+                account.setExpense(account.getExpense() - value); 
+                account.setExpectedExpenseMonth(account.getExpectedExpenseMonth() + value); 
+            }
+        }
+
+        account.setCurrentBalance(
+            (account.getOpeningBalance() != null ? account.getOpeningBalance() : 0.0) +
+            (account.getIncome() != null ? account.getIncome() : 0.0) -
+            (account.getExpense() != null ? account.getExpense() : 0.0)
+        );
+
+        account.setExpectedBalance(
+            (account.getCurrentBalance() != null ? account.getCurrentBalance() : 0.0) +
+            (account.getSpecialCheck() != null ? account.getSpecialCheck() : 0.0) +
+            (account.getExpectedIncomeMonth() != null ? account.getExpectedIncomeMonth() : 0.0) -
+            (account.getExpectedExpenseMonth() != null ? account.getExpectedExpenseMonth() : 0.0)
+        );
+        
+        account.setUpdatedAt(LocalDateTime.now());
+        accountRepository.save(account); 
+        
+        Transaction savedTransaction = transactionRepository.save(transaction); 
+
+        return toDTO(savedTransaction, false);
     }
 
     @Override
@@ -470,40 +559,6 @@ public class TransactionServiceImpl implements TransactionService {
                 transactionRepository.save(nova);
             }
         }
-    }
-
-    @Override
-    public List<TransactionResponseDTO> filtrarAvancado(TransactionAdvancedFilterDTO filtro) {
-        return transactionRepository.findAll().stream()
-                .filter(t -> filtro.contaIds() == null || filtro.contaIds().isEmpty() || filtro.contaIds().contains(t.getAccount().getId()))
-                .filter(t -> filtro.categoriaIds() == null || filtro.categoriaIds().isEmpty() || filtro.categoriaIds().contains(t.getCategory().getId()))
-                .filter(t -> filtro.categoriaTipo() == null || (t.getCategory() != null && t.getCategory().getType() == filtro.categoriaTipo()))
-                .filter(t -> {
-                    if (filtro.transacaoTipo() == null) return true;
-                    if (filtro.transacaoTipo() == TransactionType.RECEITA || filtro.transacaoTipo() == TransactionType.DESPESA) {
-                        return t.getType() == filtro.transacaoTipo();
-                    }
-
-                    return t.getTransferGroupId() != null;
-                })
-                .filter(t -> filtro.estado() == null || t.getState() == filtro.estado())
-                .filter(t -> filtro.frequencia() == null || t.getFrequency() == filtro.frequencia())
-                .filter(t -> (filtro.dataInicio() == null || !t.getReleaseDate().isBefore(filtro.dataInicio())) &&
-                            (filtro.dataFim() == null || !t.getReleaseDate().isAfter(filtro.dataFim())))
-                .sorted(obterComparador(filtro.ordenacao()))
-                .map(t -> toDTO(t, false))
-                .collect(Collectors.toList());
-    }
-
-    private Comparator<Transaction> obterComparador(TransactionOrder order) {
-        if (order == null) return Comparator.comparing(Transaction::getReleaseDate);
-
-        return switch (order) {
-            case DATA -> Comparator.comparing(Transaction::getReleaseDate);
-            case CATEGORIA -> Comparator.comparing(t -> t.getCategory().getName(), String.CASE_INSENSITIVE_ORDER);
-            case VALOR_CRESCENTE -> Comparator.comparing(Transaction::getValue);
-            case VALOR_DECRESCENTE -> Comparator.comparing(Transaction::getValue).reversed();
-        };
     }
 
 }
