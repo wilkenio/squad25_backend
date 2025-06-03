@@ -184,10 +184,9 @@ public class SummariesServiceImpl implements SummariesService {
                     })
                     .filter(transaction -> { // Filtro de Frequência
                         Frequency transactionFrequency = transaction.getFrequency();
-                        Periodicity transactionPeriodicity = transaction.getPeriodicity();
                         boolean isNaoRecorrente = transactionFrequency == Frequency.NON_RECURRING;
                         boolean isRepetida = transactionFrequency == Frequency.REPEAT;
-                        boolean isFixaMensal = isRepetida && transactionPeriodicity == Periodicity.MENSAL;
+                        boolean isFixaMensal = transactionFrequency == Frequency.FIXED_MONTHLY;
                         boolean checkNaoRecorrente = Boolean.TRUE.equals(filtro.incluirFreqNaoRecorrente());
                         boolean checkRepetida = Boolean.TRUE.equals(filtro.incluirFreqRepetida());
                         boolean checkFixaMensal = Boolean.TRUE.equals(filtro.incluirFreqFixaMensal());
@@ -370,7 +369,7 @@ public class SummariesServiceImpl implements SummariesService {
         TransactionOrder actualOrder = (order == null) ? TransactionOrder.DATA_EFETIVACAO : order;
         switch (actualOrder) {
             case DATA_EFETIVACAO:
-                return Comparator.comparing(Transaction::getReleaseDate, Comparator.nullsLast(LocalDateTime::compareTo)).reversed();
+                return Comparator.comparing(Transaction::getReleaseDate, Comparator.nullsLast(LocalDateTime::compareTo));
             case DATA_LANCAMENTO:
                 return Comparator.comparing(Transaction::getCreatedAt, Comparator.nullsLast(LocalDateTime::compareTo));
             case CATEGORIA:
