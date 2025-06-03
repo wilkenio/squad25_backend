@@ -5,19 +5,32 @@ import java.util.UUID;
 
 public record TransactionDashboardDTO(
     UUID transactionId,
-    String name,                // Nome/descrição da transação
-    LocalDateTime date,         // Data relevante (ex: data de lançamento ou vencimento)
+    String name,
+    LocalDateTime date,         // Data da transação (que já é o releaseDate na sua implementação)
     Double value,
-    String transactionType,     // "RECEITA", "DESPESA", "TRANSFERENCIA"
+    String transactionType,
     String accountName,
-    String categoryName,        // Nome da categoria (pode ser null)
-    String state,               // Estado da transação: "PENDENTE", "PAGO", etc.
+    String categoryName,
+    String state,
+    String categoryIconClass, // Novo campo
+    String categoryColor,     // Novo campo
+    String subcategoryName,   // Novo campo
     String itemType
 ) implements DashboardItemDTO {
 
-    public TransactionDashboardDTO(UUID transactionId, String name, LocalDateTime date, Double value, String transactionType, String accountName, String categoryName, String state) {
-        this(transactionId, name, date, value, transactionType, accountName, categoryName, state, "TRANSACTION_DETAIL");
+    // Construtor principal para uso no serviço
+    public TransactionDashboardDTO(UUID transactionId, String name, LocalDateTime date, Double value, 
+                                   String transactionType, String accountName, String categoryName, String state,
+                                   String categoryIconClass, String categoryColor, String subcategoryName) {
+        this(transactionId, name, date, value, transactionType, accountName, categoryName, state, 
+             categoryIconClass, categoryColor, subcategoryName, "TRANSACTION_DETAIL");
     }
+
+    // Construtor antigo para manter compatibilidade se necessário, mas o novo é preferível
+    public TransactionDashboardDTO(UUID transactionId, String name, LocalDateTime date, Double value, String transactionType, String accountName, String categoryName, String state) {
+        this(transactionId, name, date, value, transactionType, accountName, categoryName, state, null, null, null, "TRANSACTION_DETAIL");
+    }
+
 
     @Override
     public String getItemType() {

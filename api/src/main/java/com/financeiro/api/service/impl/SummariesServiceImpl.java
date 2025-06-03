@@ -2,6 +2,7 @@ package com.financeiro.api.service.impl;
 
 import com.financeiro.api.domain.Account;
 import com.financeiro.api.domain.Category;
+import com.financeiro.api.domain.Subcategory;
 import com.financeiro.api.domain.Transaction;
 import com.financeiro.api.domain.User;
 import com.financeiro.api.domain.enums.*;
@@ -336,23 +337,32 @@ public class SummariesServiceImpl implements SummariesService {
     private record CategoryTotal(Category category, double totalValue) {}
 
     private CategorySummaryDashboardDTO categoryTotalToDashboardDTO(CategoryTotal ct) {
+        Category category = ct.category();
         return new CategorySummaryDashboardDTO(
-            ct.category() != null ? ct.category().getId() : null,
-            ct.category() != null ? ct.category().getName() : "Sem Categoria",
-            ct.totalValue()
+            category != null ? category.getId() : null,
+            category != null ? category.getName() : "Sem Categoria",
+            ct.totalValue(),
+            category != null ? category.getIconClass() : null, 
+            category != null ? category.getColor() : null    
         );
     }
 
     private TransactionDashboardDTO transactionToDashboardDTO(Transaction transaction) {
+        Category category = transaction.getCategory();
+        Subcategory subcategory = transaction.getSubcategory(); 
+
         return new TransactionDashboardDTO(
             transaction.getId(),
             transaction.getName(),
-            transaction.getReleaseDate(),
+            transaction.getReleaseDate(), 
             transaction.getValue(),
             transaction.getType() != null ? transaction.getType().toString() : null,
             transaction.getAccount().getAccountName(),
-            transaction.getCategory() != null ? transaction.getCategory().getName() : null,
-            transaction.getState() != null ? transaction.getState().toString() : null
+            category != null ? category.getName() : null,
+            transaction.getState() != null ? transaction.getState().toString() : null,
+            category != null ? category.getIconClass() : null,  
+            category != null ? category.getColor() : null,        
+            subcategory != null ? subcategory.getName() : null    
         );
     }
     
