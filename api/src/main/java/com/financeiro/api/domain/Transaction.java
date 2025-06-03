@@ -2,7 +2,6 @@ package com.financeiro.api.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import com.financeiro.api.domain.enums.*;
@@ -19,18 +18,6 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne
-    @JoinColumn(name = "account_id")
-    private Account account;
-
-    @ManyToOne
-    @JoinColumn(name = "category_id")
-    private Category category;
-
-    @ManyToOne
-    @JoinColumn(name = "subcategory_id")
-    private Subcategory subcategory;
-
     private String name;
 
     @Enumerated(EnumType.STRING)
@@ -41,7 +28,7 @@ public class Transaction {
 
     private LocalDateTime releaseDate;
 
-    private BigDecimal value;
+    private Double value;
 
     private String description;
 
@@ -53,9 +40,36 @@ public class Transaction {
     @Enumerated(EnumType.STRING)
     private Frequency frequency;
 
-    private Integer installments;
+    private Integer installments; 
+
+    @Enumerated(EnumType.STRING)
+    private Periodicity periodicity;
+
+    private Boolean businessDayOnly; 
+
+    private Integer installmentNumber; 
+
+    private UUID recurringGroupId;
+    
+    private UUID transferGroupId;
 
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+    @ManyToOne
+    @JoinColumn(name = "subcategory_id")
+    private Subcategory subcategory;
+
+    @ManyToOne
+    @JoinColumn(name = "account_id")
+    private Account account;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 }

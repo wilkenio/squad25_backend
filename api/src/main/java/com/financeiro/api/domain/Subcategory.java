@@ -24,10 +24,6 @@ public class Subcategory {
     @Column(name = "standard_recommendation")
     private Boolean standardRecommendation;
 
-    @ManyToOne
-    @JoinColumn(name = "id_category")
-    private Category category;
-
     @Column(name = "icon_class")
     private String iconClass;
 
@@ -45,4 +41,8 @@ public class Subcategory {
 
     @Column(name = "update_at")
     private LocalDateTime updatedAt = LocalDateTime.now();
+
+    @ManyToOne
+    @JoinColumn(name = "id_category")
+    private Category category;
 }

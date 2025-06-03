@@ -1,15 +1,20 @@
 package com.financeiro.api.dto.accountDTO;
 
-import com.financeiro.api.domain.enums.Status;
 import java.util.UUID;
+import com.financeiro.api.domain.enums.Status;
 
-public record AccountResponseDTO(
+public record AccountSummaryDTO(
     UUID id,
-    UUID userId,
     String accountName,
     String accountDescription,
     String additionalInformation,
     Double openingBalance,
+    Double currentBalance,
+    Double expectedBalance,
     Double specialCheck,
+    Double income,
+    Double expense,
+    Double expectedIncomeMonth,
+    Double expectedExpenseMonth,
     Status status
 ) {}
