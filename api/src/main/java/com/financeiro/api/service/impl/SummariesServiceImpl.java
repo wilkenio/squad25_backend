@@ -2,6 +2,7 @@ package com.financeiro.api.service.impl;
 
 import com.financeiro.api.domain.Account;
 import com.financeiro.api.domain.Category;
+import com.financeiro.api.domain.Subcategory;
 import com.financeiro.api.domain.Transaction;
 import com.financeiro.api.domain.User;
 import com.financeiro.api.domain.enums.*;
@@ -25,10 +26,21 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Writer;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+
 
 @Service
 public class SummariesServiceImpl implements SummariesService {
@@ -37,6 +49,7 @@ public class SummariesServiceImpl implements SummariesService {
     private final AccountRepository accountRepository;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
+    private static final DateTimeFormatter CSV_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public SummariesServiceImpl(
             TransactionRepository transactionRepository,
@@ -68,8 +81,7 @@ public class SummariesServiceImpl implements SummariesService {
         }
     }
 
-    @Override
-    public Page<DashboardItemDTO> generateSummary(TransactionAdvancedFilterDTO filtro) {
+    private List<DashboardItemDTO> getFilteredDashboardItems(TransactionAdvancedFilterDTO filtro) {
         User currentUser = this.getCurrentUser();
 
         List<DashboardItemDTO> dtosDeSaldoCalculados = new ArrayList<>();
@@ -151,13 +163,13 @@ public class SummariesServiceImpl implements SummariesService {
         }
         
         if (!finalAccountIdsForTransactionFilter.isEmpty()) {
-            final int DEFAULT_LIMIT_FOR_PRESENTATION = 20; // Default para LISTA_LIMITADA
+            final int DEFAULT_LIMIT_FOR_PRESENTATION = 20; 
 
             Stream<Transaction> transactionStreamBase = transactionRepository.findAll().stream()
                     .filter(t -> t.getUser() != null && currentUser.getId().equals(t.getUser().getId()))
                     .filter(t -> t.getStatus() == Status.SIM) 
                     .filter(t -> t.getAccount() != null && finalAccountIdsForTransactionFilter.contains(t.getAccount().getId())) 
-                    .filter(transaction -> { // Filtro de Categoria
+                    .filter(transaction -> { 
                         Category category = transaction.getCategory();
                         boolean filtroCategoriaReceitaAtivado = Boolean.TRUE.equals(filtro.incluirTodasCategoriasReceita()) ||
                                                             (filtro.idsCategoriasReceita() != null && !filtro.idsCategoriasReceita().isEmpty());
@@ -181,12 +193,11 @@ public class SummariesServiceImpl implements SummariesService {
                         }
                         return matchesRevenueCriteria || matchesExpenseCriteria;
                     })
-                    .filter(transaction -> { // Filtro de Frequência
+                    .filter(transaction -> { 
                         Frequency transactionFrequency = transaction.getFrequency();
-                        Periodicity transactionPeriodicity = transaction.getPeriodicity();
                         boolean isNaoRecorrente = transactionFrequency == Frequency.NON_RECURRING;
                         boolean isRepetida = transactionFrequency == Frequency.REPEAT;
-                        boolean isFixaMensal = isRepetida && transactionPeriodicity == Periodicity.MENSAL;
+                        boolean isFixaMensal = transactionFrequency == Frequency.FIXED_MONTHLY;
                         boolean checkNaoRecorrente = Boolean.TRUE.equals(filtro.incluirFreqNaoRecorrente());
                         boolean checkRepetida = Boolean.TRUE.equals(filtro.incluirFreqRepetida());
                         boolean checkFixaMensal = Boolean.TRUE.equals(filtro.incluirFreqFixaMensal());
@@ -196,7 +207,7 @@ public class SummariesServiceImpl implements SummariesService {
                         if (checkFixaMensal && isFixaMensal) return true;
                         return false;
                     })
-                    .filter(t -> { // Filtro de Data
+                    .filter(t -> { 
                         LocalDateTime dataComparacao;
                         TransactionOrder ordenacaoAtual = filtro.ordenacao();
                         if (ordenacaoAtual == TransactionOrder.DATA_LANCAMENTO) {
@@ -208,7 +219,7 @@ public class SummariesServiceImpl implements SummariesService {
                         return (filtro.dataInicio() == null || !dataComparacao.isBefore(filtro.dataInicio())) &&
                                (filtro.dataFim() == null || !dataComparacao.isAfter(filtro.dataFim()));
                     })
-                    .filter(transaction -> { // Filtro de Tipo/Estado da Transação
+                    .filter(transaction -> { 
                         boolean isEfetivada = transaction.getState() == TransactionState.EFFECTIVE;
                         boolean isPrevista = transaction.getState() == TransactionState.PENDING;
                         boolean isActualTransfer = transaction.getTransferGroupId() != null;
@@ -312,15 +323,21 @@ public class SummariesServiceImpl implements SummariesService {
                 } else if (apresentacao == TipoApresentacaoDados.SOMA) {
                     double totalSumTransactions = sortedTransactions.stream().mapToDouble(Transaction::getValue).sum(); 
                     resultadosPrincipais.add(new CategorySummaryDashboardDTO(null, "Soma Total (Agrupado por Transação)", totalSumTransactions)); 
-                } else { 
+                } else {
                     resultadosPrincipais.addAll(sortedTransactions.stream().map(this::transactionToDashboardDTO).collect(Collectors.toList()));
                 }
             }
         }
 
-        List<DashboardItemDTO> respostaSemPaginacao = new ArrayList<>();
-        respostaSemPaginacao.addAll(dtosDeSaldoCalculados); 
-        respostaSemPaginacao.addAll(resultadosPrincipais);
+        List<DashboardItemDTO> todosOsItens = new ArrayList<>();
+        todosOsItens.addAll(dtosDeSaldoCalculados); 
+        todosOsItens.addAll(resultadosPrincipais);
+        return todosOsItens;
+    }
+
+    @Override
+    public Page<DashboardItemDTO> generateSummary(TransactionAdvancedFilterDTO filtro) {
+        List<DashboardItemDTO> respostaSemPaginacao = getFilteredDashboardItems(filtro);
 
         int pageNumber = (filtro.pageNumber() == null || filtro.pageNumber() < 0) ? 0 : filtro.pageNumber();
         int pageSize = (filtro.pageSize() == null || filtro.pageSize() <= 0) ? 20 : filtro.pageSize(); 
@@ -333,26 +350,217 @@ public class SummariesServiceImpl implements SummariesService {
         return new PageImpl<>(paginatedList, pageable, totalItems);
     }
 
+    @Override
+    public void exportSummaryToCsv(TransactionAdvancedFilterDTO filtro, Writer writer) throws IOException {
+        List<DashboardItemDTO> items = getFilteredDashboardItems(filtro);
+
+        writer.append("Nome/Descrição,Valor,Tipo Transação,Data\n");
+
+        for (DashboardItemDTO item : items) {
+            List<String> line = new ArrayList<>();
+            if (item instanceof AccountBalanceDashboardDTO dto) {
+                line.add(escapeCsvField(dto.accountName()));
+                line.add(escapeCsvField(dto.balance() != null ? dto.balance().toString() : "0.0"));
+                line.add(""); 
+                line.add("");
+            } else if (item instanceof CategorySummaryDashboardDTO dto) {
+                line.add(escapeCsvField(dto.categoryName()));
+                line.add(escapeCsvField(dto.totalValue() != null ? dto.totalValue().toString() : "0.0"));
+                line.add("");
+                line.add("");
+            } else if (item instanceof TransactionDashboardDTO dto) {
+                line.add(escapeCsvField(dto.name()));
+                line.add(escapeCsvField(dto.value() != null ? dto.value().toString() : "0.0"));
+                line.add(escapeCsvField(dto.transactionType()));
+                line.add(escapeCsvField(dto.date() != null ? dto.date().format(CSV_DATE_FORMATTER) : ""));
+            } else {
+                line.add("DESCONHECIDO");
+                line.add(""); line.add("Item de tipo desconhecido"); line.add(""); line.add("");
+                line.add(""); line.add(""); line.add(""); line.add(""); line.add(""); line.add("");
+            }
+            writer.append(String.join(",", line));
+            writer.append("\n");
+        }
+        writer.flush();
+    }
+
+    private String escapeCsvField(String field) {
+        if (field == null) {
+            return "";
+        }
+        if (field.contains(",") || field.contains("\"") || field.contains("\n")) {
+            return "\"" + field.replace("\"", "\"\"") + "\"";
+        }
+        return field;
+    }
+
+    @Override
+    public void exportSummaryToPdf(TransactionAdvancedFilterDTO filtro, OutputStream outputStream) throws IOException {
+        List<DashboardItemDTO> items = getFilteredDashboardItems(filtro);
+
+        try (PDDocument document = new PDDocument()) {
+            PDPage currentPage = new PDPage(PDRectangle.A4);
+            document.addPage(currentPage);
+            PDPageContentStream currentContentStream = new PDPageContentStream(document, currentPage);
+
+            float margin = 40;
+            float yStart = currentPage.getMediaBox().getHeight() - margin;
+            float yPosition = yStart;
+            float bottomMargin = margin;
+            float leading = 1.5f * 10;
+
+            final String[] headers = {"Nome/Descrição", "Valor", "Tipo Transação", "Data"};
+            final float[] colWidths = {200f, 100f, 115f, 100f};
+
+            currentContentStream.beginText();
+            currentContentStream.setFont(PDType1Font.HELVETICA_BOLD, 14);
+            currentContentStream.newLineAtOffset(margin, yPosition);
+            currentContentStream.showText("Relatório Financeiro");
+            currentContentStream.endText();
+            yPosition -= leading * 1.5f;
+
+            currentContentStream.setFont(PDType1Font.HELVETICA_BOLD, 9);
+            float nextX = margin;
+            for (int i = 0; i < headers.length; i++) {
+                currentContentStream.beginText();
+                currentContentStream.newLineAtOffset(nextX, yPosition);
+                currentContentStream.showText(headers[i]);
+                currentContentStream.endText();
+                nextX += colWidths[i];
+            }
+            yPosition -= leading;
+            currentContentStream.setFont(PDType1Font.HELVETICA, 8); 
+
+            for (DashboardItemDTO item : items) {
+
+                if (yPosition < bottomMargin) {
+                    currentContentStream.close(); 
+
+                    currentPage = new PDPage(PDRectangle.A4);
+                    document.addPage(currentPage);
+                    currentContentStream = new PDPageContentStream(document, currentPage); 
+                    yPosition = currentPage.getMediaBox().getHeight() - margin;
+
+                    currentContentStream.setFont(PDType1Font.HELVETICA_BOLD, 9);
+                    nextX = margin;
+                    for (int i = 0; i < headers.length; i++) {
+                        currentContentStream.beginText();
+                        currentContentStream.newLineAtOffset(nextX, yPosition);
+                        currentContentStream.showText(headers[i]);
+                        currentContentStream.endText();
+                        nextX += colWidths[i];
+                    }
+                    yPosition -= leading;
+                    currentContentStream.setFont(PDType1Font.HELVETICA, 8); 
+                }
+
+                List<String> rowData = new ArrayList<>();
+                if (item instanceof TransactionDashboardDTO dto) {
+                    rowData.add(truncate(dto.name(), colWidths[0], PDType1Font.HELVETICA, 8));
+                    rowData.add(truncate(dto.value() != null ? dto.value().toString() : "0.0", colWidths[1], PDType1Font.HELVETICA, 8));
+                    rowData.add(truncate(dto.transactionType(), colWidths[2], PDType1Font.HELVETICA, 8));
+                    rowData.add(truncate(dto.date() != null ? dto.date().format(CSV_DATE_FORMATTER) : "", colWidths[3], PDType1Font.HELVETICA, 8));
+                } else if (item instanceof AccountBalanceDashboardDTO dto) {
+                    rowData.add(truncate(dto.accountName() + " (" + dto.balanceDescription() + ")", colWidths[0], PDType1Font.HELVETICA, 8));
+                    rowData.add(truncate(dto.balance() != null ? dto.balance().toString() : "0.0", colWidths[1], PDType1Font.HELVETICA, 8));
+                    rowData.add(truncate("SALDO_CONTA", colWidths[2], PDType1Font.HELVETICA, 8));
+                    rowData.add(truncate("", colWidths[3], PDType1Font.HELVETICA, 8));
+                } else if (item instanceof CategorySummaryDashboardDTO dto) {
+                    rowData.add(truncate(dto.categoryName() + " (Resumo)", colWidths[0], PDType1Font.HELVETICA, 8));
+                    rowData.add(truncate(dto.totalValue() != null ? dto.totalValue().toString() : "0.0", colWidths[1], PDType1Font.HELVETICA, 8));
+                    rowData.add(truncate("RESUMO_CATEGORIA", colWidths[2], PDType1Font.HELVETICA, 8));
+                    rowData.add(truncate("", colWidths[3], PDType1Font.HELVETICA, 8));
+                } else {
+                    for(int i=0; i < headers.length; i++) {
+                       rowData.add(truncate("", colWidths[i], PDType1Font.HELVETICA, 8));
+                    }
+                }
+
+                while(rowData.size() < headers.length) {
+                    rowData.add(truncate("", 50f, PDType1Font.HELVETICA, 8));
+                }
+
+                nextX = margin;
+                for (int i = 0; i < rowData.size() && i < colWidths.length; i++) {
+                    currentContentStream.beginText();
+                    currentContentStream.newLineAtOffset(nextX, yPosition);
+                    currentContentStream.showText(rowData.get(i) != null ? rowData.get(i) : "");
+                    currentContentStream.endText();
+                    nextX += colWidths[i];
+                }
+                yPosition -= leading; 
+            }
+
+            currentContentStream.close();
+            document.save(outputStream);
+        }
+    }
+
+    private String truncate(String text, float maxWidth, PDType1Font font, float fontSize) throws IOException {
+        if (text == null) return "";
+        float width = font.getStringWidth(text) / 1000 * fontSize;
+        if (width > maxWidth && maxWidth > 0) { 
+            String ellipsis = "...";
+            float ellipsisWidth = font.getStringWidth(ellipsis) / 1000 * fontSize;
+        
+            if (maxWidth < ellipsisWidth) {
+                return ""; 
+            }
+            StringBuilder sb = new StringBuilder(text);
+          
+            while (sb.length() > 0) {
+                sb.deleteCharAt(sb.length() - 1);
+                width = font.getStringWidth(sb.toString()) / 1000 * fontSize;
+                if (width + ellipsisWidth <= maxWidth) {
+                    break;
+                }
+            }
+ 
+            if (font.getStringWidth(sb.toString() + ellipsis) / 1000 * fontSize > maxWidth) {
+
+                String temp = "";
+                for(int i = 0; i < sb.length(); i++){
+                    if(font.getStringWidth(temp + sb.charAt(i) + ellipsis) / 1000 * fontSize > maxWidth){
+                        break;
+                    }
+                    temp += sb.charAt(i);
+                }
+                return temp + ellipsis;
+            }
+            return sb.toString() + ellipsis;
+        }
+        return text;
+    }
+
     private record CategoryTotal(Category category, double totalValue) {}
 
     private CategorySummaryDashboardDTO categoryTotalToDashboardDTO(CategoryTotal ct) {
+        Category category = ct.category();
         return new CategorySummaryDashboardDTO(
-            ct.category() != null ? ct.category().getId() : null,
-            ct.category() != null ? ct.category().getName() : "Sem Categoria",
-            ct.totalValue()
+            category != null ? category.getId() : null,
+            category != null ? category.getName() : "Sem Categoria",
+            ct.totalValue(),
+            category != null ? category.getIconClass() : null, 
+            category != null ? category.getColor() : null    
         );
     }
 
     private TransactionDashboardDTO transactionToDashboardDTO(Transaction transaction) {
+        Category category = transaction.getCategory();
+        Subcategory subcategory = transaction.getSubcategory(); 
+
         return new TransactionDashboardDTO(
             transaction.getId(),
             transaction.getName(),
-            transaction.getReleaseDate(),
+            transaction.getReleaseDate(), 
             transaction.getValue(),
             transaction.getType() != null ? transaction.getType().toString() : null,
             transaction.getAccount().getAccountName(),
-            transaction.getCategory() != null ? transaction.getCategory().getName() : null,
-            transaction.getState() != null ? transaction.getState().toString() : null
+            category != null ? category.getName() : null,
+            transaction.getState() != null ? transaction.getState().toString() : null,
+            category != null ? category.getIconClass() : null,  
+            category != null ? category.getColor() : null,        
+            subcategory != null ? subcategory.getName() : null    
         );
     }
     
@@ -360,7 +568,7 @@ public class SummariesServiceImpl implements SummariesService {
         TransactionOrder actualOrder = (order == null) ? TransactionOrder.DATA_EFETIVACAO : order;
         switch (actualOrder) {
             case DATA_EFETIVACAO:
-                return Comparator.comparing(Transaction::getReleaseDate, Comparator.nullsLast(LocalDateTime::compareTo)).reversed();
+                return Comparator.comparing(Transaction::getReleaseDate, Comparator.nullsLast(LocalDateTime::compareTo));
             case DATA_LANCAMENTO:
                 return Comparator.comparing(Transaction::getCreatedAt, Comparator.nullsLast(LocalDateTime::compareTo));
             case CATEGORIA:
