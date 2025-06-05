@@ -6,29 +6,35 @@ import java.util.UUID;
 public record TransactionDashboardDTO(
     UUID transactionId,
     String name,
-    LocalDateTime date,         // Data da transação (que já é o releaseDate na sua implementação)
+    LocalDateTime date,         
     Double value,
+    String state,
     String transactionType,
     String accountName,
+    String accountIconClass, 
+    String accountColor,
     String categoryName,
-    String state,
-    String categoryIconClass, // Novo campo
-    String categoryColor,     // Novo campo
-    String subcategoryName,   // Novo campo
+    String categoryIconClass, 
+    String categoryColor,     
+    String subcategoryName,   
     String itemType
 ) implements DashboardItemDTO {
 
     // Construtor principal para uso no serviço
     public TransactionDashboardDTO(UUID transactionId, String name, LocalDateTime date, Double value, 
-                                   String transactionType, String accountName, String categoryName, String state,
+                                   String transactionType, String state, String accountName, 
+                                   String accountIconClass, String accountColor, String categoryName, 
                                    String categoryIconClass, String categoryColor, String subcategoryName) {
-        this(transactionId, name, date, value, transactionType, accountName, categoryName, state, 
-             categoryIconClass, categoryColor, subcategoryName, "TRANSACTION_DETAIL");
+        this(transactionId, name, date, value, transactionType, state, accountName, 
+            accountIconClass, accountColor, categoryName,  
+            categoryIconClass, categoryColor, subcategoryName, "TRANSACTION_DETAIL");
     }
 
     // Construtor antigo para manter compatibilidade se necessário, mas o novo é preferível
-    public TransactionDashboardDTO(UUID transactionId, String name, LocalDateTime date, Double value, String transactionType, String accountName, String categoryName, String state) {
-        this(transactionId, name, date, value, transactionType, accountName, categoryName, state, null, null, null, "TRANSACTION_DETAIL");
+    public TransactionDashboardDTO(UUID transactionId, String name, LocalDateTime date, 
+                                    Double value, String transactionType, String state, String accountName, String categoryName) {
+        this(transactionId, name, date, value, transactionType, state, 
+            accountName, categoryName, null, null, null, null, null, "TRANSACTION_DETAIL");
     }
 
 

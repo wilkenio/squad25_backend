@@ -169,29 +169,67 @@ public class SummariesServiceImpl implements SummariesService {
                     .filter(t -> t.getUser() != null && currentUser.getId().equals(t.getUser().getId()))
                     .filter(t -> t.getStatus() == Status.SIM) 
                     .filter(t -> t.getAccount() != null && finalAccountIdsForTransactionFilter.contains(t.getAccount().getId())) 
-                    .filter(transaction -> { 
+                    .filter(transaction -> {
                         Category category = transaction.getCategory();
-                        boolean filtroCategoriaReceitaAtivado = Boolean.TRUE.equals(filtro.incluirTodasCategoriasReceita()) ||
-                                                            (filtro.idsCategoriasReceita() != null && !filtro.idsCategoriasReceita().isEmpty());
-                        boolean filtroCategoriaDespesaAtivado = Boolean.TRUE.equals(filtro.incluirTodasCategoriasDespesa()) ||
-                                                            (filtro.idsCategoriasDespesa() != null && !filtro.idsCategoriasDespesa().isEmpty());
-                        if (!filtroCategoriaReceitaAtivado && !filtroCategoriaDespesaAtivado) return true;
-                        if (category == null) return false;
-                        boolean matchesRevenueCriteria = false;
-                        if (filtroCategoriaReceitaAtivado && category.getType() == CategoryType.REVENUE) {
-                            if (Boolean.TRUE.equals(filtro.incluirTodasCategoriasReceita()) || 
-                                (filtro.idsCategoriasReceita() != null && filtro.idsCategoriasReceita().contains(category.getId()))) {
-                                matchesRevenueCriteria = true;
-                            }
+
+                        boolean filtroTodasReceitas = Boolean.TRUE.equals(filtro.incluirTodasCategoriasReceita());
+                        List<UUID> idsCategoriasReceita = filtro.idsCategoriasReceita();
+                        boolean filtroIdsReceitasAtivo = idsCategoriasReceita != null && !idsCategoriasReceita.isEmpty();
+
+                        boolean filtroTodasDespesas = Boolean.TRUE.equals(filtro.incluirTodasCategoriasDespesa());
+                        List<UUID> idsCategoriasDespesa = filtro.idsCategoriasDespesa();
+                        boolean filtroIdsDespesasAtivo = idsCategoriasDespesa != null && !idsCategoriasDespesa.isEmpty();
+
+                        if (!filtroTodasReceitas && !filtroIdsReceitasAtivo && !filtroTodasDespesas && !filtroIdsDespesasAtivo) {
+                            return true;
                         }
-                        boolean matchesExpenseCriteria = false;
-                        if (filtroCategoriaDespesaAtivado && category.getType() == CategoryType.EXPENSE) {
-                            if (Boolean.TRUE.equals(filtro.incluirTodasCategoriasDespesa()) ||
-                                (filtro.idsCategoriasDespesa() != null && filtro.idsCategoriasDespesa().contains(category.getId()))) {
-                                matchesExpenseCriteria = true;
+
+                        if (category == null) {
+                            if (filtroIdsReceitasAtivo || filtroIdsDespesasAtivo) {
+                                return false;
                             }
+
+                            if (filtroTodasReceitas && transaction.getType() == TransactionType.RECEITA) {
+                                return true;
+                            }
+
+                            if (filtroTodasDespesas && transaction.getType() == TransactionType.DESPESA) {
+                                return true;
+                            }
+
+                            return false;
                         }
-                        return matchesRevenueCriteria || matchesExpenseCriteria;
+                        else {
+                            boolean matchesRevenueCriteria = false;
+                        
+                            if (category.getType() == CategoryType.REVENUE) {
+    
+                                if (filtroIdsReceitasAtivo) {
+                                    if (idsCategoriasReceita.contains(category.getId())) {
+                                        matchesRevenueCriteria = true;
+                                    }
+                                }
+
+                                else if (filtroTodasReceitas) {
+                                    matchesRevenueCriteria = true;
+                                }
+                            }
+
+                            boolean matchesExpenseCriteria = false;
+                            if (category.getType() == CategoryType.EXPENSE) {
+                                if (filtroIdsDespesasAtivo) {
+                                    if (idsCategoriasDespesa.contains(category.getId())) {
+                                        matchesExpenseCriteria = true;
+                                    }
+                                }
+
+                                else if (filtroTodasDespesas) {
+                                    matchesExpenseCriteria = true;
+                                }
+                            }
+
+                            return matchesRevenueCriteria || matchesExpenseCriteria;
+                        }
                     })
                     .filter(transaction -> { 
                         Frequency transactionFrequency = transaction.getFrequency();
@@ -546,18 +584,33 @@ public class SummariesServiceImpl implements SummariesService {
     }
 
     private TransactionDashboardDTO transactionToDashboardDTO(Transaction transaction) {
+        Account transactionAccount = transaction.getAccount();
         Category category = transaction.getCategory();
         Subcategory subcategory = transaction.getSubcategory(); 
+
+        String accountIconClassValue = null;
+        String accountColorValue = null;
+
+        if (transactionAccount != null) {
+            Category accountCategory = transactionAccount.getCategory(); // Categoria ASSOCIADA à Conta
+            if (accountCategory != null) {
+                // Presume-se que a entidade Category tem getIconClass() e getColor()
+                accountIconClassValue = accountCategory.getIconClass();
+                accountColorValue = accountCategory.getColor();
+            }
+        }
 
         return new TransactionDashboardDTO(
             transaction.getId(),
             transaction.getName(),
             transaction.getReleaseDate(), 
             transaction.getValue(),
+            transaction.getState() != null ? transaction.getState().toString() : null,
             transaction.getType() != null ? transaction.getType().toString() : null,
             transaction.getAccount().getAccountName(),
+            accountIconClassValue,
+            accountColorValue,
             category != null ? category.getName() : null,
-            transaction.getState() != null ? transaction.getState().toString() : null,
             category != null ? category.getIconClass() : null,  
             category != null ? category.getColor() : null,        
             subcategory != null ? subcategory.getName() : null    

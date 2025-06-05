@@ -17,6 +17,9 @@ Com o Lúmen, você pode:
 ## 🖥️ Front end
 🔗 Acesse o repositório: [Acessar](https://github.com/wilkenio/squad25_frontend.git)
 
+## 📄 Swagger
+🔗 Acesse o swagger: [acessar](https://apisquad25.fourdevs.com.br/swagger-ui/index.html#/)
+
 ---
 
 ## 🧠 Equipe Lúmen
