@@ -55,9 +55,11 @@ public class TransactionServiceImpl implements TransactionService {
         Account account = accountRepository.findById(dto.accountId())
                 .orElseThrow(() -> new EntityNotFoundException("Conta não encontrada com ID: " + dto.accountId()));
 
-        Category category = categoryRepository.findById(dto.categoryId())
+        Category category = null;
+        if (dto.categoryId() != null) {
+            category = categoryRepository.findById(dto.categoryId())
                 .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada com ID: " + dto.categoryId()));
-
+        }
         Subcategory subcategory = null;
         if (dto.subcategoryId() != null) {
             subcategory = subcategoryRepository.findById(dto.subcategoryId())
@@ -298,8 +300,11 @@ public class TransactionServiceImpl implements TransactionService {
         Account account = accountRepository.findById(dto.accountId())
                 .orElseThrow(() -> new EntityNotFoundException("Conta não encontrada"));
 
-        Category category = categoryRepository.findById(dto.categoryId())
-                .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada"));
+        Category category = null;
+        if (dto.categoryId() != null) {
+            category = categoryRepository.findById(dto.categoryId())
+                .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada com ID: " + dto.categoryId()));
+        }
 
         Subcategory subcategory = null;
         if (dto.subcategoryId() != null) {
@@ -331,6 +336,7 @@ public class TransactionServiceImpl implements TransactionService {
         if (transaction.getRecurringGroupId() == null && dto.frequency() == Frequency.REPEAT) {
             UUID groupId = UUID.randomUUID();
             int total = dto.installments();
+            User currentUser = getCurrentUser(); 
 
             transaction.setAccount(account);
             transaction.setCategory(category);
@@ -379,6 +385,7 @@ public class TransactionServiceImpl implements TransactionService {
                 nova.setRecurringGroupId(groupId);
                 nova.setCreatedAt(LocalDateTime.now());
                 nova.setUpdatedAt(LocalDateTime.now());
+                nova.setUser(currentUser);
 
                 transactionRepository.save(nova);
             }
@@ -457,7 +464,9 @@ public class TransactionServiceImpl implements TransactionService {
         if (dto.frequency() == Frequency.NON_RECURRING) {
 
             base.setAccount(accountRepository.findById(dto.accountId()).orElseThrow());
-            base.setCategory(categoryRepository.findById(dto.categoryId()).orElseThrow());
+            base.setCategory(
+                    dto.categoryId() != null ? categoryRepository.findById(dto.categoryId()).orElse(null)
+                            : null);
             base.setSubcategory(
                     dto.subcategoryId() != null ? subcategoryRepository.findById(dto.subcategoryId()).orElse(null)
                             : null);
@@ -495,7 +504,9 @@ public class TransactionServiceImpl implements TransactionService {
 
         for (Transaction t : futuras) {
             t.setAccount(accountRepository.findById(dto.accountId()).orElseThrow());
-            t.setCategory(categoryRepository.findById(dto.categoryId()).orElseThrow());
+            t.setCategory(
+                    dto.categoryId() != null ? categoryRepository.findById(dto.categoryId()).orElse(null)
+                            : null);
             t.setSubcategory(
                     dto.subcategoryId() != null ? subcategoryRepository.findById(dto.subcategoryId()).orElse(null)
                             : null);
@@ -531,10 +542,13 @@ public class TransactionServiceImpl implements TransactionService {
 
         if (atuaisCount < novosTotal) {
             UUID groupId = recurringGroupId;
+            User currentUser = getCurrentUser();
             for (int i = atuaisCount; i < novosTotal; i++) {
                 Transaction nova = new Transaction();
                 nova.setAccount(accountRepository.findById(dto.accountId()).orElseThrow());
-                nova.setCategory(categoryRepository.findById(dto.categoryId()).orElseThrow());
+                nova.setCategory(
+                        dto.categoryId() != null ? categoryRepository.findById(dto.categoryId()).orElse(null)
+                                : null);
                 nova.setSubcategory(
                         dto.subcategoryId() != null ? subcategoryRepository.findById(dto.subcategoryId()).orElse(null)
                                 : null);
@@ -555,6 +569,7 @@ public class TransactionServiceImpl implements TransactionService {
                 nova.setRecurringGroupId(groupId);
                 nova.setCreatedAt(LocalDateTime.now());
                 nova.setUpdatedAt(LocalDateTime.now());
+                nova.setUser(currentUser);
 
                 transactionRepository.save(nova);
             }
