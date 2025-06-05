@@ -247,97 +247,78 @@ public class AccountServiceImpl implements AccountService {
             .collect(Collectors.toList());
     }
 
-private AccountCalculationResponseDTO mapAccountToCalculationResponseDTO(Account acc, Integer year, Integer month) {
-    int effectiveYear = (year != null) ? year : LocalDate.now().getYear();
-    int effectiveMonth = (month != null) ? month : LocalDate.now().getMonthValue();
+    private AccountCalculationResponseDTO mapAccountToCalculationResponseDTO(Account acc, Integer year, Integer month) {
+        int effectiveYear = (year != null) ? year : LocalDate.now().getYear();
+        int effectiveMonth = (month != null) ? month : LocalDate.now().getMonthValue();
 
-    LocalDate firstDayOfCurrentDisplayMonth = LocalDate.of(effectiveYear, effectiveMonth, 1);
+        LocalDate initialDateOfMonth = LocalDate.of(effectiveYear, effectiveMonth, 1);
+        LocalDateTime startDateOfMonth = initialDateOfMonth.atStartOfDay();
+        LocalDateTime endDateOfMonth = initialDateOfMonth.withDayOfMonth(initialDateOfMonth.lengthOfMonth()).atTime(LocalTime.MAX);
 
-    LocalDateTime endOfPreviousMonth = firstDayOfCurrentDisplayMonth.minusDays(1).atTime(LocalTime.MAX);
+        List<Transaction> monthlyTransactions = transactionRepository.findByAccountAndStatusAndReleaseDateBetween(
+                acc, Status.SIM, startDateOfMonth, endDateOfMonth
+        );
 
-    List<Transaction> historicalEffectiveTransactions = transactionRepository.findByAccountAndStatusAndStateAndReleaseDateLessThanEqual(
-            acc, Status.SIM, TransactionState.EFFECTIVE, endOfPreviousMonth
-    );
+        double receitasEfetivasDoMes = 0.0;
+        double despesasEfetivasDoMes = 0.0;
+        double receitasPendentesDoMes = 0.0;
+        double despesasPendentesDoMes = 0.0;
 
-    double totalHistoricalEffectiveIncome = 0.0;
-    double totalHistoricalEffectiveExpense = 0.0;
-
-    for (Transaction t : historicalEffectiveTransactions) {
-
-            if (t.getType() == TransactionType.RECEITA) {
-                totalHistoricalEffectiveIncome += (t.getValue() != null ? t.getValue() : 0.0);
-            } else if (t.getType() == TransactionType.DESPESA) {
-                totalHistoricalEffectiveExpense += (t.getValue() != null ? t.getValue() : 0.0);
-            }
-    }
-
-    Double dtoSaldoInicialDinamico = (acc.getOpeningBalance() != null ? acc.getOpeningBalance() : 0.0);
-
-
-    LocalDate initialDateOfMonth = LocalDate.of(effectiveYear, effectiveMonth, 1);
-    LocalDateTime startDateOfMonth = initialDateOfMonth.atStartOfDay();
-    LocalDateTime endDateOfMonth = initialDateOfMonth.withDayOfMonth(initialDateOfMonth.lengthOfMonth()).atTime(LocalTime.MAX);
-
-    List<Transaction> monthlyTransactions = transactionRepository.findByAccountAndStatusAndReleaseDateBetween(
-            acc, Status.SIM, startDateOfMonth, endDateOfMonth);
-
-    double receitasEfetivasDoMes = 0.0;
-    double despesasEfetivasDoMes = 0.0;
-    double receitasPendentesDoMes = 0.0;
-    double despesasPendentesDoMes = 0.0;
-
-    for (Transaction t : monthlyTransactions) {
-        if (t.getState() == TransactionState.EFFECTIVE) {
-            if (t.getType() == TransactionType.RECEITA) {
-                receitasEfetivasDoMes += (t.getValue() != null ? t.getValue() : 0.0);
-            } else if (t.getType() == TransactionType.DESPESA) {
-                despesasEfetivasDoMes += (t.getValue() != null ? t.getValue() : 0.0);
-            }
-        } else if (t.getState() == TransactionState.PENDING) {
-            if (t.getType() == TransactionType.RECEITA) {
-                receitasPendentesDoMes += (t.getValue() != null ? t.getValue() : 0.0);
-            } else if (t.getType() == TransactionType.DESPESA) {
-                despesasPendentesDoMes += (t.getValue() != null ? t.getValue() : 0.0);
+        for (Transaction t : monthlyTransactions) {
+            if (t.getState() == TransactionState.EFFECTIVE) {
+                if (t.getType() == TransactionType.RECEITA) {
+                    receitasEfetivasDoMes += (t.getValue() != null ? t.getValue() : 0.0);
+                } else if (t.getType() == TransactionType.DESPESA) {
+                    despesasEfetivasDoMes += (t.getValue() != null ? t.getValue() : 0.0);
+                }
+            } else if (t.getState() == TransactionState.PENDING) {
+                if (t.getType() == TransactionType.RECEITA) {
+                    receitasPendentesDoMes += (t.getValue() != null ? t.getValue() : 0.0);
+                } else if (t.getType() == TransactionType.DESPESA) {
+                    despesasPendentesDoMes += (t.getValue() != null ? t.getValue() : 0.0);
+                }
             }
         }
+    
+        Double dtoSaldoInicial = acc.getOpeningBalance() != null ? acc.getOpeningBalance() : 0.0;
+ 
+        Double dtoChequeEspecial = acc.getSpecialCheck() != null ? acc.getSpecialCheck() : 0.0;
+
+        Double dtoReceitasMensaisEfetivas = receitasEfetivasDoMes;
+
+        Double dtoDespesasMensaisEfetivas = despesasEfetivasDoMes;
+        
+        Double dtoTotalReceitasMes = receitasPendentesDoMes;
+
+        Double dtoTotalDespesasMes = despesasPendentesDoMes;
+    
+        Double dtoSaldoCalculadoComBaseNoMes = dtoSaldoInicial + dtoReceitasMensaisEfetivas - dtoDespesasMensaisEfetivas;
+        
+        Double dtoSaldoPrevistoCalculadoComBaseNoMes = dtoSaldoCalculadoComBaseNoMes + dtoChequeEspecial + dtoTotalReceitasMes - dtoTotalDespesasMes;
+        
+        Category category = acc.getCategory();
+        UUID categoryId = category != null ? category.getId() : null;
+        String categoryName = category != null ? category.getName() : null;
+        String iconClass = category != null ? category.getIconClass() : null;
+        String color = category != null ? category.getColor() : null;
+
+        return new AccountCalculationResponseDTO(
+                acc.getId(), categoryId, categoryName, iconClass, color,
+                acc.getAccountName(), acc.getAccountDescription(),
+                
+                dtoSaldoInicial,              
+                dtoChequeEspecial,              
+                
+                dtoReceitasMensaisEfetivas,     
+                dtoDespesasMensaisEfetivas,   
+                
+                dtoTotalReceitasMes,           
+                dtoTotalDespesasMes,           
+                
+                dtoSaldoCalculadoComBaseNoMes,  
+                dtoSaldoPrevistoCalculadoComBaseNoMes 
+        );
     }
-
-    Double dtoReceitasMensaisEfetivas = receitasEfetivasDoMes;
-    Double dtoDespesasMensaisEfetivas = despesasEfetivasDoMes;
-    
-    Double dtoTotalReceitasConsideradasNoMes = receitasPendentesDoMes;
-    Double dtoTotalDespesasConsideradasNoMes = despesasPendentesDoMes;
-    
-    Double specialCheckGeral = acc.getSpecialCheck() != null ? acc.getSpecialCheck() : 0.0;
-
-    Double dtoSaldoMesCorrente = dtoSaldoInicialDinamico + dtoReceitasMensaisEfetivas - dtoDespesasMensaisEfetivas;
-
-    Double dtoSaldoPrevistoMesCorrente = dtoSaldoMesCorrente + specialCheckGeral + dtoTotalReceitasConsideradasNoMes - dtoTotalDespesasConsideradasNoMes;
-
-    Category category = acc.getCategory();
-    UUID categoryId = category != null ? category.getId() : null;
-    String categoryName = category != null ? category.getName() : null;
-    String iconClass = category != null ? category.getIconClass() : null;
-    String color = category != null ? category.getColor() : null;
-
-    return new AccountCalculationResponseDTO(
-            acc.getId(), categoryId, categoryName, iconClass, color,
-            acc.getAccountName(), acc.getAccountDescription(),
-            
-            dtoSaldoInicialDinamico,            
-            specialCheckGeral,                 
-            
-            dtoReceitasMensaisEfetivas,         
-            dtoDespesasMensaisEfetivas,         
-            
-            dtoTotalReceitasConsideradasNoMes,  
-            dtoTotalDespesasConsideradasNoMes,  
-            
-            dtoSaldoMesCorrente,                
-            dtoSaldoPrevistoMesCorrente         
-            
-    );
-}
 
     @Transactional
     public void updateAccountByTransaction(UUID accountId, TransactionType type, Double value, TransactionState transactionState) {
