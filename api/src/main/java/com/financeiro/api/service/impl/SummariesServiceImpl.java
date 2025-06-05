@@ -546,8 +546,21 @@ public class SummariesServiceImpl implements SummariesService {
     }
 
     private TransactionDashboardDTO transactionToDashboardDTO(Transaction transaction) {
+        Account transactionAccount = transaction.getAccount();
         Category category = transaction.getCategory();
         Subcategory subcategory = transaction.getSubcategory(); 
+
+        String accountIconClassValue = null;
+        String accountColorValue = null;
+
+        if (transactionAccount != null) {
+            Category accountCategory = transactionAccount.getCategory(); // Categoria ASSOCIADA à Conta
+            if (accountCategory != null) {
+                // Presume-se que a entidade Category tem getIconClass() e getColor()
+                accountIconClassValue = accountCategory.getIconClass();
+                accountColorValue = accountCategory.getColor();
+            }
+        }
 
         return new TransactionDashboardDTO(
             transaction.getId(),
@@ -555,9 +568,11 @@ public class SummariesServiceImpl implements SummariesService {
             transaction.getReleaseDate(), 
             transaction.getValue(),
             transaction.getType() != null ? transaction.getType().toString() : null,
-            transaction.getAccount().getAccountName(),
-            category != null ? category.getName() : null,
             transaction.getState() != null ? transaction.getState().toString() : null,
+            transaction.getAccount().getAccountName(),
+            accountIconClassValue,
+            accountColorValue,
+            category != null ? category.getName() : null,
             category != null ? category.getIconClass() : null,  
             category != null ? category.getColor() : null,        
             subcategory != null ? subcategory.getName() : null    
