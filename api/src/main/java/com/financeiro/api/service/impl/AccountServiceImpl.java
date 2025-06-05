@@ -251,13 +251,26 @@ public class AccountServiceImpl implements AccountService {
         int effectiveYear = (year != null) ? year : LocalDate.now().getYear();
         int effectiveMonth = (month != null) ? month : LocalDate.now().getMonthValue();
 
+        Double dtoSaldoInicial;
+        LocalDateTime accountCreationDateTime = acc.getCreatedAt();
+        int accountCreationYear = accountCreationDateTime.getYear();
+        int accountCreationMonth = accountCreationDateTime.getMonthValue();
+
+        if (effectiveYear == accountCreationYear && effectiveMonth == accountCreationMonth) {
+            dtoSaldoInicial = acc.getOpeningBalance() != null ? acc.getOpeningBalance() : 0.0;
+        } else if (LocalDate.of(effectiveYear, effectiveMonth, 1).isBefore(LocalDate.of(accountCreationYear, accountCreationMonth, 1))) {
+            dtoSaldoInicial = 0.0;
+        }
+        else {
+            dtoSaldoInicial = 0.0;
+        }
+
         LocalDate initialDateOfMonth = LocalDate.of(effectiveYear, effectiveMonth, 1);
         LocalDateTime startDateOfMonth = initialDateOfMonth.atStartOfDay();
         LocalDateTime endDateOfMonth = initialDateOfMonth.withDayOfMonth(initialDateOfMonth.lengthOfMonth()).atTime(LocalTime.MAX);
 
         List<Transaction> monthlyTransactions = transactionRepository.findByAccountAndStatusAndReleaseDateBetween(
-                acc, Status.SIM, startDateOfMonth, endDateOfMonth
-        );
+                acc, Status.SIM, startDateOfMonth, endDateOfMonth);
 
         double receitasEfetivasDoMes = 0.0;
         double despesasEfetivasDoMes = 0.0;
@@ -279,23 +292,19 @@ public class AccountServiceImpl implements AccountService {
                 }
             }
         }
-    
-        Double dtoSaldoInicial = acc.getOpeningBalance() != null ? acc.getOpeningBalance() : 0.0;
- 
-        Double dtoChequeEspecial = acc.getSpecialCheck() != null ? acc.getSpecialCheck() : 0.0;
-
+  
         Double dtoReceitasMensaisEfetivas = receitasEfetivasDoMes;
-
         Double dtoDespesasMensaisEfetivas = despesasEfetivasDoMes;
         
-        Double dtoTotalReceitasMes = receitasPendentesDoMes;
+        Double dtoTotalReceitasConsideradasNoMes = receitasPendentesDoMes;
+        Double dtoTotalDespesasConsideradasNoMes = despesasPendentesDoMes;
+        
+        Double specialCheckGeral = acc.getSpecialCheck() != null ? acc.getSpecialCheck() : 0.0;
 
-        Double dtoTotalDespesasMes = despesasPendentesDoMes;
-    
         Double dtoSaldoCalculadoComBaseNoMes = dtoSaldoInicial + dtoReceitasMensaisEfetivas - dtoDespesasMensaisEfetivas;
-        
-        Double dtoSaldoPrevistoCalculadoComBaseNoMes = dtoSaldoCalculadoComBaseNoMes + dtoChequeEspecial + dtoTotalReceitasMes - dtoTotalDespesasMes;
-        
+
+        Double dtoSaldoPrevistoCalculadoComBaseNoMes = dtoSaldoCalculadoComBaseNoMes + specialCheckGeral + dtoTotalReceitasConsideradasNoMes - dtoTotalDespesasConsideradasNoMes;
+
         Category category = acc.getCategory();
         UUID categoryId = category != null ? category.getId() : null;
         String categoryName = category != null ? category.getName() : null;
@@ -306,16 +315,16 @@ public class AccountServiceImpl implements AccountService {
                 acc.getId(), categoryId, categoryName, iconClass, color,
                 acc.getAccountName(), acc.getAccountDescription(),
                 
-                dtoSaldoInicial,              
-                dtoChequeEspecial,              
+                dtoSaldoInicial,                 
+                specialCheckGeral,                
                 
-                dtoReceitasMensaisEfetivas,     
-                dtoDespesasMensaisEfetivas,   
+                dtoReceitasMensaisEfetivas,      
+                dtoDespesasMensaisEfetivas,       
                 
-                dtoTotalReceitasMes,           
-                dtoTotalDespesasMes,           
+                dtoTotalReceitasConsideradasNoMes,
+                dtoTotalDespesasConsideradasNoMes,
                 
-                dtoSaldoCalculadoComBaseNoMes,  
+                dtoSaldoCalculadoComBaseNoMes,    
                 dtoSaldoPrevistoCalculadoComBaseNoMes 
         );
     }
