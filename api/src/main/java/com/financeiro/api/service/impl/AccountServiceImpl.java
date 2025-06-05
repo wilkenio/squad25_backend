@@ -269,12 +269,9 @@ private AccountCalculationResponseDTO mapAccountToCalculationResponseDTO(Account
             } else if (t.getType() == TransactionType.DESPESA) {
                 totalHistoricalEffectiveExpense += (t.getValue() != null ? t.getValue() : 0.0);
             }
-        // }
     }
 
-    Double dtoSaldoInicialDinamico = (acc.getOpeningBalance() != null ? acc.getOpeningBalance() : 0.0) +
-                                   totalHistoricalEffectiveIncome -
-                                   totalHistoricalEffectiveExpense;
+    Double dtoSaldoInicialDinamico = (acc.getOpeningBalance() != null ? acc.getOpeningBalance() : 0.0);
 
 
     LocalDate initialDateOfMonth = LocalDate.of(effectiveYear, effectiveMonth, 1);
@@ -308,14 +305,14 @@ private AccountCalculationResponseDTO mapAccountToCalculationResponseDTO(Account
     Double dtoReceitasMensaisEfetivas = receitasEfetivasDoMes;
     Double dtoDespesasMensaisEfetivas = despesasEfetivasDoMes;
     
-    Double dtoTotalReceitasConsideradasNoMes = receitasEfetivasDoMes + receitasPendentesDoMes;
-    Double dtoTotalDespesasConsideradasNoMes = despesasEfetivasDoMes + despesasPendentesDoMes;
+    Double dtoTotalReceitasConsideradasNoMes = receitasPendentesDoMes;
+    Double dtoTotalDespesasConsideradasNoMes = despesasPendentesDoMes;
     
     Double specialCheckGeral = acc.getSpecialCheck() != null ? acc.getSpecialCheck() : 0.0;
 
     Double dtoSaldoMesCorrente = dtoSaldoInicialDinamico + dtoReceitasMensaisEfetivas - dtoDespesasMensaisEfetivas;
 
-    Double dtoSaldoPrevistoMesCorrente = dtoSaldoInicialDinamico + specialCheckGeral + dtoTotalReceitasConsideradasNoMes - dtoTotalDespesasConsideradasNoMes;
+    Double dtoSaldoPrevistoMesCorrente = dtoSaldoMesCorrente + specialCheckGeral + dtoTotalReceitasConsideradasNoMes - dtoTotalDespesasConsideradasNoMes;
 
     Category category = acc.getCategory();
     UUID categoryId = category != null ? category.getId() : null;
